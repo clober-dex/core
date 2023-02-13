@@ -25,16 +25,14 @@ const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
 
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
-  ;['config', 'dev-deploy', 'utils', 'view', 'prod-deploy'].forEach(
-    (folder) => {
-      const tasksPath = path.join(__dirname, 'task', folder)
-      fs.readdirSync(tasksPath)
-        .filter((pth) => pth.includes('.ts'))
-        .forEach((task) => {
-          require(`${tasksPath}/${task}`)
-        })
-    },
-  )
+  ;['config', 'dev-deploy', 'utils', 'prod-deploy'].forEach((folder) => {
+    const tasksPath = path.join(__dirname, 'task', folder)
+    fs.readdirSync(tasksPath)
+      .filter((pth) => pth.includes('.ts'))
+      .forEach((task) => {
+        require(`${tasksPath}/${task}`)
+      })
+  })
 }
 
 let privateKey: string
