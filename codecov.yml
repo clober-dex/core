@@ -1,0 +1,18 @@
+ignore:
+  - "contracts/markets/ArithmeticPriceBook.sol"
+  - "contracts/markets/GeometricPriceBook.sol"
+  - "contracts/interfaces"
+  - "contracts/mocks"
+  - "contracts/utils"
+  - "test"
+
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: null
+    patch:
+      default:
+        target: 80%
+        threshold: null

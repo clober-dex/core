@@ -1,0 +1,456 @@
+name: Clober DEX CI
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  hardhat-tests:
+    name: Hardhat Contract CI
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Hardhat test
+        run: npm run test:hardhat
+
+  foundry-unit-tests:
+    name: Forge Unit Tests
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+      - name: Foundry Forge test
+        run: npm run test:unit:forge
+
+  foundry-limit-tests:
+    name: Forge Integration Tests for Limit
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+      - name: Foundry Forge test
+        run: npm run test:limit:forge
+
+  foundry-market-tests:
+    name: Forge Integration Tests for Market
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+      - name: Foundry Forge test
+        run: npm run test:market:forge
+
+  foundry-claim-tests:
+    name: Forge Integration Tests for Claim
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+      - name: Foundry Forge test
+        run: npm run test:claim:forge
+
+  foundry-cancel-tests:
+    name: Forge Integration Tests for Cancel
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+      - name: Foundry Forge test
+        run: npm run test:cancel:forge
+
+  foundry-gas-diff:
+    name: Foundry Gas Report
+    runs-on: ubuntu-20.04
+    env:
+      EMPTY_MESSAGE: No longer impact gas costs
+      SEED: ed2eb01c00
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Set Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 13
+      - name: Foundry Gas Report
+        run: npm run test:gasreport
+        env:
+          FOUNDRY_FUZZ_SEED: 0x${{ env.SEED }}
+      - name: Compare gas reports
+        uses: Rubilmax/foundry-gas-diff@v3.11
+        with:
+          summaryQuantile: 0.9
+          sortCriteria: avg,max
+          sortOrders: desc,asc
+          ignore: test/foundry/**/*.sol,contracts/*.sol,contracts/mocks/*.sol,contracts/utils/*.sol,contracts/markets/*.sol
+        id: gas_diff
+      - name: Add gas diff to sticky comment
+        if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          hide_and_recreate: true
+          hide_classify: "OUTDATED"
+          message: |
+            Test with ${{ github.sha }}.
+            - EHET : Empty heap with empty segment tree
+            - EHDT : Empty heap with dirty segment tree
+            - FHET : Filled heap with empty segment tree
+            - FHFT : Filled heap with filled segment tree
+            ${{ steps.gas_diff.outputs.markdown || env.EMPTY_MESSAGE }}
+
+  foundry-coverage:
+    name: Foundry Forge Coverage CI
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Install Forge
+        run: forge install
+      - name: Foundry Forge coverage
+        run: npm run coverage:forge
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: lcov.info
+
+  check-lint:
+    name: Check TS & Solidity lint
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [ '18.10' ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.CI_GITHUB_TOKEN }}
+      - name: Configure Git
+        run: git config --global --add url."https://${{ secrets.CI_GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+      - name: Install Dependencies
+        run: npm install --ignore-scripts
+      - name: Check Ts Style
+        run: npm run prettier:ts
+      - name: Check Solidity Style
+        run: npm run lint:sol

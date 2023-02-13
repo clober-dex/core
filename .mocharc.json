@@ -1,0 +1,5 @@
+{
+  "require": "hardhat/register",
+  "timeout": 40000000,
+  "exit": true
+}

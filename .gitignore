@@ -1,0 +1,32 @@
+*.ansi
+lcov.info
+docs/
+
+test/foundry/script/*.txt
+test/foundry/script/*.json
+__pycache__/
+
+node_modules
+.env
+coverage
+coverage.json
+
+#Hardhat files
+cache
+artifacts
+typechain/
+
+.idea/
+.DS_Store
+abi/
+types/
+.vscode/
+
+#vim
+**/.*.swp
+
+clober-*-key.json
+
+#Foundry files
+out/
+forge-cache

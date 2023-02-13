@@ -1,0 +1,7 @@
+{
+  "OrderCanceler": "0x9907F2304C0Af3291cCF1c5fe6472aD961E6AB50",
+  "VolatileMarketDeployer": "0x475f1E1dBA9863D0b9588B2FA72440C00e0478F7",
+  "StableMarketDeployer": "0xBF8BE63e60719bFc66De2c27Df60Bdb3213C3059",
+  "MarketFactory": "0x3fEdC9D6A7f1e7D18e7F108bF302f6315E3691E4",
+  "MarketRouter": "0xF6505239efAbbedb8b1fE6A1080Ef9Af98dBFDb9"
+}
