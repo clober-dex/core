@@ -322,6 +322,32 @@ export const marketConfigs: MarketConfigs = {
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
       address: '0xE2733C676b2627599576f1C967D14661246f2B53',
     },
+    {
+      name: 'WETH/cUSD-volatile1',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xE2Bb266419E64680Cb90E4AF3e4781A52C95693b', // WETH
+      quoteUnit: BigNumber.from('1000'),
+      makeFee: -200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0x5BDA9de538657b51eaFaE40c70a46042fDD68529',
+    },
+    {
+      name: 'WETH/cUSD-volatile2',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xE2Bb266419E64680Cb90E4AF3e4781A52C95693b', // WETH
+      quoteUnit: BigNumber.from('10000'),
+      makeFee: 200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0xD6C6556929D3D1886df6da5C4fA288AA06Acc2ee',
+    },
   ],
   [NETWORK.ETHEREUM]: [
     {
