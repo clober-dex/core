@@ -269,6 +269,60 @@ export const marketConfigs: MarketConfigs = {
       address: '0xff26958F6d527E788fd787443c903F30C4D74772',
     },
   ],
+  [NETWORK.POLYGON_ZK_MANGO]: [
+    {
+      name: 'DAI/cUSD-stable1',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.STABLE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xffe9A0f61F55b6fB8b88aecbdE698A5ef1495E5E', // DAI
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -40,
+      takeFee: 60,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0x01eC019Fe29c7202da5cF47032e1B690466944a9',
+    },
+    {
+      name: 'DAI/cUSD-stable2',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.STABLE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xffe9A0f61F55b6fB8b88aecbdE698A5ef1495E5E', // DAI
+      quoteUnit: BigNumber.from('10'),
+      makeFee: 40,
+      takeFee: 60,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0xbb6Afd9D2f3F4629CA16a044DC42c7d94cf832D8',
+    },
+    {
+      name: 'CLOB/cUSD-volatile1',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xaF08CE077578374799C918A5a8DA7BEc5298BCED', // CLOB
+      quoteUnit: BigNumber.from('1000'),
+      makeFee: -200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0x7BEa00eBccb8F0D211493175Db8A4D24C16aCAFF',
+    },
+    {
+      name: 'CLOB/cUSD-volatile2',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: '0xE457d3A17CD8528259fcdB3DcE43c6877f5c8F8a', // cUSD
+      baseToken: '0xaF08CE077578374799C918A5a8DA7BEc5298BCED', // CLOB
+      quoteUnit: BigNumber.from('10000'),
+      makeFee: 200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0xE2733C676b2627599576f1C967D14661246f2B53',
+    },
+  ],
   [NETWORK.ETHEREUM]: [
     {
       name: 'WETH/USDC',

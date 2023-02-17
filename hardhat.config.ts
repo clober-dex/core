@@ -193,6 +193,23 @@ const config: HardhatConfig = {
       tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
+    [NETWORK.POLYGON_ZK_MANGO]: {
+      url: 'https://rpc.public.zkevm-test.net',
+      chainId: CHAINID.POLYGON_ZK_MANGO,
+      accounts:
+        process.env.DEV_PRIVATE_KEY !== undefined
+          ? [process.env.DEV_PRIVATE_KEY]
+          : [],
+      gas: 'auto',
+      gasPrice: 3300000000,
+      gasMultiplier: 1,
+      timeout: 3000000,
+      httpHeaders: {},
+      live: true,
+      saveDeployments: true,
+      tags: ['testnet', 'dev'],
+      companionNetworks: {},
+    },
     [NETWORK.HARDHAT]: {
       chainId: CHAINID.HARDHAT,
       gas: 20000000,

@@ -16,6 +16,7 @@ export const NETWORK = {
   OPTIMISM: 'optimism',
   ARBITRUM: 'arbitrum',
   ARBITRUM_GOERLI_DEV: 'arbitrum_goerli_dev',
+  POLYGON_ZK_MANGO: 'polygon_zk_mango',
 } as const
 
 export const CHAINID = {
@@ -35,6 +36,7 @@ export const CHAINID = {
   OPTIMISM: 10,
   ARBITRUM: 42161,
   ARBITRUM_GOERLI: 421613,
+  POLYGON_ZK_MANGO: 1422,
 } as const
 
 export const MARKET_TYPE = {
