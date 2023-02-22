@@ -351,17 +351,17 @@ export const marketConfigs: MarketConfigs = {
   ],
   [NETWORK.ZKSYNC_GOERLI_DEV]: [
     {
-      name: 'ETH/USDC',
+      name: 'WETH/USDC',
       host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[NETWORK.ZKSYNC_GOERLI_DEV].USDC,
-      baseToken: TOKEN[NETWORK.ZKSYNC_GOERLI_DEV].DAI,
+      baseToken: TOKEN[NETWORK.ZKSYNC_GOERLI_DEV].WETH,
       quoteUnit: BigNumber.from('1'),
       makeFee: -100,
       takeFee: 500,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x0ebA3262Fd57EeeD98FB7A241D64289228A6d254',
+      address: '0x536790CcB1FA5ee19645031570C1642Be2Bdd1c8',
     },
     {
       name: 'DAI/USDC',
