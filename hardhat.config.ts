@@ -18,8 +18,7 @@ import 'solidity-coverage'
 dotenv.config()
 
 import { HardhatConfig } from 'hardhat/types'
-
-import { CHAINID, NETWORK } from './utils/constant'
+import { arbitrum, hardhat, mainnet, polygon } from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
 
@@ -41,15 +40,11 @@ const getMainnetPrivateKey = () => {
   let network
   for (const [i, arg] of Object.entries(process.argv)) {
     if (arg === '--network') {
-      network = process.argv[parseInt(i) + 1]
+      network = parseInt(process.argv[parseInt(i) + 1])
     }
   }
 
-  const prodNetworks = new Set<string>([
-    NETWORK.ETHEREUM,
-    NETWORK.POLYGON,
-    NETWORK.ARBITRUM,
-  ])
+  const prodNetworks = new Set<number>([mainnet.id, polygon.id, arbitrum.id])
   if (network && prodNetworks.has(network)) {
     if (privateKey) {
       return privateKey
@@ -100,9 +95,9 @@ const config: HardhatConfig = {
   },
   defaultNetwork: 'hardhat',
   networks: {
-    [NETWORK.ETHEREUM]: {
-      url: process.env.ETHEREUM_NODE_URL ?? '',
-      chainId: CHAINID.ETHEREUM,
+    [mainnet.id]: {
+      url: mainnet.rpcUrls.default.http[0],
+      chainId: mainnet.id,
       accounts: [getMainnetPrivateKey()],
       gas: 'auto',
       gasPrice: 'auto',
@@ -114,9 +109,9 @@ const config: HardhatConfig = {
       tags: ['mainnet', 'prod'],
       companionNetworks: {},
     },
-    [NETWORK.POLYGON]: {
-      url: process.env.POLYGON_NODE_URL ?? '',
-      chainId: CHAINID.POLYGON,
+    [polygon.id]: {
+      url: polygon.rpcUrls.default.http[0],
+      chainId: polygon.id,
       accounts: [getMainnetPrivateKey()],
       gas: 'auto',
       gasPrice: 'auto',
@@ -128,9 +123,9 @@ const config: HardhatConfig = {
       tags: ['mainnet', 'prod'],
       companionNetworks: {},
     },
-    [NETWORK.ARBITRUM]: {
-      url: process.env.ARBITRUM_NODE_URL ?? '',
-      chainId: CHAINID.ARBITRUM,
+    [arbitrum.id]: {
+      url: arbitrum.rpcUrls.default.http[0],
+      chainId: arbitrum.id,
       accounts: [getMainnetPrivateKey()],
       gas: 'auto',
       gasPrice: 'auto',
@@ -142,60 +137,10 @@ const config: HardhatConfig = {
       tags: ['mainnet', 'prod'],
       companionNetworks: {},
     },
-    [NETWORK.GOERLI_DEV]: {
-      url: process.env.GOERLI_NODE_URL ?? '',
-      chainId: CHAINID.GOERLI,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
-      gas: 'auto',
-      gasPrice: 'auto',
-      gasMultiplier: 1,
-      timeout: 3000000,
-      httpHeaders: {},
-      live: true,
-      saveDeployments: true,
-      tags: ['testnet', 'dev'],
-      companionNetworks: {},
-    },
-    [NETWORK.POLYGON_DEV]: {
-      url: process.env.POLYGON_NODE_URL ?? '',
-      chainId: CHAINID.POLYGON,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
-      gas: 'auto',
-      gasPrice: 'auto',
-      gasMultiplier: 1,
-      timeout: 3000000,
-      httpHeaders: {},
-      live: true,
-      saveDeployments: true,
-      tags: ['mainnet', 'dev'],
-      companionNetworks: {},
-    },
-    [NETWORK.ARBITRUM_GOERLI_DEV]: {
-      url: process.env.ARBITRUM_GOERLI_NODE_URL ?? '',
-      chainId: CHAINID.ARBITRUM_GOERLI,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
-      gas: 'auto',
-      gasPrice: 'auto',
-      gasMultiplier: 1,
-      timeout: 3000000,
-      httpHeaders: {},
-      live: true,
-      saveDeployments: true,
-      tags: ['testnet', 'dev'],
-      companionNetworks: {},
-    },
-    [NETWORK.POLYGON_ZK_MANGO]: {
+    // TODO: use `@wagmi/chains`
+    [1422]: {
       url: 'https://rpc.public.zkevm-test.net',
-      chainId: CHAINID.POLYGON_ZK_MANGO,
+      chainId: 1422,
       accounts:
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
@@ -210,8 +155,8 @@ const config: HardhatConfig = {
       tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
-    [NETWORK.HARDHAT]: {
-      chainId: CHAINID.HARDHAT,
+    [hardhat.id]: {
+      chainId: hardhat.id,
       gas: 20000000,
       gasPrice: 250000000000,
       gasMultiplier: 1,
