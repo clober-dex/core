@@ -18,7 +18,7 @@ import 'solidity-coverage'
 dotenv.config()
 
 import { HardhatConfig } from 'hardhat/types'
-import { arbitrum, hardhat, localhost, mainnet, polygon } from '@wagmi/chains'
+import { arbitrum, localhost, mainnet, polygon } from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
 
@@ -155,7 +155,7 @@ const config: HardhatConfig = {
       tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
-    [localhost.id]: {
+    ['hardhat']: {
       chainId: localhost.id,
       gas: 20000000,
       gasPrice: 250000000000,
