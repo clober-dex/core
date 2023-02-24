@@ -155,7 +155,7 @@ const config: HardhatConfig = {
       tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
-    ['hardhat']: {
+    hardhat: {
       chainId: localhost.id,
       gas: 20000000,
       gasPrice: 250000000000,
