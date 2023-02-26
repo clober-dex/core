@@ -145,8 +145,8 @@ const config: HardhatConfig = {
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
           : [],
-      gas: 'auto',
-      gasPrice: 3300000000,
+      gas: 7800000,
+      gasPrice: 3500000000,
       gasMultiplier: 1,
       timeout: 3000000,
       httpHeaders: {},
