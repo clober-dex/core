@@ -1,7 +1,6 @@
 import { BigNumber, BigNumberish, utils } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-
-import { NETWORK } from './constant'
+import { hardhat } from '@wagmi/chains'
 
 let HRE: HardhatRuntimeEnvironment | undefined
 export const getHRE = (): HardhatRuntimeEnvironment => {
@@ -12,7 +11,7 @@ export const getHRE = (): HardhatRuntimeEnvironment => {
 }
 
 export const liveLog = (str: string): void => {
-  if (getHRE().network.name !== NETWORK.HARDHAT) {
+  if (getHRE().network.name !== hardhat.name) {
     console.log(str)
   }
 }
