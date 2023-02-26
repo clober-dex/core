@@ -43,7 +43,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0x01eC019Fe29c7202da5cF47032e1B690466944a9',
+      address: '0x52585B16a787DF763b93f59a0074EB42Fe18E510',
     },
     {
       name: 'CLOB/cUSD-volatile',
@@ -51,12 +51,12 @@ export const marketConfigs: MarketConfigs = {
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[1422].CUSD, // cUSD
       baseToken: TOKEN[1422].CLOB, // CLOB
-      quoteUnit: BigNumber.from('1000'),
+      quoteUnit: BigNumber.from('1'),
       makeFee: -200,
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x7BEa00eBccb8F0D211493175Db8A4D24C16aCAFF',
+      address: '0x54939E3deB2f27E17e3cC9fBA7CF2E8E34E0F063',
     },
   ],
   [zkSyncTestnet.id]: [
