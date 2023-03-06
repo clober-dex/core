@@ -22,6 +22,13 @@ import { arbitrum, localhost, mainnet, polygon } from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
 
+const networkInfos = require('@wagmi/chains')
+const chainIdMap: { [key: string]: string } = {}
+for (const [networkName, networkInfo] of Object.entries(networkInfos)) {
+  // @ts-ignore
+  chainIdMap[networkInfo.id] = networkName
+}
+
 // Prevent to load scripts before compilation and typechain
 if (!SKIP_LOAD) {
   ;['config', 'dev-deploy', 'utils', 'prod-deploy'].forEach((folder) => {
@@ -41,6 +48,11 @@ const getMainnetPrivateKey = () => {
   for (const [i, arg] of Object.entries(process.argv)) {
     if (arg === '--network') {
       network = parseInt(process.argv[parseInt(i) + 1])
+      if (network.toString() in chainIdMap) {
+        console.log(
+          `You are trying to use ${chainIdMap[network.toString()]} network`,
+        )
+      }
     }
   }
 
