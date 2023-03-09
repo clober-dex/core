@@ -43,7 +43,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0x09d18A3053a28260e513bd44505d6027e71bc639',
+      address: '0xA91326B66cc05A31Ad2097A94CB76455BC5aA20b',
     },
     {
       name: 'CLOB/cUSD-volatile',
@@ -56,7 +56,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x9ae760D2fFc7445535E211130c445c8EC29b499A',
+      address: '0x88A62426fE0D591BC647184FD6388b8668733ad2',
     },
   ],
   [zkSyncTestnet.id]: [
