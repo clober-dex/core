@@ -49,9 +49,14 @@ const getMainnetPrivateKey = () => {
     if (arg === '--network') {
       network = parseInt(process.argv[parseInt(i) + 1])
       if (network.toString() in chainIdMap) {
-        console.log(
-          `You are trying to use ${chainIdMap[network.toString()]} network`,
+        const ok = readlineSync.question(
+          `You are trying to use ${
+            chainIdMap[network.toString()]
+          } network [Y/n] :`,
         )
+        if (ok !== 'Y') {
+          throw new Error('Network not allowed')
+        }
       }
     }
   }
