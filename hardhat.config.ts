@@ -155,9 +155,9 @@ const config: HardhatConfig = {
       companionNetworks: {},
     },
     // TODO: use `@wagmi/chains`
-    [1422]: {
+    [1442]: {
       url: 'https://rpc.public.zkevm-test.net',
-      chainId: 1422,
+      chainId: 1442,
       accounts:
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
