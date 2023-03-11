@@ -114,6 +114,19 @@ export const marketConfigs: MarketConfigs = {
       d: BigNumber.from(10).pow(14),
       address: '0x1c230Df6364af81d1585C3B3e6aC5aaD2daD9bD9',
     },
+    {
+      name: 'USDC/USDT',
+      host: CLOBER_ADMIN[mainnet.id],
+      type: MARKET_TYPE.STABLE,
+      quoteToken: TOKEN[mainnet.id].USDT,
+      baseToken: TOKEN[mainnet.id].USDC,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -10,
+      takeFee: 90,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0xb853dB46f47FEBC24E1493573f2d7A195635CCf8',
+    },
   ],
   [polygon.id]: [
     {
@@ -155,6 +168,20 @@ export const marketConfigs: MarketConfigs = {
       d: BigNumber.from(10).pow(14),
       address: '0x4457d03FE38a8CE83591bc09eF5B4085b9c38117',
     },
+
+    {
+      name: 'USDC/USDT',
+      host: CLOBER_ADMIN[polygon.id],
+      type: MARKET_TYPE.STABLE,
+      quoteToken: TOKEN[polygon.id].USDT,
+      baseToken: TOKEN[polygon.id].USDC,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -10,
+      takeFee: 90,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0x8be0921EaE1C60AE2a9f6c198b87F6E28AA4cdb9',
+    },
   ],
   [arbitrum.id]: [
     {
@@ -182,6 +209,19 @@ export const marketConfigs: MarketConfigs = {
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
       address: '0x02F4DC911919AcB274ceA42DfEb3481C88E4D330',
+    },
+    {
+      name: 'USDC/USDT',
+      host: CLOBER_ADMIN[arbitrum.id],
+      type: MARKET_TYPE.STABLE,
+      quoteToken: TOKEN[arbitrum.id].USDT,
+      baseToken: TOKEN[arbitrum.id].USDC,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -10,
+      takeFee: 90,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0x2639a9b9C2627c0B65a0E7AC26a197FdbAE26e26',
     },
   ],
 }
