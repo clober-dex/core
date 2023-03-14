@@ -1,4 +1,10 @@
-import { arbitrum, mainnet, polygon, zkSyncTestnet } from '@wagmi/chains'
+import {
+  arbitrum,
+  arbitrumGoerli,
+  mainnet,
+  polygon,
+  zkSyncTestnet,
+} from '@wagmi/chains'
 
 export const MARKET_TYPE = {
   NONE: 0,
@@ -43,10 +49,11 @@ export const TOKEN = {
     USDC: '0x0faF6df7054946141266420b43783387A78d82A9',
     DAI: '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
   },
-  [zkSyncTestnet.id]: {
-    WETH: '0x4F0577E9684e5e7c0A87e35f2b6EA88bb14E3be4',
-    USDC: '0x0faF6df7054946141266420b43783387A78d82A9',
-    DAI: '0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b',
+  [arbitrumGoerli.id]: {
+    WETH: '0xe39Ab88f8A4777030A534146A9Ca3B52bd5D43A3',
+    CUSD: '0xf3F8E2d3ab08BD619A794A85626970731c4174aA',
+    DAI: '0x57710D5CBF5231D6c7ED7ca3E6D4132D95AE7d96',
+    CLOB: '0x5E86396Bb0eC915c2ab1980d9453Fa8924803223',
   },
   // TODO: use `@wagmi/chain`
   [1442]: {

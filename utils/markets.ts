@@ -1,5 +1,11 @@
 import { BigNumber } from 'ethers'
-import { arbitrum, mainnet, polygon, zkSyncTestnet } from '@wagmi/chains'
+import {
+  arbitrum,
+  arbitrumGoerli,
+  mainnet,
+  polygon,
+  zkSyncTestnet,
+} from '@wagmi/chains'
 
 import { CLOBER_ADMIN, MARKET_TYPE, TOKEN } from './constant'
 
@@ -222,6 +228,47 @@ export const marketConfigs: MarketConfigs = {
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
       address: '0x2639a9b9C2627c0B65a0E7AC26a197FdbAE26e26',
+    },
+  ],
+  [arbitrumGoerli.id]: [
+    {
+      name: 'WETH/USDC-volatile',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[arbitrumGoerli.id].CUSD,
+      baseToken: TOKEN[arbitrumGoerli.id].WETH,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0x96439d7A5Af93546A2955DC25DD0C439cc79d80c',
+    },
+    {
+      name: 'DAI/cUSD-stable',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.STABLE,
+      quoteToken: TOKEN[arbitrumGoerli.id].CUSD,
+      baseToken: TOKEN[arbitrumGoerli.id].DAI,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -40,
+      takeFee: 60,
+      a: BigNumber.from(10).pow(14),
+      d: BigNumber.from(10).pow(14),
+      address: '0x7AEE813c627CBA5E3A2728F6F7F43E2A028d083F',
+    },
+    {
+      name: 'CLOB/cUSD-volatile',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[arbitrumGoerli.id].CUSD,
+      baseToken: TOKEN[arbitrumGoerli.id].CLOB,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -200,
+      takeFee: 400,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0xfCf0b6D6153Ad9f25995c64c28b497ab27Be7FEd',
     },
   ],
 }
