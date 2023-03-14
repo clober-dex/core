@@ -18,7 +18,13 @@ import 'solidity-coverage'
 dotenv.config()
 
 import { HardhatConfig } from 'hardhat/types'
-import { arbitrum, localhost, mainnet, polygon } from '@wagmi/chains'
+import {
+  arbitrum,
+  arbitrumGoerli,
+  localhost,
+  mainnet,
+  polygon,
+} from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
 
@@ -152,6 +158,23 @@ const config: HardhatConfig = {
       live: true,
       saveDeployments: true,
       tags: ['mainnet', 'prod'],
+      companionNetworks: {},
+    },
+    [arbitrumGoerli.id]: {
+      url: arbitrumGoerli.rpcUrls.default.http[0],
+      chainId: arbitrumGoerli.id,
+      accounts:
+        process.env.DEV_PRIVATE_KEY !== undefined
+          ? [process.env.DEV_PRIVATE_KEY]
+          : [],
+      gas: 'auto',
+      gasPrice: 'auto',
+      gasMultiplier: 1,
+      timeout: 3000000,
+      httpHeaders: {},
+      live: true,
+      saveDeployments: true,
+      tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
     // TODO: use `@wagmi/chains`
