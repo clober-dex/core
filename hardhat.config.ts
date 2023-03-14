@@ -48,17 +48,18 @@ if (!SKIP_LOAD) {
 }
 
 let privateKey: string
+let ok: string
 
 const getMainnetPrivateKey = () => {
   let network
   for (const [i, arg] of Object.entries(process.argv)) {
     if (arg === '--network') {
       network = parseInt(process.argv[parseInt(i) + 1])
-      if (network.toString() in chainIdMap) {
-        const ok = readlineSync.question(
+      if (network.toString() in chainIdMap && ok !== 'Y') {
+        ok = readlineSync.question(
           `You are trying to use ${
             chainIdMap[network.toString()]
-          } network [Y/n] :`,
+          } network [Y/n] : `,
         )
         if (ok !== 'Y') {
           throw new Error('Network not allowed')
