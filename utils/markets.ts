@@ -191,6 +191,19 @@ export const marketConfigs: MarketConfigs = {
   ],
   [arbitrum.id]: [
     {
+      name: 'ARB/USDC',
+      host: CLOBER_ADMIN[arbitrum.id],
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[arbitrum.id].USDC,
+      baseToken: TOKEN[arbitrum.id].ARB,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: -1500,
+      takeFee: 2000,
+      a: BigNumber.from(10).pow(10),
+      r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
+      address: '0xE462374433029Bf889532F7fd3692ccAB736a559',
+    },
+    {
       name: 'ARB$0_5PUT/USDC',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
