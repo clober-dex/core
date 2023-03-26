@@ -39,7 +39,7 @@ export const marketConfigs: MarketConfigs = {
   // TODO: use `@wagmi/chain`
   [1442]: [
     {
-      name: 'DAI/cUSD-stable',
+      name: 'DAI/cUSD',
       host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[1442].CUSD, // cUSD
@@ -49,10 +49,10 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0xA91326B66cc05A31Ad2097A94CB76455BC5aA20b',
+      address: '0xF65DBd02D15b944D19dC809951821FFba7A18Ee8',
     },
     {
-      name: 'CLOB/cUSD-volatile',
+      name: 'CLOB/cUSD',
       host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[1442].CUSD, // cUSD
@@ -62,7 +62,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x88A62426fE0D591BC647184FD6388b8668733ad2',
+      address: '0xbd3fd3219790508709fed95C635e49Eba94169e7',
     },
   ],
   [zkSyncTestnet.id]: [
