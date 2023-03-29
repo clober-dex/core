@@ -3,11 +3,13 @@ on:
   pull_request:
     branches:
       - main
-      - dev
+    paths:
+      - '**/*.sol'
   push:
     branches:
       - main
-      - dev
+    paths:
+      - '**/*.sol'
 
 jobs:
   hardhat-tests:
