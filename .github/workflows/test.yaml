@@ -5,11 +5,13 @@ on:
       - main
     paths:
       - '**/*.sol'
+      - 'test/**/*.ts'
   push:
     branches:
       - main
     paths:
       - '**/*.sol'
+      - 'test/**/*.ts'
 
 jobs:
   hardhat-tests:
