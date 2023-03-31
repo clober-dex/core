@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  clober-template:
+  pr-checker:
     runs-on: ubuntu-latest
     steps:
       - uses: mtfoley/pr-compliance-action@main
