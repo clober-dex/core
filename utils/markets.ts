@@ -333,7 +333,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x96439d7A5Af93546A2955DC25DD0C439cc79d80c',
+      address: '0xcB76Fa19887446CC041fDe163e1e4023f1F3ade5',
     },
     {
       name: 'DAI/cUSD-stable',
@@ -346,7 +346,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0x7AEE813c627CBA5E3A2728F6F7F43E2A028d083F',
+      address: '0xa1e0fa6e60606DF3518A59b1c71DAd8E888D95E8',
     },
     {
       name: 'CLOB/cUSD-volatile',
@@ -359,7 +359,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0xfCf0b6D6153Ad9f25995c64c28b497ab27Be7FEd',
+      address: '0x76a913f71282fD2EEe35c5812Db9E961a5a90829',
     },
   ],
 }
