@@ -74,10 +74,10 @@ contract GeometricPriceBookUnitTest is Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         priceBook.priceToIndex(A - 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128((maxPrice * R) / (10**18) + 1), true);
+        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128((maxPrice * R) / (10**18) + 1), false);
+        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128(maxPrice + 1), true);
+        priceBook.priceToIndex(maxPrice + 1, true);
     }
 }
