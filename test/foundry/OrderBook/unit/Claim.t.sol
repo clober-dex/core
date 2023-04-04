@@ -14,8 +14,6 @@ import "../../../../contracts/MarketFactory.sol";
 import "../utils/MockingFactoryTest.sol";
 import "./Constants.sol";
 
-import "forge-std/console.sol";
-
 contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, MockingFactoryTest {
     using OrderKeyUtils for OrderKey;
     event ClaimOrder(
