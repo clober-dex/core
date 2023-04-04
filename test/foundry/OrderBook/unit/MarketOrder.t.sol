@@ -415,7 +415,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(outputAmount, 0, "ERROR_AMOUNT_OUT");
     }
 
-    function testTradeLogWithBid() public {
+    function testTradeLogWithBidsInSameBlocks() public {
         _createOrderBook(0, 0);
 
         _createPostOnlyOrder(Constants.ASK);
@@ -459,8 +459,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
     }
 
-    function testTradeLogForMultiTxnBids() public {
-        testTradeLogWithBid();
+    function testTradeLogWithBidsInDistinctBlocks() public {
+        testTradeLogWithBidsInSameBlocks();
         assertEq(orderBook.blockTradeLogIndex(), 0, "ERROR_BLOCK_TRADE_LOG_INDEX");
 
         vm.warp(block.timestamp + 1);
@@ -504,7 +504,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
     }
 
-    function testTradeLogWithAsk() public {
+    function testTradeLogWithAsksInSameBlocks() public {
         _createOrderBook(0, 0);
 
         _createPostOnlyOrder(Constants.BID);
@@ -548,8 +548,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
     }
 
-    function testTradeLogForMultiTxnAsks() public {
-        testTradeLogWithAsk();
+    function testTradeLogWithAsksInDistinctBlocks() public {
+        testTradeLogWithAsksInSameBlocks();
         assertEq(orderBook.blockTradeLogIndex(), 0, "ERROR_BLOCK_TRADE_LOG_INDEX");
 
         vm.warp(block.timestamp + 1);
