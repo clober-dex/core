@@ -202,6 +202,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
         (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
         vars.beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
         vars.beforeHostBaseBalance = baseToken.balanceOf(address(this));
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount - vars.expectedMakerFee, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, vars.expectedMakerFee, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         vm.expectCall(
             address(orderToken),
@@ -221,6 +228,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
@@ -284,6 +298,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
         (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
         vars.beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
         vars.beforeHostBaseBalance = baseToken.balanceOf(address(this));
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount - vars.expectedMakerFee, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, vars.expectedMakerFee, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         vm.expectCall(
             address(orderToken),
@@ -306,6 +327,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
@@ -367,6 +395,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
 
         vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
         (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount - vars.expectedMakerFee, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, vars.expectedMakerFee, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -382,6 +417,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
@@ -422,6 +464,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
 
         vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
         (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount - vars.expectedMakerFee, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, vars.expectedMakerFee, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -437,6 +486,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
@@ -597,6 +653,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
         vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
         vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
         (vars.beforeQuoteFeeBalance, ) = orderBook.getFeeBalance();
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, vars.expectedMakerFee, "ERROR_REBATE_AMOUNT");
 
         vm.expectCall(
             address(orderToken),
@@ -619,6 +682,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (vars.afterQuoteFeeBalance, ) = orderBook.getFeeBalance();
         assertEq(
@@ -659,6 +729,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
         vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
         vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
         (, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, Constants.RAW_AMOUNT, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, vars.expectedClaimAmount, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, vars.expectedMakerFee, "ERROR_REBATE_AMOUNT");
 
         vm.expectCall(
             address(orderToken),
@@ -681,6 +758,13 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             address(this),
             _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
+        (vars.claimableRawAmount, vars.claimableAmount, vars.feeAmount, vars.rebateAmount) = orderBook.getClaimable(
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex})
+        );
+        assertEq(vars.claimableRawAmount, 0, "ERROR_CLAIMABLE_RAW_AMOUNT");
+        assertEq(vars.claimableAmount, 0, "ERROR_CLAIMABLE_AMOUNT");
+        assertEq(vars.feeAmount, 0, "ERROR_FEE_AMOUNT");
+        assertEq(vars.rebateAmount, 0, "ERROR_REBATE_AMOUNT");
 
         (, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
