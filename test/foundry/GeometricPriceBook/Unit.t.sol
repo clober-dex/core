@@ -58,6 +58,8 @@ contract GeometricPriceBookUnitTest is Test {
             if (index == priceBook.maxIndex()) {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 priceBook.priceToIndex(price + 1, true);
+                vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
+                priceBook.priceToIndex(price + price / 999, false);
                 break;
             }
             _testPriceToIndex(price + 1, true, index + 1);

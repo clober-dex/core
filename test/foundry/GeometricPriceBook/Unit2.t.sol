@@ -59,7 +59,7 @@ contract GeometricPriceBookUnitTest2 is Test {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 priceBook.priceToIndex(price + 1, true);
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-                priceBook.priceToIndex((price * 102) / 100, false);
+                priceBook.priceToIndex(price + price / 99, false);
                 break;
             }
             _testPriceToIndex(price + 1, true, index + 1);
