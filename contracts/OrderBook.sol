@@ -384,6 +384,40 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         _sendGWeiValue(claimer, totalBounty);
     }
 
+    function getClaimable(OrderKey calldata orderKey)
+        external
+        view
+        returns (
+            uint64 claimableRawAmount,
+            uint256 claimableAmount,
+            uint256 feeAmount,
+            uint256 rebateAmount
+        )
+    {
+        Order memory mOrder = _orders[orderKey.encode()];
+        if (mOrder.amount == 0) {
+            return (0, 0, 0, 0);
+        }
+
+        claimableRawAmount = _calculateClaimableRawAmount(
+            _getQueue(orderKey.isBid, orderKey.priceIndex),
+            mOrder.amount,
+            orderKey
+        );
+
+        int256 makerFeeAmount;
+        (claimableAmount, makerFeeAmount, ) = _calculateClaimableAmountAndFees(
+            orderKey.isBid,
+            claimableRawAmount,
+            orderKey.priceIndex
+        );
+        if (makerFeeAmount > 0) {
+            feeAmount = uint256(makerFeeAmount);
+        } else {
+            rebateAmount = uint256(-makerFeeAmount);
+        }
+    }
+
     function flash(
         address borrower,
         uint256 quoteAmount,

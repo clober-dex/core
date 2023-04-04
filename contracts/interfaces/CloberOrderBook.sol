@@ -172,6 +172,16 @@ interface CloberOrderBook {
      */
     function claim(address claimer, OrderKey[] calldata orderKeys) external;
 
+    function getClaimable(OrderKey calldata orderKey)
+        external
+        view
+        returns (
+            uint64 claimableRawAmount,
+            uint256 claimableAmount,
+            uint256 feeAmount,
+            uint256 rebateAmount
+        );
+
     /**
      * @notice Flash loan the tokens in the OrderBook.
      * @param borrower The address to receive the loan.
