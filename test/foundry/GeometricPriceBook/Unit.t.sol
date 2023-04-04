@@ -19,9 +19,9 @@ contract GeometricPriceBookUnitTest is Test {
     }
 
     function testIndexToPrice() public {
-        uint128 lastPrice = priceBook.indexToPrice(0);
+        uint256 lastPrice = priceBook.indexToPrice(0);
         for (uint16 index = 1; ; index++) {
-            uint128 price = priceBook.indexToPrice(index);
+            uint256 price = priceBook.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
             assertGe(spread, 10009999);
             assertLe(spread, 10010000);
@@ -31,18 +31,18 @@ contract GeometricPriceBookUnitTest is Test {
     }
 
     function _testPriceToIndex(
-        uint128 price,
+        uint256 price,
         bool roundingUp,
         uint16 expectedIndex
     ) private {
-        (uint16 priceIndex, uint128 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
+        (uint16 priceIndex, uint256 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
         assertEq(correctedPrice, priceBook.indexToPrice(expectedIndex));
     }
 
     function testPriceToIndex() public {
         for (uint16 index = 0; ; index++) {
-            uint128 price = priceBook.indexToPrice(index);
+            uint256 price = priceBook.indexToPrice(index);
             if (index == 0) {
                 vm.expectRevert();
                 priceBook.priceToIndex(price - 1, false);

@@ -19,15 +19,15 @@ abstract contract ArithmeticPriceBook {
         }
     }
 
-    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint128) {
+    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256) {
         return _a + _d * priceIndex;
     }
 
-    function _priceToIndex(uint128 price, bool roundingUp)
+    function _priceToIndex(uint256 price, bool roundingUp)
         internal
         view
         virtual
-        returns (uint16 index, uint128 correctedPrice)
+        returns (uint16 index, uint256 correctedPrice)
     {
         if (price < _a || price >= _a + _d * (2**16)) {
             revert Errors.CloberError(Errors.INVALID_PRICE);

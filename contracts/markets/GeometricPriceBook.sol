@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../Errors.sol";
+import "forge-std/console.sol";
 
 abstract contract GeometricPriceBook {
     uint256 private immutable _a;
@@ -34,7 +35,7 @@ abstract contract GeometricPriceBook {
         if ((a_ * _r0) >> 64 <= a_) {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);
         }
-        uint16 maxIndex_ = 1;
+        uint16 maxIndex_;
 
         uint256 r;
         if (_r0 < (type(uint256).max / _r0 / a_) << 64) {
@@ -168,45 +169,43 @@ abstract contract GeometricPriceBook {
         maxIndex = maxIndex_;
     }
 
-    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint128) {
+    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
         if (priceIndex > maxIndex) {
             revert Errors.CloberError(Errors.INVALID_INDEX);
         }
-        uint256 price = _a;
+        price = _a;
         unchecked {
-            if (priceIndex & (maxIndex & 0x8000) != 0) price = (price * _r15) >> 64;
-            if (priceIndex & (maxIndex & 0x4000) != 0) price = (price * _r14) >> 64;
-            if (priceIndex & (maxIndex & 0x2000) != 0) price = (price * _r13) >> 64;
-            if (priceIndex & (maxIndex & 0x1000) != 0) price = (price * _r12) >> 64;
-            if (priceIndex & (maxIndex & 0x800) != 0) price = (price * _r11) >> 64;
-            if (priceIndex & (maxIndex & 0x400) != 0) price = (price * _r10) >> 64;
-            if (priceIndex & (maxIndex & 0x200) != 0) price = (price * _r9) >> 64;
-            if (priceIndex & (maxIndex & 0x100) != 0) price = (price * _r8) >> 64;
-            if (priceIndex & (maxIndex & 0x80) != 0) price = (price * _r7) >> 64;
-            if (priceIndex & (maxIndex & 0x40) != 0) price = (price * _r6) >> 64;
-            if (priceIndex & (maxIndex & 0x20) != 0) price = (price * _r5) >> 64;
-            if (priceIndex & (maxIndex & 0x10) != 0) price = (price * _r4) >> 64;
-            if (priceIndex & (maxIndex & 0x8) != 0) price = (price * _r3) >> 64;
-            if (priceIndex & (maxIndex & 0x4) != 0) price = (price * _r2) >> 64;
-            if (priceIndex & (maxIndex & 0x2) != 0) price = (price * _r1) >> 64;
-            if (priceIndex & (maxIndex & 0x1) != 0) price = (price * _r0) >> 64;
+            if ((priceIndex & (maxIndex & 0x8000)) != 0) price = (price * _r15) >> 64;
+            if ((priceIndex & (maxIndex & 0x4000)) != 0) price = (price * _r14) >> 64;
+            if ((priceIndex & (maxIndex & 0x2000)) != 0) price = (price * _r13) >> 64;
+            if ((priceIndex & (maxIndex & 0x1000)) != 0) price = (price * _r12) >> 64;
+            if ((priceIndex & (maxIndex & 0x800)) != 0) price = (price * _r11) >> 64;
+            if ((priceIndex & (maxIndex & 0x400)) != 0) price = (price * _r10) >> 64;
+            if ((priceIndex & (maxIndex & 0x200)) != 0) price = (price * _r9) >> 64;
+            if ((priceIndex & (maxIndex & 0x100)) != 0) price = (price * _r8) >> 64;
+            if ((priceIndex & (maxIndex & 0x80)) != 0) price = (price * _r7) >> 64;
+            if ((priceIndex & (maxIndex & 0x40)) != 0) price = (price * _r6) >> 64;
+            if ((priceIndex & (maxIndex & 0x20)) != 0) price = (price * _r5) >> 64;
+            if ((priceIndex & (maxIndex & 0x10)) != 0) price = (price * _r4) >> 64;
+            if ((priceIndex & (maxIndex & 0x8)) != 0) price = (price * _r3) >> 64;
+            if ((priceIndex & (maxIndex & 0x4)) != 0) price = (price * _r2) >> 64;
+            if ((priceIndex & (maxIndex & 0x2)) != 0) price = (price * _r1) >> 64;
+            if ((priceIndex & (maxIndex & 0x1)) != 0) price = (price * _r0) >> 64;
         }
-
-        return uint128(price);
     }
 
-    function _priceToIndex(uint128 price, bool roundingUp)
+    function _priceToIndex(uint256 price, bool roundingUp)
         internal
         view
         virtual
-        returns (uint16 index, uint128 correctedPrice)
+        returns (uint16 index, uint256 correctedPrice)
     {
         if (price < _a || price >= (_a * _r16) >> 64) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;
         uint256 _correctedPrice = _a;
-        uint256 shiftedPrice = (uint256(price) + 1) << 64;
+        uint256 shiftedPrice = (price + 1) << 64;
 
         unchecked {
             if (maxIndex > 0x8000 && shiftedPrice > _r15 * _correctedPrice) {
@@ -283,7 +282,7 @@ abstract contract GeometricPriceBook {
             }
             correctedPrice = _indexToPrice(index);
         } else {
-            correctedPrice = uint128(_correctedPrice);
+            correctedPrice = _correctedPrice;
         }
     }
 }
