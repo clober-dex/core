@@ -26,6 +26,7 @@ abstract contract GeometricPriceBook {
     uint256 private immutable _r16;
 
     uint16 public immutable maxIndex;
+    uint256 public immutable maxPrice;
 
     constructor(uint128 a_, uint128 r_) {
         uint256 castedR = uint256(r_);
@@ -34,138 +35,156 @@ abstract contract GeometricPriceBook {
         if ((a_ * _r0) >> 64 <= a_) {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);
         }
-        uint16 maxIndex_ = 1;
+        uint16 maxIndex_;
+        uint256 maxPrice_;
 
         uint256 r;
-        if (_r0 < (type(uint256).max / _r0 / a_) << 64) {
+        if (_r0 < (type(uint192).max / _r0 / a_) << 64) {
             r = (_r0 * _r0) >> 64;
             maxIndex_ = maxIndex_ | 0x1;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r1 = r;
 
-        if (_r1 < (type(uint256).max / _r1 / a_) << 64) {
+        if (_r1 < (type(uint192).max / _r1 / a_) << 64) {
             r = (_r1 * _r1) >> 64;
             maxIndex_ = maxIndex_ | 0x2;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r2 = r;
 
-        if (_r2 < (type(uint256).max / _r2 / a_) << 64) {
+        if (_r2 < (type(uint192).max / _r2 / a_) << 64) {
             r = (_r2 * _r2) >> 64;
             maxIndex_ = maxIndex_ | 0x4;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r3 = r;
 
-        if (_r3 < (type(uint256).max / _r3 / a_) << 64) {
+        if (_r3 < (type(uint192).max / _r3 / a_) << 64) {
             r = (_r3 * _r3) >> 64;
             maxIndex_ = maxIndex_ | 0x8;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r4 = r;
 
-        if (_r4 < (type(uint256).max / _r4 / a_) << 64) {
+        if (_r4 < (type(uint192).max / _r4 / a_) << 64) {
             r = (_r4 * _r4) >> 64;
             maxIndex_ = maxIndex_ | 0x10;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r5 = r;
 
-        if (_r5 < (type(uint256).max / _r5 / a_) << 64) {
+        if (_r5 < (type(uint192).max / _r5 / a_) << 64) {
             r = (_r5 * _r5) >> 64;
             maxIndex_ = maxIndex_ | 0x20;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r6 = r;
 
-        if (_r6 < (type(uint256).max / _r6 / a_) << 64) {
+        if (_r6 < (type(uint192).max / _r6 / a_) << 64) {
             r = (_r6 * _r6) >> 64;
             maxIndex_ = maxIndex_ | 0x40;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r7 = r;
 
-        if (_r7 < (type(uint256).max / _r7 / a_) << 64) {
+        if (_r7 < (type(uint192).max / _r7 / a_) << 64) {
             r = (_r7 * _r7) >> 64;
             maxIndex_ = maxIndex_ | 0x80;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r8 = r;
 
-        if (_r8 < (type(uint256).max / _r8 / a_) << 64) {
+        if (_r8 < (type(uint192).max / _r8 / a_) << 64) {
             r = (_r8 * _r8) >> 64;
             maxIndex_ = maxIndex_ | 0x100;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r9 = r;
 
-        if (_r9 < (type(uint256).max / _r9 / a_) << 64) {
+        if (_r9 < (type(uint192).max / _r9 / a_) << 64) {
             r = (_r9 * _r9) >> 64;
             maxIndex_ = maxIndex_ | 0x200;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r10 = r;
 
-        if (_r10 < (type(uint256).max / _r10 / a_) << 64) {
+        if (_r10 < (type(uint192).max / _r10 / a_) << 64) {
             r = (_r10 * _r10) >> 64;
             maxIndex_ = maxIndex_ | 0x400;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r11 = r;
 
-        if (_r11 < (type(uint256).max / _r11 / a_) << 64) {
+        if (_r11 < (type(uint192).max / _r11 / a_) << 64) {
             r = (_r11 * _r11) >> 64;
             maxIndex_ = maxIndex_ | 0x800;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r12 = r;
 
-        if (_r12 < (type(uint256).max / _r12 / a_) << 64) {
+        if (_r12 < (type(uint192).max / _r12 / a_) << 64) {
             r = (_r12 * _r12) >> 64;
             maxIndex_ = maxIndex_ | 0x1000;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r13 = r;
 
-        if (_r13 < (type(uint256).max / _r13 / a_) << 64) {
+        if (_r13 < (type(uint192).max / _r13 / a_) << 64) {
             r = (_r13 * _r13) >> 64;
             maxIndex_ = maxIndex_ | 0x2000;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r14 = r;
 
-        if (_r14 < (type(uint256).max / _r14 / a_) << 64) {
+        if (_r14 < (type(uint192).max / _r14 / a_) << 64) {
             r = (_r14 * _r14) >> 64;
             maxIndex_ = maxIndex_ | 0x4000;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r15 = r;
 
-        if (_r15 < (type(uint256).max / _r15 / a_) << 64) {
+        if (_r15 < (type(uint192).max / _r15 / a_) << 64) {
             r = (_r15 * _r15) >> 64;
             maxIndex_ = maxIndex_ | 0x8000;
+            maxPrice_ = r;
         } else {
             r = type(uint256).max;
         }
         _r16 = r;
 
         maxIndex = maxIndex_;
+        maxPrice = maxPrice_;
     }
 
     function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint128) {
@@ -201,7 +220,7 @@ abstract contract GeometricPriceBook {
         virtual
         returns (uint16 index, uint128 correctedPrice)
     {
-        if (price < _a || price >= (_a * _r16) >> 64) {
+        if (price < _a || price > (_a * maxPrice) >> 64) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;
@@ -276,7 +295,7 @@ abstract contract GeometricPriceBook {
         }
         if (roundingUp && _correctedPrice < price) {
             unchecked {
-                if (index == type(uint16).max) {
+                if (index >= maxIndex) {
                     revert Errors.CloberError(Errors.INVALID_PRICE);
                 }
                 index += 1;
