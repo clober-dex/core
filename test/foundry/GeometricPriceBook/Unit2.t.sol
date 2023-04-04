@@ -8,9 +8,9 @@ import "forge-std/Test.sol";
 import "../../../contracts/markets/GeometricPriceBook.sol";
 import "../../../contracts/mocks/MockGeometricPriceBook.sol";
 
-contract GeometricPriceBookUnitTest is Test {
+contract GeometricPriceBookUnitTest2 is Test {
     uint128 public constant A = 10**10;
-    uint128 public constant R = 1001 * 10**15;
+    uint128 public constant R = 101 * 10**16;
 
     MockGeometricPriceBook priceBook;
 
@@ -23,8 +23,8 @@ contract GeometricPriceBookUnitTest is Test {
         for (uint16 index = 1; ; index++) {
             uint128 price = priceBook.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
-            assertGe(spread, 10009999);
-            assertLe(spread, 10010000);
+            assertGe(spread, 10099999);
+            assertLe(spread, 10100000);
             lastPrice = price;
             if (index == priceBook.maxIndex()) break;
         }
@@ -58,6 +58,8 @@ contract GeometricPriceBookUnitTest is Test {
             if (index == priceBook.maxIndex()) {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 priceBook.priceToIndex(price + 1, true);
+                vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
+                priceBook.priceToIndex((price * 102) / 100, false);
                 break;
             }
             _testPriceToIndex(price + 1, true, index + 1);
