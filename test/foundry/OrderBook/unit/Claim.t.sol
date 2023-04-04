@@ -14,6 +14,8 @@ import "../../../../contracts/MarketFactory.sol";
 import "../utils/MockingFactoryTest.sol";
 import "./Constants.sol";
 
+import "forge-std/console.sol";
+
 contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, MockingFactoryTest {
     using OrderKeyUtils for OrderKey;
     event ClaimOrder(
@@ -32,6 +34,29 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
         uint256 amountIn;
         uint256 amountOut;
         uint256 refundBounty;
+    }
+
+    struct Vars {
+        uint256 orderIndex;
+        uint256 expectedClaimAmount;
+        uint256 expectedMakerFee;
+        uint256 expectedTakerFee;
+        uint256 expectedTakeAmount;
+        uint256 beforeNFTBalance;
+        uint256 beforeQuoteBalance;
+        uint256 beforeBaseBalance;
+        uint256 beforeQuoteFeeBalance;
+        uint256 beforeBaseFeeBalance;
+        uint256 beforeHostQuoteBalance;
+        uint256 beforeHostBaseBalance;
+        uint256 afterQuoteFeeBalance;
+        uint256 afterBaseFeeBalance;
+        uint256 expectedDaoFeeQuote;
+        uint256 expectedDaoFeeBase;
+        uint256 claimableAmount;
+        uint256 feeAmount;
+        uint256 rebateAmount;
+        uint64 claimableRawAmount;
     }
 
     uint256 receivedEthers;
@@ -157,20 +182,26 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
 
     function testClaimBidOrder() public {
         _createOrderBook(int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createSettledOrder(Constants.BID, Constants.RAW_AMOUNT);
+        vars.orderIndex = _createSettledOrder(Constants.BID, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
-        uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
+        vars.expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
+        vars.expectedMakerFee = Math.divide(
+            vars.expectedClaimAmount * Constants.MAKE_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) /
+        vars.expectedTakerFee =
+            (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) /
             Constants.FEE_PRECISION;
 
-        uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
-        uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
-        (uint256 beforeQuoteFeeBalance, uint256 beforeBaseFeeBalance) = orderBook.getFeeBalance();
-        uint256 beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
-        uint256 beforeHostBaseBalance = baseToken.balanceOf(address(this));
+        vars.beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
+        vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
+        (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        vars.beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
+        vars.beforeHostBaseBalance = baseToken.balanceOf(address(this));
 
         vm.expectCall(
             address(orderToken),
@@ -182,63 +213,84 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             Constants.CLAIM_BOUNTY * 1 gwei,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.BID
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (uint256 afterQuoteFeeBalance, uint256 afterBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
-            baseToken.balanceOf(Constants.MAKER) - beforeBaseBalance,
-            expectedClaimAmount - expectedMakerFee,
+            baseToken.balanceOf(Constants.MAKER) - vars.beforeBaseBalance,
+            vars.expectedClaimAmount - vars.expectedMakerFee,
             "ERROR_BASE_BALANCE"
         );
-        assertEq(afterQuoteFeeBalance - beforeQuoteFeeBalance, expectedTakerFee, "ERROR_PROTOCOL_FEE_QUOTE_BALANCE");
-        assertEq(afterBaseFeeBalance - beforeBaseFeeBalance, expectedMakerFee, "ERROR_PROTOCOL_FEE_BASE_BALANCE");
+        assertEq(
+            vars.afterQuoteFeeBalance - vars.beforeQuoteFeeBalance,
+            vars.expectedTakerFee,
+            "ERROR_PROTOCOL_FEE_QUOTE_BALANCE"
+        );
+        assertEq(
+            vars.afterBaseFeeBalance - vars.beforeBaseFeeBalance,
+            vars.expectedMakerFee,
+            "ERROR_PROTOCOL_FEE_BASE_BALANCE"
+        );
         assertEq(receivedEthers, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE");
 
         _collectFees();
-        uint256 expectedDaoFeeQuote = Math.divide(expectedTakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
-        uint256 expectedDaoFeeBase = Math.divide(expectedMakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
-        assertEq(quoteToken.balanceOf(daoTreasury), expectedDaoFeeQuote, "ERROR_DAO_QUOTE_BALANCE");
-        assertEq(baseToken.balanceOf(daoTreasury), expectedDaoFeeBase, "ERROR_DAO_BASE_BALANCE");
+        vars.expectedDaoFeeQuote = Math.divide(
+            vars.expectedTakerFee * Constants.DAO_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
+        vars.expectedDaoFeeBase = Math.divide(vars.expectedMakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
+        assertEq(quoteToken.balanceOf(daoTreasury), vars.expectedDaoFeeQuote, "ERROR_DAO_QUOTE_BALANCE");
+        assertEq(baseToken.balanceOf(daoTreasury), vars.expectedDaoFeeBase, "ERROR_DAO_BASE_BALANCE");
         assertEq(
-            quoteToken.balanceOf(address(this)) - beforeHostQuoteBalance,
-            expectedTakerFee - expectedDaoFeeQuote,
+            quoteToken.balanceOf(address(this)) - vars.beforeHostQuoteBalance,
+            vars.expectedTakerFee - vars.expectedDaoFeeQuote,
             "ERROR_HOST_QUOTE_BALANCE"
         );
         assertEq(
-            baseToken.balanceOf(address(this)) - beforeHostBaseBalance,
-            expectedMakerFee - expectedDaoFeeBase,
+            baseToken.balanceOf(address(this)) - vars.beforeHostBaseBalance,
+            vars.expectedMakerFee - vars.expectedDaoFeeBase,
             "ERROR_HOST_BASE_BALANCE"
         );
-        assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
+        assertEq(vars.beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
     }
 
     function testClaimAskOrder() public {
         _createOrderBook(int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createSettledOrder(Constants.ASK, Constants.RAW_AMOUNT);
+        vars.orderIndex = _createSettledOrder(Constants.ASK, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
-        uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
+        vars.expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
+        vars.expectedMakerFee = Math.divide(
+            vars.expectedClaimAmount * Constants.MAKE_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) *
-            Constants.TAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedTakerFee =
+            (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) * Constants.TAKE_FEE) /
+            Constants.FEE_PRECISION;
 
-        uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
-        uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        (uint256 beforeQuoteFeeBalance, uint256 beforeBaseFeeBalance) = orderBook.getFeeBalance();
-        uint256 beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
-        uint256 beforeHostBaseBalance = baseToken.balanceOf(address(this));
+        vars.beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
+        vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
+        (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        vars.beforeHostQuoteBalance = quoteToken.balanceOf(address(this));
+        vars.beforeHostBaseBalance = baseToken.balanceOf(address(this));
 
         vm.expectCall(
             address(orderToken),
-            abi.encodeCall(CloberOrderNFT.onBurn, (OrderKey(Constants.ASK, Constants.PRICE_INDEX, orderIndex).encode()))
+            abi.encodeCall(
+                CloberOrderNFT.onBurn,
+                (OrderKey(Constants.ASK, Constants.PRICE_INDEX, vars.orderIndex).encode())
+            )
         );
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -246,57 +298,75 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             Constants.CLAIM_BOUNTY * 1 gwei,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.ASK
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (uint256 afterQuoteFeeBalance, uint256 afterBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
-            quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance,
-            expectedClaimAmount - expectedMakerFee,
+            quoteToken.balanceOf(Constants.MAKER) - vars.beforeQuoteBalance,
+            vars.expectedClaimAmount - vars.expectedMakerFee,
             "ERROR_QUOTE_BALANCE"
         );
-        assertEq(afterQuoteFeeBalance - beforeQuoteFeeBalance, expectedMakerFee, "PROTOCOL_FEE_QUOTE_BALANCE");
-        assertEq(afterBaseFeeBalance - beforeBaseFeeBalance, expectedTakerFee, "PROTOCOL_FEE_BASE_BALANCE");
+        assertEq(
+            vars.afterQuoteFeeBalance - vars.beforeQuoteFeeBalance,
+            vars.expectedMakerFee,
+            "PROTOCOL_FEE_QUOTE_BALANCE"
+        );
+        assertEq(
+            vars.afterBaseFeeBalance - vars.beforeBaseFeeBalance,
+            vars.expectedTakerFee,
+            "PROTOCOL_FEE_BASE_BALANCE"
+        );
         assertEq(receivedEthers, Constants.CLAIM_BOUNTY * 1 gwei, "CLAIM_BOUNTY_BALANCE");
 
         _collectFees();
-        uint256 expectedDaoFeeQuote = Math.divide(expectedMakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
-        uint256 expectedDaoFeeBase = Math.divide(expectedTakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
-        assertEq(quoteToken.balanceOf(daoTreasury), expectedDaoFeeQuote, "ERROR_DAO_QUOTE_BALANCE");
-        assertEq(baseToken.balanceOf(daoTreasury), expectedDaoFeeBase, "ERROR_DAO_BASE_BALANCE");
+        vars.expectedDaoFeeQuote = Math.divide(
+            vars.expectedMakerFee * Constants.DAO_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
+        vars.expectedDaoFeeBase = Math.divide(vars.expectedTakerFee * Constants.DAO_FEE, Constants.FEE_PRECISION, true);
+        assertEq(quoteToken.balanceOf(daoTreasury), vars.expectedDaoFeeQuote, "ERROR_DAO_QUOTE_BALANCE");
+        assertEq(baseToken.balanceOf(daoTreasury), vars.expectedDaoFeeBase, "ERROR_DAO_BASE_BALANCE");
         assertEq(
-            quoteToken.balanceOf(address(this)) - beforeHostQuoteBalance,
-            expectedMakerFee - expectedDaoFeeQuote,
+            quoteToken.balanceOf(address(this)) - vars.beforeHostQuoteBalance,
+            vars.expectedMakerFee - vars.expectedDaoFeeQuote,
             "ERROR_HOST_QUOTE_BALANCE"
         );
         assertEq(
-            baseToken.balanceOf(address(this)) - beforeHostBaseBalance,
-            expectedTakerFee - expectedDaoFeeBase,
+            baseToken.balanceOf(address(this)) - vars.beforeHostBaseBalance,
+            vars.expectedTakerFee - vars.expectedDaoFeeBase,
             "ERROR_HOST_BASE_BALANCE"
         );
-        assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
+        assertEq(vars.beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
     }
 
     function testClaimPartiallyFilledBidOrder() public {
         _createOrderBook(int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createPostOnlyOrder(Constants.BID, Constants.RAW_AMOUNT * 2);
+        vars.orderIndex = _createPostOnlyOrder(Constants.BID, Constants.RAW_AMOUNT * 2);
         _createTakeOrder(Constants.BID, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
-        uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
+        vars.expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
+        vars.expectedMakerFee = Math.divide(
+            vars.expectedClaimAmount * Constants.MAKE_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) /
+        vars.expectedTakerFee =
+            (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) /
             Constants.FEE_PRECISION;
 
-        uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
-        (uint256 beforeQuoteFeeBalance, uint256 beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
+        (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
 
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -304,40 +374,54 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             0,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.BID
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (uint256 afterQuoteFeeBalance, uint256 afterBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
-            baseToken.balanceOf(Constants.MAKER) - beforeBaseBalance,
-            expectedClaimAmount - expectedMakerFee,
+            baseToken.balanceOf(Constants.MAKER) - vars.beforeBaseBalance,
+            vars.expectedClaimAmount - vars.expectedMakerFee,
             "ERROR_BASE_BALANCE"
         );
-        assertEq(afterQuoteFeeBalance - beforeQuoteFeeBalance, expectedTakerFee, "ERROR_PROTOCOL_FEE_QUOTE_BALANCE");
-        assertEq(afterBaseFeeBalance - beforeBaseFeeBalance, expectedMakerFee, "ERROR_PROTOCOL_FEE_BASE_BALANCE");
+        assertEq(
+            vars.afterQuoteFeeBalance - vars.beforeQuoteFeeBalance,
+            vars.expectedTakerFee,
+            "ERROR_PROTOCOL_FEE_QUOTE_BALANCE"
+        );
+        assertEq(
+            vars.afterBaseFeeBalance - vars.beforeBaseFeeBalance,
+            vars.expectedMakerFee,
+            "ERROR_PROTOCOL_FEE_BASE_BALANCE"
+        );
         assertEq(receivedEthers, 0, "ERROR_CLAIM_BOUNTY_BALANCE");
     }
 
     function testClaimPartiallyFilledAskOrder() public {
         _createOrderBook(int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createPostOnlyOrder(Constants.ASK, Constants.RAW_AMOUNT * 2);
+        vars.orderIndex = _createPostOnlyOrder(Constants.ASK, Constants.RAW_AMOUNT * 2);
         _createTakeOrder(Constants.ASK, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
-        uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
+        vars.expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
+        vars.expectedMakerFee = Math.divide(
+            vars.expectedClaimAmount * Constants.MAKE_FEE,
+            Constants.FEE_PRECISION,
+            true
+        );
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) *
-            Constants.TAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedTakerFee =
+            (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) * Constants.TAKE_FEE) /
+            Constants.FEE_PRECISION;
 
-        uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        (uint256 beforeQuoteFeeBalance, uint256 beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
+        (vars.beforeQuoteFeeBalance, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
 
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -345,23 +429,31 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             0,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.ASK
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (uint256 afterQuoteFeeBalance, uint256 afterBaseFeeBalance) = orderBook.getFeeBalance();
+        (vars.afterQuoteFeeBalance, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
-            quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance,
-            expectedClaimAmount - expectedMakerFee,
+            quoteToken.balanceOf(Constants.MAKER) - vars.beforeQuoteBalance,
+            vars.expectedClaimAmount - vars.expectedMakerFee,
             "ERROR_QUOTE_BALANCE"
         );
-        assertEq(afterQuoteFeeBalance - beforeQuoteFeeBalance, expectedMakerFee, "PROTOCOL_FEE_QUOTE_BALANCE");
-        assertEq(afterBaseFeeBalance - beforeBaseFeeBalance, expectedTakerFee, "PROTOCOL_FEE_BASE_BALANCE");
+        assertEq(
+            vars.afterQuoteFeeBalance - vars.beforeQuoteFeeBalance,
+            vars.expectedMakerFee,
+            "PROTOCOL_FEE_QUOTE_BALANCE"
+        );
+        assertEq(
+            vars.afterBaseFeeBalance - vars.beforeBaseFeeBalance,
+            vars.expectedTakerFee,
+            "PROTOCOL_FEE_BASE_BALANCE"
+        );
         assertEq(receivedEthers, 0, "CLAIM_BOUNTY_BALANCE");
     }
 
@@ -491,23 +583,27 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
 
     function testClaimBidOrderWithNegativeMakeFee() public {
         _createOrderBook(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createSettledOrder(Constants.BID, Constants.RAW_AMOUNT);
+        vars.orderIndex = _createSettledOrder(Constants.BID, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
-        uint256 expectedTakeAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
-        uint256 expectedMakerFee = (expectedTakeAmount * Constants.MAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
+        vars.expectedTakeAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
+        vars.expectedMakerFee = (vars.expectedTakeAmount * Constants.MAKE_FEE) / Constants.FEE_PRECISION;
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (expectedTakeAmount * Constants.TAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedTakerFee = (vars.expectedTakeAmount * Constants.TAKE_FEE) / Constants.FEE_PRECISION;
 
-        uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
-        uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
-        uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        (uint256 beforeQuoteFeeBalance, ) = orderBook.getFeeBalance();
+        vars.beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
+        vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
+        vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
+        (vars.beforeQuoteFeeBalance, ) = orderBook.getFeeBalance();
 
         vm.expectCall(
             address(orderToken),
-            abi.encodeCall(CloberOrderNFT.onBurn, (OrderKey(Constants.BID, Constants.PRICE_INDEX, orderIndex).encode()))
+            abi.encodeCall(
+                CloberOrderNFT.onBurn,
+                (OrderKey(Constants.BID, Constants.PRICE_INDEX, vars.orderIndex).encode())
+            )
         );
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -515,47 +611,61 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             Constants.CLAIM_BOUNTY * 1 gwei,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.BID
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (uint256 afterQuoteFeeBalance, ) = orderBook.getFeeBalance();
-        assertEq(baseToken.balanceOf(Constants.MAKER) - beforeBaseBalance, expectedClaimAmount, "ERROR_BASE_BALANCE");
-        assertEq(quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance, expectedMakerFee, "ERROR_QUOTE_BALANCE");
+        (vars.afterQuoteFeeBalance, ) = orderBook.getFeeBalance();
         assertEq(
-            afterQuoteFeeBalance - beforeQuoteFeeBalance,
-            expectedTakerFee - expectedMakerFee,
+            baseToken.balanceOf(Constants.MAKER) - vars.beforeBaseBalance,
+            vars.expectedClaimAmount,
+            "ERROR_BASE_BALANCE"
+        );
+        assertEq(
+            quoteToken.balanceOf(Constants.MAKER) - vars.beforeQuoteBalance,
+            vars.expectedMakerFee,
+            "ERROR_QUOTE_BALANCE"
+        );
+        assertEq(
+            vars.afterQuoteFeeBalance - vars.beforeQuoteFeeBalance,
+            vars.expectedTakerFee - vars.expectedMakerFee,
             "ERROR_PROTOCOL_FEE_QUOTE_BALANCE"
         );
         assertEq(receivedEthers, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE");
-        assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
+        assertEq(vars.beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
     }
 
     function testClaimAskOrderWithNegativeMakeFee() public {
         _createOrderBook(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+        Vars memory vars;
 
-        uint256 orderIndex = _createSettledOrder(Constants.ASK, Constants.RAW_AMOUNT);
+        vars.orderIndex = _createSettledOrder(Constants.ASK, Constants.RAW_AMOUNT);
 
-        uint256 expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
-        uint256 expectedMakerFee = (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true) *
-            Constants.MAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
+        vars.expectedMakerFee =
+            (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true) * Constants.MAKE_FEE) /
+            Constants.FEE_PRECISION;
         // calculate taker fee that protocol gained, rounding down here
-        uint256 expectedTakerFee = (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) *
-            Constants.TAKE_FEE) / Constants.FEE_PRECISION;
+        vars.expectedTakerFee =
+            (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) * Constants.TAKE_FEE) /
+            Constants.FEE_PRECISION;
 
-        uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
-        uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
-        uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        (, uint256 beforeBaseFeeBalance) = orderBook.getFeeBalance();
+        vars.beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
+        vars.beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
+        vars.beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
+        (, vars.beforeBaseFeeBalance) = orderBook.getFeeBalance();
 
         vm.expectCall(
             address(orderToken),
-            abi.encodeCall(CloberOrderNFT.onBurn, (OrderKey(Constants.ASK, Constants.PRICE_INDEX, orderIndex).encode()))
+            abi.encodeCall(
+                CloberOrderNFT.onBurn,
+                (OrderKey(Constants.ASK, Constants.PRICE_INDEX, vars.orderIndex).encode())
+            )
         );
         vm.expectEmit(true, true, true, true);
         emit ClaimOrder(
@@ -563,29 +673,33 @@ contract OrderBookClaimUnitTest is Test, CloberMarketSwapCallbackReceiver, Mocki
             Constants.MAKER,
             Constants.RAW_AMOUNT,
             Constants.CLAIM_BOUNTY * 1 gwei,
-            orderIndex,
+            vars.orderIndex,
             Constants.PRICE_INDEX,
             Constants.ASK
         );
         orderBook.claim(
             address(this),
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex}))
+            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: vars.orderIndex}))
         );
 
-        (, uint256 afterBaseFeeBalance) = orderBook.getFeeBalance();
+        (, vars.afterBaseFeeBalance) = orderBook.getFeeBalance();
         assertEq(
-            quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance,
-            expectedClaimAmount,
+            quoteToken.balanceOf(Constants.MAKER) - vars.beforeQuoteBalance,
+            vars.expectedClaimAmount,
             "ERROR_QUOTE_BALANCE"
         );
-        assertEq(baseToken.balanceOf(Constants.MAKER) - beforeBaseBalance, expectedMakerFee, "ERROR_BASE_BALANCE");
         assertEq(
-            afterBaseFeeBalance - beforeBaseFeeBalance,
-            expectedTakerFee - expectedMakerFee,
+            baseToken.balanceOf(Constants.MAKER) - vars.beforeBaseBalance,
+            vars.expectedMakerFee,
+            "ERROR_BASE_BALANCE"
+        );
+        assertEq(
+            vars.afterBaseFeeBalance - vars.beforeBaseFeeBalance,
+            vars.expectedTakerFee - vars.expectedMakerFee,
             "ERROR_PROTOCOL_FEE_BASE_BALANCE"
         );
         assertEq(receivedEthers, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE");
-        assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
+        assertEq(vars.beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
     }
 
     function testClaimEmptyOrder() public {
