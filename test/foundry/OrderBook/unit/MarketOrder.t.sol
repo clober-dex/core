@@ -414,4 +414,378 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(inputAmount, 0, "ERROR_AMOUNT_IN");
         assertEq(outputAmount, 0, "ERROR_AMOUNT_OUT");
     }
+
+    function testTradeLogWithBid() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.ASK);
+
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, 0, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        // take will be in same block
+        _createPostOnlyOrder(Constants.ASK);
+
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, 0, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT + Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
+
+    function testTradeLogForMultiTxnBids() public {
+        testTradeLogWithBid();
+        assertEq(orderBook.blockTradeLogIndex(), 0, "ERROR_BLOCK_TRADE_LOG_INDEX");
+
+        vm.warp(block.timestamp + 1);
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        assertEq(orderBook.blockTradeLogIndex(), 1, "ERROR_BLOCK_TRADE_LOG_INDEX");
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(1);
+        assertEq(tradeLog.blockTime, block.timestamp, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, 0, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        vm.warp(block.timestamp + 1);
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        assertEq(orderBook.blockTradeLogIndex(), 2, "ERROR_BLOCK_TRADE_LOG_INDEX");
+        tradeLog = orderBook.blockTradeLogs(2);
+        assertEq(tradeLog.blockTime, block.timestamp, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, 0, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+    }
+
+    function testTradeLogWithAsk() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.BID);
+
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, 0, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        // take will be in same block
+        _createPostOnlyOrder(Constants.BID);
+
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT + Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, 0, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
+
+    function testTradeLogForMultiTxnAsks() public {
+        testTradeLogWithAsk();
+        assertEq(orderBook.blockTradeLogIndex(), 0, "ERROR_BLOCK_TRADE_LOG_INDEX");
+
+        vm.warp(block.timestamp + 1);
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 3, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        assertEq(orderBook.blockTradeLogIndex(), 1, "ERROR_BLOCK_TRADE_LOG_INDEX");
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(1);
+        assertEq(tradeLog.blockTime, block.timestamp, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, 0, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        vm.warp(block.timestamp + 1);
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 2, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        assertEq(orderBook.blockTradeLogIndex(), 2, "ERROR_BLOCK_TRADE_LOG_INDEX");
+        tradeLog = orderBook.blockTradeLogs(2);
+        assertEq(tradeLog.blockTime, block.timestamp, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.bidVolume, 0, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+    }
+
+    function testTradeLogWithBidForPriceIncrease() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 2, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 2, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 3, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
+
+    function testTradeLogWithAskForPriceIncrease() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 2, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 2, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 2, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 3, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 3, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
+
+    function testTradeLogWithBidForPriceDecrease() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 3, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 2, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_BID_PRICE,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 3, "ERROR_BID_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
+
+    function testTradeLogWithAskForPriceDecrease() public {
+        _createOrderBook(0, 0);
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 3);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 3, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 3, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 2);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX * 2, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 2, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+
+        _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX);
+        orderBook.marketOrder({
+            user: Constants.TAKER,
+            limitPriceIndex: Constants.LIMIT_ASK_PRICE,
+            rawAmount: 0,
+            baseAmount: orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, true),
+            options: _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT),
+            data: new bytes(0)
+        });
+        tradeLog = orderBook.blockTradeLogs(0);
+        assertEq(tradeLog.blockTime, 1, "ERROR_BLOCK_TIME");
+        assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 3, "ERROR_ASK_VOLUME");
+        assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
+        assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+    }
 }
