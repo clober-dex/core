@@ -182,6 +182,14 @@ interface CloberOrderBook {
      */
     function claim(address claimer, OrderKey[] calldata orderKeys) external;
 
+    /**
+     * @notice Get the claimable proceeds of an order.
+     * @param orderKey The order key of the order.
+     * @return claimableRawAmount The claimable raw amount.
+     * @return claimableAmount The claimable amount after fees.
+     * @return feeAmount The maker fee to be paid on claim.
+     * @return rebateAmount The rebate to be received on claim.
+     */
     function getClaimable(OrderKey calldata orderKey)
         external
         view
