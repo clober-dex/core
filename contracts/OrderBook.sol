@@ -472,6 +472,12 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
 
     function indexToPrice(uint16 priceIndex) public view virtual returns (uint128);
 
+    function priceToIndex(uint128 price, bool roundingUp)
+        public
+        view
+        virtual
+        returns (uint16 index, uint128 correctedPrice);
+
     function _cleanHeap(bool isBid) private {
         OctopusHeap.Core storage heap = _getHeap(isBid);
         while (!heap.isEmpty()) {

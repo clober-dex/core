@@ -8,7 +8,7 @@ import "forge-std/Test.sol";
 import "../../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../../contracts/mocks/MockVolatileMarket.sol";
+import "../../../../../contracts/markets/VolatileMarket.sol";
 import "../../../../../contracts/OrderNFT.sol";
 import "../Constants.sol";
 
@@ -27,7 +27,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
     uint256 receivedEthers;
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockVolatileMarket market;
+    VolatileMarket market;
     OrderNFT orderToken;
 
     mapping(uint16 => uint256[2]) bidOrderIndices;
@@ -59,7 +59,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
     function _createMarket(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        market = new MockVolatileMarket(
+        market = new VolatileMarket(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
