@@ -788,4 +788,26 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
     }
+
+    function testTradeLogLargeTradeSize() public {
+        _createOrderBook(0, 0);
+
+        for (uint16 i = 0; i < 65535; i++) {
+            _createPostOnlyOrder(Constants.ASK);
+
+            orderBook.marketOrder({
+                user: Constants.TAKER,
+                limitPriceIndex: Constants.LIMIT_BID_PRICE,
+                rawAmount: Constants.RAW_AMOUNT,
+                baseAmount: 0,
+                options: _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
+                data: new bytes(0)
+            });
+
+            CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(i);
+            assertEq(orderBook.blockTradeLogIndex(), i, "ERROR_BLOCK_TRADE_LOG_INDEX");
+            assertEq(tradeLog.blockTime, i + 1, "ERROR_BLOCK_TIME");
+            vm.warp(block.timestamp + 1);
+        }
+    }
 }
