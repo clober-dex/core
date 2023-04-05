@@ -94,6 +94,16 @@ interface CloberOrderBook {
         address owner;
     }
 
+    struct BlockTradeLog {
+        uint64 blockTime;
+        uint64 askVolume;
+        uint64 bidVolume;
+        uint16 open;
+        uint16 high;
+        uint16 low;
+        uint16 close;
+    }
+
     /**
      * @notice Take orders better or equal to the given priceIndex and make an order with the remaining tokens.
      * @dev `msg.value` will be used as the claimBounty.
@@ -275,6 +285,10 @@ interface CloberOrderBook {
      * @return The current price index. If the order book is empty, it will revert.
      */
     function bestPriceIndex(bool isBid) external view returns (uint16);
+
+    function blockTradeLogIndex() external view returns (uint16);
+
+    function blockTradeLogs(uint16 index) external view returns (BlockTradeLog memory);
 
     /**
      * @notice Converts a raw amount to its corresponding base amount using a given price index.
