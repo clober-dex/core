@@ -220,7 +220,7 @@ abstract contract GeometricPriceBook {
         virtual
         returns (uint16 index, uint128 correctedPrice)
     {
-        if (price < _a || price > (_a * maxPrice) >> 64) {
+        if (price < _a || price >= (_a * maxPrice) >> 64) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;
