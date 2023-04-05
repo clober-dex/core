@@ -19,9 +19,9 @@ contract GeometricPriceBookUnitTest2 is Test {
     }
 
     function testIndexToPrice() public {
-        uint128 lastPrice = priceBook.indexToPrice(0);
+        uint256 lastPrice = priceBook.indexToPrice(0);
         for (uint16 index = 1; ; index++) {
-            uint128 price = priceBook.indexToPrice(index);
+            uint256 price = priceBook.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
             assertGe(spread, 10099999);
             assertLe(spread, 10100000);
@@ -31,18 +31,18 @@ contract GeometricPriceBookUnitTest2 is Test {
     }
 
     function _testPriceToIndex(
-        uint128 price,
+        uint256 price,
         bool roundingUp,
         uint16 expectedIndex
     ) private {
-        (uint16 priceIndex, uint128 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
+        (uint16 priceIndex, uint256 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
         assertEq(correctedPrice, priceBook.indexToPrice(expectedIndex));
     }
 
     function testPriceToIndex() public {
         for (uint16 index = 0; ; index++) {
-            uint128 price = priceBook.indexToPrice(index);
+            uint256 price = priceBook.indexToPrice(index);
             if (index == 0) {
                 vm.expectRevert();
                 priceBook.priceToIndex(price - 1, false);
@@ -74,10 +74,10 @@ contract GeometricPriceBookUnitTest2 is Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         priceBook.priceToIndex(A - 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128((maxPrice * R) / (10**18) + 1), true);
+        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128((maxPrice * R) / (10**18) + 1), false);
+        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(uint128(maxPrice + 1), true);
+        priceBook.priceToIndex(maxPrice + 1, true);
     }
 }

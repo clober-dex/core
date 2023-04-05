@@ -22,7 +22,7 @@ contract MockStableMarket is OrderBook, ArithmeticPriceBook {
         ArithmeticPriceBook(a_, d_)
     {}
 
-    function indexToPrice(uint16 priceIndex) public view override returns (uint128) {
+    function indexToPrice(uint16 priceIndex) public view override returns (uint256) {
         return _indexToPrice(priceIndex);
     }
 }
