@@ -352,7 +352,7 @@ interface CloberOrderBook {
      * @param priceIndex The price book index.
      * @return price The actual price.
      */
-    function indexToPrice(uint16 priceIndex) external view returns (uint128);
+    function indexToPrice(uint16 priceIndex) external view returns (uint256);
 
     /**
      * @dev Returns the price book index closest to the provided price.
@@ -361,5 +361,5 @@ interface CloberOrderBook {
      * @return index The price book index.
      * @return correctedPrice The actual price for the price book index.
      */
-    function priceToIndex(uint128 price, bool roundingUp) external view returns (uint16 index, uint128 correctedPrice);
+    function priceToIndex(uint256 price, bool roundingUp) external view returns (uint16 index, uint256 correctedPrice);
 }

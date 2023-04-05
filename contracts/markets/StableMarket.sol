@@ -26,7 +26,7 @@ contract StableMarket is OrderBook, ArithmeticPriceBook {
         return _indexToPrice(priceIndex);
     }
 
-    function priceToIndex(uint128 price, bool roundingUp) public view override returns (uint16, uint128) {
+    function priceToIndex(uint256 price, bool roundingUp) public view override returns (uint16, uint256) {
         return _priceToIndex(price, roundingUp);
     }
 }

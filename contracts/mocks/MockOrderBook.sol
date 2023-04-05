@@ -24,7 +24,7 @@ contract MockOrderBook is OrderBook {
         return priceIndex * _PRICE_PRECISION;
     }
 
-    function priceToIndex(uint128 price, bool roundingUp) public pure override returns (uint16 priceIndex, uint128) {
+    function priceToIndex(uint256 price, bool roundingUp) public pure override returns (uint16 priceIndex, uint256) {
         if ((price % _PRICE_PRECISION) > 0 && roundingUp) {
             priceIndex = uint16(price / _PRICE_PRECISION + 1);
         } else {
