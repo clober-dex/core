@@ -23,4 +23,14 @@ contract MockOrderBook is OrderBook {
         require(priceIndex <= _MAX_INDEX, "MAX_INDEX");
         return priceIndex * _PRICE_PRECISION;
     }
+
+    function priceToIndex(uint128 price, bool roundingUp) public view override returns (uint16 priceIndex, uint128) {
+        if ((price % _PRICE_PRECISION) > 0 && roundingUp) {
+            priceIndex = uint16(price / _PRICE_PRECISION + 1);
+        } else {
+            priceIndex = uint16(price / _PRICE_PRECISION);
+        }
+        require(priceIndex <= _MAX_INDEX, "MAX_INDEX");
+        return (priceIndex, priceIndex * _PRICE_PRECISION);
+    }
 }

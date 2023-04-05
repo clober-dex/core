@@ -332,4 +332,20 @@ interface CloberOrderBook {
      * @param newOwner The new owner address.
      */
     function changeOrderOwner(OrderKey calldata orderKey, address newOwner) external;
+
+    /**
+     * @dev Returns the nearest price on the provided price index.
+     * @param priceIndex The price book index.
+     * @return price The price for orderbook.
+     */
+    function indexToPrice(uint16 priceIndex) external view returns (uint128);
+
+    /**
+     * @dev Returns the price index on the provided price.
+     * @param price Provided price.
+     * @param roundingUp Determines whether to round up or not.
+     * @return index The price book index.
+     * @return correctedPrice Exact price for the price index.
+     */
+    function priceToIndex(uint128 price, bool roundingUp) external view returns (uint16 index, uint128 correctedPrice);
 }
