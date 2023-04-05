@@ -6,22 +6,41 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../contracts/markets/GeometricPriceBook.sol";
-import "../../../contracts/mocks/MockGeometricPriceBook.sol";
+import "../../../contracts/markets/VolatileMarket.sol";
+import "../../../contracts/mocks/MockQuoteToken.sol";
+import "../../../contracts/mocks/MockBaseToken.sol";
+import "../../../contracts/OrderNFT.sol";
 
 contract GeometricPriceBookUnitTest is Test {
     uint128 public constant A = 10**10;
     uint128 public constant R = 1001 * 10**15;
 
-    MockGeometricPriceBook priceBook;
+    VolatileMarket market;
+    MockQuoteToken quoteToken;
+    MockBaseToken baseToken;
+    OrderNFT orderToken;
 
     function setUp() public {
-        priceBook = new MockGeometricPriceBook(A, R);
+        quoteToken = new MockQuoteToken();
+        baseToken = new MockBaseToken();
+        orderToken = new OrderNFT(address(this), address(this));
+        market = new VolatileMarket(
+            address(orderToken),
+            address(quoteToken),
+            address(baseToken),
+            1,
+            0,
+            0,
+            address(this),
+            A,
+            R
+        );
     }
 
     function testIndexToPrice() public {
-        uint256 lastPrice = priceBook.indexToPrice(0);
+        uint256 lastPrice = market.indexToPrice(0);
         for (uint16 index = 1; ; index++) {
-            uint256 price = priceBook.indexToPrice(index);
+            uint256 price = market.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
             assertGe(spread, 10009999);
             assertLe(spread, 10010000);
@@ -35,19 +54,19 @@ contract GeometricPriceBookUnitTest is Test {
         bool roundingUp,
         uint16 expectedIndex
     ) private {
-        (uint16 priceIndex, uint256 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
+        (uint16 priceIndex, uint256 correctedPrice) = market.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
-        assertEq(correctedPrice, priceBook.indexToPrice(expectedIndex));
+        assertEq(correctedPrice, market.indexToPrice(expectedIndex));
     }
 
     function testPriceToIndex() public {
         for (uint16 index = 0; ; index++) {
-            uint256 price = priceBook.indexToPrice(index);
+            uint256 price = market.indexToPrice(index);
             if (index == 0) {
                 vm.expectRevert();
-                priceBook.priceToIndex(price - 1, false);
+                market.priceToIndex(price - 1, false);
                 vm.expectRevert();
-                priceBook.priceToIndex(price - 1, true);
+                market.priceToIndex(price - 1, true);
             } else {
                 _testPriceToIndex(price - 1, false, index - 1);
                 _testPriceToIndex(price - 1, true, index);
@@ -57,7 +76,7 @@ contract GeometricPriceBookUnitTest is Test {
             _testPriceToIndex(price + 1, false, index);
             if (index == priceBook.maxIndex()) {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-                priceBook.priceToIndex(price + 1, true);
+                market.priceToIndex(price + 1, true);
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 priceBook.priceToIndex(price + price / 999, false);
                 break;
@@ -67,17 +86,17 @@ contract GeometricPriceBookUnitTest is Test {
     }
 
     function testRevertPriceToIndex() public {
-        uint256 maxPrice = priceBook.indexToPrice(priceBook.maxIndex());
+        uint256 maxPrice = market.indexToPrice(priceBook.maxIndex());
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(A - 1, true);
+        market.priceToIndex(A - 1, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(A - 1, false);
+        market.priceToIndex(A - 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, true);
+        market.priceToIndex((maxPrice * R) / (10**18) + 1, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex((maxPrice * R) / (10**18) + 1, false);
+        market.priceToIndex((maxPrice * R) / (10**18) + 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(maxPrice + 1, true);
+        market.priceToIndex(maxPrice + 1, true);
     }
 }
