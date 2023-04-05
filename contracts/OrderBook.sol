@@ -67,6 +67,8 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
     mapping(address => uint256) public override uncollectedHostFees;
     mapping(address => uint256) public override uncollectedProtocolFees;
     mapping(uint256 => Order) private _orders;
+    uint16 public override blockTradeLogIndex;
+    BlockTradeLog[65536] private _blockTradeLogs;
 
     constructor(
         address orderToken_,
@@ -464,6 +466,10 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         }
     }
 
+    function blockTradeLogs(uint16 index) external view returns (BlockTradeLog memory) {
+        return _blockTradeLogs[index];
+    }
+
     function indexToPrice(uint16 priceIndex) public view virtual returns (uint128);
 
     function _cleanHeap(bool isBid) private {
@@ -715,8 +721,58 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
             if (getDepth(isTakingBidSide, currentIndex) == 0) _cleanHeap(isTakingBidSide);
 
             emit TakeOrder(msg.sender, user, currentIndex, takenRawAmount, options);
+            _logPrice(!isTakingBidSide, currentIndex, takenRawAmount);
         }
         outputAmount -= _calculateTakerFeeAmount(outputAmount, true);
+    }
+
+    function _logPrice(
+        bool isBid,
+        uint16 priceIndex,
+        uint64 volume
+    ) internal {
+        BlockTradeLog memory recentLog = _blockTradeLogs[blockTradeLogIndex];
+        if (recentLog.blockTime == 0) {
+            _blockTradeLogs[blockTradeLogIndex] = BlockTradeLog({
+                blockTime: uint64(block.timestamp),
+                askVolume: isBid ? 0 : volume,
+                bidVolume: isBid ? volume : 0,
+                open: priceIndex,
+                high: priceIndex,
+                low: priceIndex,
+                close: priceIndex
+            });
+            return;
+        }
+        if (block.timestamp == recentLog.blockTime) {
+            if (isBid) {
+                recentLog.bidVolume += volume;
+            } else {
+                recentLog.askVolume += volume;
+            }
+            if (priceIndex > recentLog.high) {
+                recentLog.high = priceIndex;
+            }
+            if (priceIndex < recentLog.low) {
+                recentLog.low = priceIndex;
+            }
+            recentLog.close = priceIndex;
+            _blockTradeLogs[blockTradeLogIndex] = recentLog;
+        } else {
+            unchecked {
+                // cyclic
+                blockTradeLogIndex += 1;
+            }
+            _blockTradeLogs[blockTradeLogIndex] = BlockTradeLog({
+                blockTime: uint64(block.timestamp),
+                askVolume: isBid ? 0 : volume,
+                bidVolume: isBid ? volume : 0,
+                open: recentLog.close,
+                high: recentLog.close > priceIndex ? recentLog.close : priceIndex,
+                low: recentLog.close < priceIndex ? recentLog.close : priceIndex,
+                close: priceIndex
+            });
+        }
     }
 
     function _makeOrder(
