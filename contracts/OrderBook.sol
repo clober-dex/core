@@ -68,7 +68,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
     mapping(address => uint256) public override uncollectedProtocolFees;
     mapping(uint256 => Order) private _orders;
     uint16 public override blockTradeLogIndex;
-    BlockTradeLog[65535] private _blockTradeLogs;
+    BlockTradeLog[65536] private _blockTradeLogs;
 
     constructor(
         address orderToken_,

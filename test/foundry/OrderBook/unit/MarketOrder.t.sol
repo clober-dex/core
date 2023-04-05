@@ -792,7 +792,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
     function testTradeLogLargeTradeSize() public {
         _createOrderBook(0, 0);
 
-        for (uint16 i = 0; i < 65535; i++) {
+        CloberOrderBook.BlockTradeLog memory tradeLog;
+        for (uint32 i = 0; i <= 66000; i++) {
             _createPostOnlyOrder(Constants.ASK);
 
             orderBook.marketOrder({
@@ -804,9 +805,10 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
                 data: new bytes(0)
             });
 
-            CloberOrderBook.BlockTradeLog memory tradeLog = orderBook.blockTradeLogs(i);
-            assertEq(orderBook.blockTradeLogIndex(), i, "ERROR_BLOCK_TRADE_LOG_INDEX");
-            assertEq(tradeLog.blockTime, i + 1, "ERROR_BLOCK_TIME");
+            uint16 expectedIndex = uint16(i % 65536);
+            tradeLog = orderBook.blockTradeLogs(expectedIndex);
+            assertEq(orderBook.blockTradeLogIndex(), expectedIndex, "ERROR_BLOCK_TRADE_LOG_INDEX");
+            assertEq(tradeLog.blockTime, uint64(i) + 1, "ERROR_BLOCK_TIME");
             vm.warp(block.timestamp + 1);
         }
     }
