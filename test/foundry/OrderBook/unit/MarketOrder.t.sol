@@ -610,6 +610,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 2);
         orderBook.marketOrder({
@@ -625,6 +627,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 2, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 2, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 3);
         orderBook.marketOrder({
@@ -640,6 +644,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 3, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
     }
 
     function testTradeLogWithAskForPriceIncrease() public {
@@ -659,6 +665,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 2);
         orderBook.marketOrder({
@@ -674,6 +682,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 2, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 2, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 3);
         orderBook.marketOrder({
@@ -689,6 +699,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 3, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
     }
 
     function testTradeLogWithBidForPriceDecrease() public {
@@ -708,6 +720,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX * 3, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX * 2);
         orderBook.marketOrder({
@@ -723,6 +737,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 2, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.ASK, Constants.PRICE_INDEX);
         orderBook.marketOrder({
@@ -738,6 +754,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.bidVolume, Constants.RAW_AMOUNT * 3, "ERROR_BID_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 1, "ERROR_CLOSE");
     }
 
     function testTradeLogWithAskForPriceDecrease() public {
@@ -757,6 +775,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX * 3, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 3, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX * 2);
         orderBook.marketOrder({
@@ -772,6 +792,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 2, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX * 2, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX * 2, "ERROR_CLOSE");
 
         _createPostOnlyOrder(Constants.BID, Constants.PRICE_INDEX);
         orderBook.marketOrder({
@@ -787,6 +809,8 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         assertEq(tradeLog.askVolume, Constants.RAW_AMOUNT * 3, "ERROR_ASK_VOLUME");
         assertEq(tradeLog.high, Constants.PRICE_INDEX * 3, "ERROR_HIGH");
         assertEq(tradeLog.low, Constants.PRICE_INDEX, "ERROR_LOW");
+        assertEq(tradeLog.open, Constants.PRICE_INDEX * 3, "ERROR_OPEN");
+        assertEq(tradeLog.close, Constants.PRICE_INDEX, "ERROR_CLOSE");
     }
 
     function testTradeLogLargeTradeSize() public {
