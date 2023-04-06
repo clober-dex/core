@@ -111,6 +111,32 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         baseToken.approve(address(market), type(uint256).max);
     }
 
+    function _createMarket(
+        int24 makerFee,
+        uint24 takerFee,
+        uint128 r
+    ) private {
+        orderToken = new OrderNFT(address(this), address(this));
+        market = new VolatileMarket(
+            address(orderToken),
+            address(quoteToken),
+            address(baseToken),
+            10**4,
+            makerFee,
+            takerFee,
+            address(this),
+            Constants.GEOMETRIC_A,
+            r
+        );
+        orderToken.init("", "", address(market));
+
+        quoteToken.mint(address(this), type(uint128).max);
+        quoteToken.approve(address(market), type(uint256).max);
+
+        baseToken.mint(address(this), type(uint128).max);
+        baseToken.approve(address(market), type(uint256).max);
+    }
+
     function _toArray(OrderKey memory orderKey) private pure returns (OrderKey[] memory) {
         OrderKey[] memory ids = new OrderKey[](1);
         ids[0] = orderKey;
@@ -652,7 +678,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _checkTakeOrder(Constants.ASK, 777 * uint64(Constants.MAX_ORDER), priceIndex);
     }
 
-    function testVerticalBidOrderFlow() public {
+    function testVerticalBidOrderFlowWithR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
@@ -668,7 +694,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
     }
 
-    function testVerticalAskOrderFlow() public {
+    function testVerticalAskOrderFlowWithR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
@@ -677,6 +703,40 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         // To prevent too large price : 313 * 128 = 40064
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
+            _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.ASK, type(uint16).max, expectedTakeOrders, 0);
+    }
+
+    function testVerticalBidOrderFlowWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
+    }
+
+    function testVerticalAskOrderFlowWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
             _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
