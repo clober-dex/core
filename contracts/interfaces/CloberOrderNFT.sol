@@ -15,6 +15,13 @@ interface CloberOrderNFT is IERC721, IERC721Metadata {
     function baseURI() external view returns (string memory);
 
     /**
+     * @notice Returns the contract URI for the metadata of this NFT collection.
+     * https://docs.opensea.io/docs/contract-level-metadata
+     * @return The contract URI for the metadata of this NFT collection.
+     */
+    function contractURI() external view returns (string memory);
+
+    /**
      * @notice Returns the address of the market contract that manages this token.
      * @return The address of the market contract that manages this token.
      */
@@ -44,6 +51,12 @@ interface CloberOrderNFT is IERC721, IERC721Metadata {
      * @param newBaseURI The new base URI for the metadata of this NFT collection.
      */
     function changeBaseURI(string memory newBaseURI) external;
+
+    /**
+     * @notice Changes the contract URI for the metadata of this NFT collection.
+     * @param newContractURI The new contract URI for the metadata of this NFT collection.
+     */
+    function changeContractURI(string memory newContractURI) external;
 
     /**
      * @notice Decodes a token id into an order key.
