@@ -856,4 +856,35 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         }
         _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount * 313, 0, expectedTakeOrders);
     }
+
+    function testMarketBidWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+        market.limitOrder(
+            Constants.USER_A,
+            maxPriceIndex,
+            0,
+            market.rawToBase(rawAmount, maxPriceIndex, true),
+            0,
+            new bytes(0)
+        );
+
+        Order[] memory expectedTakeOrders = new Order[](1);
+        expectedTakeOrders[0] = Order({rawAmount: rawAmount, priceIndex: maxPriceIndex});
+        _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount, 0, expectedTakeOrders);
+    }
+
+    function testMarketAskWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+        market.limitOrder(Constants.USER_A, maxPriceIndex, rawAmount, 0, 1, new bytes(0));
+
+        Order[] memory expectedTakeOrders = new Order[](1);
+        expectedTakeOrders[0] = Order({rawAmount: rawAmount, priceIndex: maxPriceIndex});
+        _checkTakeOrders(Constants.BID, 0, 0, market.rawToBase(rawAmount, maxPriceIndex, true), expectedTakeOrders);
+    }
 }
