@@ -684,7 +684,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         // Takes
         uint16 priceIndex = 0;
         uint64 rawAmount = 3;
-        // To prevent too large price : 313 * 128 = 40064
+
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
@@ -700,7 +700,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         // Takes
         uint16 priceIndex = 0;
         uint64 rawAmount = 3;
-        // To prevent too large price : 313 * 128 = 40064
+
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
@@ -750,11 +750,20 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         }
         _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
 
-        expectedTakeOrders = new Order[](34);
+        expectedTakeOrders = new Order[](21);
         priceIndex = market.maxPriceIndex();
-        for (uint16 i = 0; i < 34; i++) {
-            _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
-            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+        for (uint16 i = 0; i < 21; i++) {
+            market.limitOrder(
+                Constants.USER_A,
+                priceIndex,
+                0,
+                1, // baseAmount
+                0,
+                new bytes(0)
+            );
+            // expectedRawAmount: price * _basePrecisionComplement / _quotePrecisionComplement * PRICE_PRECISION * unitQuote
+            uint256 expectedRawAmount = market.indexToPrice(priceIndex) / (10**12 * 10**18 * 10**4);
+            expectedTakeOrders[i] = Order({rawAmount: uint64(expectedRawAmount), priceIndex: priceIndex});
             priceIndex -= 128;
         }
         _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
