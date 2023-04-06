@@ -77,8 +77,8 @@ contract GeometricPriceBookR101UnitTest is Test {
             if (index == market.maxPriceIndex()) {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 market.priceToIndex(price + 1, true);
+                // test for when price is bigger than 1.001 * maxPrice
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-                // test for more than 1.001 * maxPrice
                 market.priceToIndex(price + price / 999, false); // = price * 1000 / 999 => price * 1.001001001001001
                 break;
             }
