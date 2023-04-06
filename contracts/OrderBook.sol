@@ -504,7 +504,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         return _blockTradeLogs[index];
     }
 
-    function maxIndex() public view virtual returns (uint16);
+    function maxPriceIndex() public view virtual returns (uint16);
 
     function maxPrice() public view virtual returns (uint256);
 

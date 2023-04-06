@@ -19,7 +19,7 @@ contract MockOrderBook is OrderBook {
         address factory_
     ) OrderBook(orderToken_, quoteToken_, baseToken_, quoteUnit_, makerFee_, takerFee_, factory_) {}
 
-    function maxIndex() public view override returns (uint16) {
+    function maxPriceIndex() public view override returns (uint16) {
         return 0xffff;
     }
 

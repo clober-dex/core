@@ -365,8 +365,15 @@ interface CloberOrderBook {
      */
     function changeOrderOwner(OrderKey calldata orderKey, address newOwner) external;
 
-    function maxIndex() external view returns (uint16);
+    /**
+     * @return The biggest price book index supported.
+     */
+    function maxPriceIndex() external view returns (uint16);
 
+    /**
+     * @dev The max price can be bigger than `indexToPrice(maxPriceIndex())`.
+     * @return The biggest price possible considering rounding down.
+     */
     function maxPrice() external view returns (uint256);
 
     /**

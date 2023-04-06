@@ -22,7 +22,7 @@ contract StableMarket is OrderBook, ArithmeticPriceBook {
         ArithmeticPriceBook(a_, d_)
     {}
 
-    function maxIndex() public view override returns (uint16) {
+    function maxPriceIndex() public view override returns (uint16) {
         return _maxIndex;
     }
 
