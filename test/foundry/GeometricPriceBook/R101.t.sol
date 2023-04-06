@@ -40,12 +40,16 @@ contract GeometricPriceBookR101UnitTest is Test {
     function testIndexToPrice() public {
         uint256 lastPrice = market.indexToPrice(0);
         for (uint16 index = 1; ; index++) {
+            if (index > market.maxPriceIndex()) {
+                vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+                market.indexToPrice(index);
+                break;
+            }
             uint256 price = market.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
             assertGe(spread, 10099999);
             assertLe(spread, 10100000);
             lastPrice = price;
-            if (index == market.maxPriceIndex()) break;
         }
     }
 
