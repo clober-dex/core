@@ -11,9 +11,9 @@ import "../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../contracts/mocks/MockBaseToken.sol";
 import "../../../contracts/OrderNFT.sol";
 
-contract GeometricPriceBookUnitTest is Test {
+contract GeometricPriceBookR101UnitTest is Test {
     uint128 public constant A = 10**10;
-    uint128 public constant R = 1001 * 10**15;
+    uint128 public constant R = 101 * 10**16;
 
     VolatileMarket market;
     MockQuoteToken quoteToken;
@@ -42,8 +42,8 @@ contract GeometricPriceBookUnitTest is Test {
         for (uint16 index = 1; ; index++) {
             uint256 price = market.indexToPrice(index);
             uint256 spread = (uint256(price) * 10000000) / lastPrice;
-            assertGe(spread, 10009999);
-            assertLe(spread, 10010000);
+            assertGe(spread, 10099999);
+            assertLe(spread, 10100000);
             lastPrice = price;
             if (index == market.maxIndex()) break;
         }
@@ -78,8 +78,8 @@ contract GeometricPriceBookUnitTest is Test {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 market.priceToIndex(price + 1, true);
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-                // test for more than 1.001 * maxPrice
-                market.priceToIndex(price + price / 999, false); // = price * 1000 / 999 => price * 1.001001001001001
+                // test for more than 1.01 * maxPrice
+                market.priceToIndex(price + price / 99, false); // = price * 100 / 99 => price * 1.0101010101010102
                 break;
             }
             _testPriceToIndex(price + 1, true, index + 1);
