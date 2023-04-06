@@ -5,11 +5,11 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../../../contracts/markets/GeometricPriceBook.sol";
-import "../../../contracts/markets/VolatileMarket.sol";
-import "../../../contracts/mocks/MockQuoteToken.sol";
-import "../../../contracts/mocks/MockBaseToken.sol";
-import "../../../contracts/OrderNFT.sol";
+import "../../../../contracts/markets/GeometricPriceBook.sol";
+import "../../../../contracts/markets/VolatileMarket.sol";
+import "../../../../contracts/mocks/MockQuoteToken.sol";
+import "../../../../contracts/mocks/MockBaseToken.sol";
+import "../../../../contracts/OrderNFT.sol";
 
 contract GeometricPriceBookR101UnitTest is Test {
     uint128 public constant A = 10**10;
