@@ -32,7 +32,7 @@ abstract contract GeometricPriceBook {
         uint256 castedR = uint256(r_);
         _a = a_;
         // precision of `_r0~16` is 2^64
-        _r0 = ((1 << 64) * castedR) / 10**18;
+        _r0 = (castedR << 64) / 10**18;
         // when `r_` <= 1
         if ((a_ * _r0) >> 64 <= a_) {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);
