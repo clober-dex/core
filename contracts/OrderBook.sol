@@ -115,7 +115,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         if (msg.value / _CLAIM_BOUNTY_UNIT > type(uint32).max) {
             revert Errors.CloberError(Errors.OVERFLOW_UNDERFLOW);
         }
-        if (priceIndex > maxPrice) {
+        if (priceIndex > maxPriceIndex()) {
             revert Errors.CloberError(Errors.INVALID_INDEX);
         }
         bool isBid = (options & 1) == 1;
