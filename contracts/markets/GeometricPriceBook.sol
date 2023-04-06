@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 
 import "../Errors.sol";
 
-import "forge-std/console.sol";
-
 abstract contract GeometricPriceBook {
     uint256 private immutable _a;
     uint256 private immutable _r0;
