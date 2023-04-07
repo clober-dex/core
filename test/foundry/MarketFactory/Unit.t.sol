@@ -126,6 +126,8 @@ contract MarketFactoryUnitTest is Test {
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.VOLATILE), "MARKET_INFO_TYPE");
         assertEq(marketInfo.a, 10**10, "MARKET_INFO_A");
         assertEq(marketInfo.factor, 1001 * 10**15, "MARKET_INFO_FACTOR");
+        assert(factory.deployedGeometricPriceBook(a, r) != address(0));
+        assertEq(factory.deployedGeometricPriceBook(a, r + 1), address(0));
     }
 
     function testCreateVolatileMarketViaDelegateCall() public {
@@ -348,6 +350,8 @@ contract MarketFactoryUnitTest is Test {
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.STABLE), "MARKET_INFO_TYPE");
         assertEq(marketInfo.a, 10**14, "MARKET_INFO_A");
         assertEq(marketInfo.factor, 10**14, "MARKET_INFO_FACTOR");
+        assert(factory.deployedArithmeticPriceBook(a, d) != address(0));
+        assertEq(factory.deployedArithmeticPriceBook(a, d + 1), address(0));
     }
 
     function testCreateStableMarketViaDelegateCall() public {
@@ -666,5 +670,15 @@ contract MarketFactoryUnitTest is Test {
             10**10,
             1001 * 10**15
         );
+    }
+
+    function testFailAlreadyGeometricPriceBookExists() public {
+        testCreateVolatileMarket();
+        testCreateVolatileMarket();
+    }
+
+    function testFailAlreadyArithmeticPriceBookExists() public {
+        testCreateStableMarket();
+        testCreateStableMarket();
     }
 }
