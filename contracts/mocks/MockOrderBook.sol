@@ -20,7 +20,7 @@ contract MockOrderBook is OrderBook {
     ) OrderBook(orderToken_, quoteToken_, baseToken_, quoteUnit_, makerFee_, takerFee_, factory_) {}
 
     function maxPriceIndex() public pure override returns (uint16) {
-        return 0xffff;
+        return 0xfff0; // test for `INVALID_PRICE_INDEX`
     }
 
     function priceUpperBound() public pure override returns (uint256) {
