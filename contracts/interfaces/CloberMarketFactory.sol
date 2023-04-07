@@ -86,16 +86,10 @@ interface CloberMarketFactory {
     event ChangeHost(address indexed market, address previousHost, address newHost);
 
     /**
-     * @notice Returns the address of the VolatileMarketDeployer.
-     * @return The address of the VolatileMarketDeployer.
+     * @notice Returns the address of the MarketDeployer.
+     * @return The address of the MarketDeployer.
      */
-    function volatileMarketDeployer() external view returns (address);
-
-    /**
-     * @notice Returns the address of the StableMarketDeployer.
-     * @return The address of the StableMarketDeployer.
-     */
-    function stableMarketDeployer() external view returns (address);
+    function marketDeployer() external view returns (address);
 
     /**
      * @notice Returns the address of the OrderCanceler.

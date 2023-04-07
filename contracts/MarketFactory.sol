@@ -8,13 +8,14 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/CloberMarketFactory.sol";
-import "./interfaces/CloberVolatileMarketDeployer.sol";
-import "./interfaces/CloberStableMarketDeployer.sol";
 import "./Errors.sol";
 import "./utils/RevertOnDelegateCall.sol";
 import "./utils/ReentrancyGuard.sol";
 import "./OrderNFT.sol";
 import "./utils/BoringERC20.sol";
+import "./interfaces/CloberMarketDeployer.sol";
+import "./markets/GeometricPriceBook.sol";
+import "./markets/ArithmeticPriceBook.sol";
 
 contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegateCall {
     using BoringERC20 for IERC20;
@@ -25,8 +26,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     uint24 private constant _STABLE_MIN_NET_FEE = 80; // 0.008%
 
     uint256 private immutable _cachedChainId;
-    address public immutable override volatileMarketDeployer;
-    address public immutable override stableMarketDeployer;
+    address public immutable override marketDeployer;
     address public immutable override canceler;
     bytes32 private immutable _orderTokenBytecodeHash;
 
@@ -57,8 +57,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     }
 
     constructor(
-        address volatileMarketDeployer_,
-        address stableMarketDeployer_,
+        address marketDeployer_,
         address initialDaoTreasury,
         address canceler_,
         address[] memory initialQuoteTokenRegistrations_
@@ -67,8 +66,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         owner = msg.sender;
         emit ChangeOwner(address(0), msg.sender);
 
-        volatileMarketDeployer = volatileMarketDeployer_;
-        stableMarketDeployer = stableMarketDeployer_;
+        marketDeployer = marketDeployer_;
         daoTreasury = initialDaoTreasury;
         emit ChangeDaoTreasury(address(0), initialDaoTreasury);
         _orderTokenBytecodeHash = keccak256(
@@ -97,7 +95,8 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         if (quoteUnit == 0) {
             revert Errors.CloberError(Errors.EMPTY_INPUT);
         }
-        market = CloberVolatileMarketDeployer(volatileMarketDeployer).deploy(
+        new GeometricPriceBook(a, r);
+        market = CloberMarketDeployer(marketDeployer).deploy(
             orderToken,
             quoteToken,
             baseToken,
@@ -105,8 +104,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             quoteUnit,
             makerFee,
             takerFee,
-            a,
-            r
+            address(new GeometricPriceBook(a, r))
         );
         emit CreateVolatileMarket(
             market,
@@ -142,7 +140,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             revert Errors.CloberError(Errors.EMPTY_INPUT);
         }
 
-        market = CloberStableMarketDeployer(stableMarketDeployer).deploy(
+        market = CloberMarketDeployer(marketDeployer).deploy(
             orderToken,
             quoteToken,
             baseToken,
@@ -150,8 +148,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             quoteUnit,
             makerFee,
             takerFee,
-            a,
-            d
+            address(new ArithmeticPriceBook(a, d))
         );
         emit CreateStableMarket(market, orderToken, quoteToken, baseToken, quoteUnit, nonce, makerFee, takerFee, a, d);
         _storeMarketInfo(market, marketHost, MarketType.STABLE, a, d);

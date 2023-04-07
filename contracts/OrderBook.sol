@@ -19,8 +19,9 @@ import "./utils/Math.sol";
 import "./utils/OrderKeyUtils.sol";
 import "./utils/ReentrancyGuard.sol";
 import "./utils/RevertOnDelegateCall.sol";
+import "./interfaces/CloberPriceBook.sol";
 
-abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
+contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     using SafeERC20 for IERC20;
     using OctopusHeap for OctopusHeap.Core;
     using SegmentedSegmentTree for SegmentedSegmentTree.Core;
@@ -48,6 +49,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
     uint256 private immutable _quotePrecisionComplement; // 10**(18 - d)
     uint256 private immutable _basePrecisionComplement; // 10**(18 - d)
     uint256 public immutable override quoteUnit;
+    CloberPriceBook private immutable _priceBook;
     CloberMarketFactory private immutable _factory;
     int24 public immutable override makerFee;
     uint24 public immutable override takerFee;
@@ -77,12 +79,14 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         uint96 quoteUnit_,
         int24 makerFee_,
         uint24 takerFee_,
-        address factory_
+        address factory_,
+        address priceBook_
     ) {
         orderToken = orderToken_;
         quoteUnit = quoteUnit_;
 
         _factory = CloberMarketFactory(factory_);
+        _priceBook = CloberPriceBook(priceBook_);
 
         _quoteToken = IERC20(quoteToken_);
         _baseToken = IERC20(baseToken_);
@@ -115,7 +119,8 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         if (msg.value / _CLAIM_BOUNTY_UNIT > type(uint32).max) {
             revert Errors.CloberError(Errors.OVERFLOW_UNDERFLOW);
         }
-        if (priceIndex > maxPriceIndex()) {
+        // TODO: check at modifier
+        if (priceIndex > _priceBook.maxPriceIndex()) {
             revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
         }
         bool isBid = (options & 1) == 1;
@@ -507,17 +512,17 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         return _blockTradeLogs[index];
     }
 
-    function maxPriceIndex() public view virtual returns (uint16);
+    function priceBook() external view returns (address) {
+        return address(_priceBook);
+    }
 
-    function priceUpperBound() public view virtual returns (uint256);
+    function indexToPrice(uint16 priceIndex) public view returns (uint256) {
+        return _priceBook.indexToPrice(priceIndex);
+    }
 
-    function indexToPrice(uint16 priceIndex) public view virtual returns (uint256);
-
-    function priceToIndex(uint256 price, bool roundingUp)
-        public
-        view
-        virtual
-        returns (uint16 index, uint256 correctedPrice);
+    function priceToIndex(uint256 price, bool roundingUp) public view returns (uint16, uint256) {
+        return _priceBook.priceToIndex(price, roundingUp);
+    }
 
     function _cleanHeap(bool isBid) private {
         OctopusHeap.Core storage heap = _getHeap(isBid);

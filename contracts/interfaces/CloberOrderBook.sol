@@ -366,14 +366,6 @@ interface CloberOrderBook {
     function changeOrderOwner(OrderKey calldata orderKey, address newOwner) external;
 
     /**
-     * @return The biggest price book index supported.
-     */
-    function maxPriceIndex() external view returns (uint16);
-
-    // TODO
-    function priceUpperBound() external view returns (uint256);
-
-    /**
      * @dev Converts the price index into the actual price.
      * @param priceIndex The price book index.
      * @return price The actual price.
