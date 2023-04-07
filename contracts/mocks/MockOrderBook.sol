@@ -19,12 +19,20 @@ contract MockOrderBook is OrderBook {
         address factory_
     ) OrderBook(orderToken_, quoteToken_, baseToken_, quoteUnit_, makerFee_, takerFee_, factory_) {}
 
-    function indexToPrice(uint16 priceIndex) public pure override returns (uint128) {
+    function maxPriceIndex() public pure override returns (uint16) {
+        return 0xffff;
+    }
+
+    function maxPrice() public pure override returns (uint256) {
+        return _PRICE_PRECISION << 16;
+    }
+
+    function indexToPrice(uint16 priceIndex) public pure override returns (uint256) {
         require(priceIndex <= _MAX_INDEX, "MAX_INDEX");
         return priceIndex * _PRICE_PRECISION;
     }
 
-    function priceToIndex(uint128 price, bool roundingUp) public pure override returns (uint16 priceIndex, uint128) {
+    function priceToIndex(uint256 price, bool roundingUp) public pure override returns (uint16 priceIndex, uint256) {
         if ((price % _PRICE_PRECISION) > 0 && roundingUp) {
             priceIndex = uint16(price / _PRICE_PRECISION + 1);
         } else {

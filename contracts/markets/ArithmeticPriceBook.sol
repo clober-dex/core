@@ -10,24 +10,30 @@ abstract contract ArithmeticPriceBook {
     uint128 private immutable _a;
     uint128 private immutable _d;
 
+    uint16 internal immutable _maxIndex;
+    uint256 internal immutable _maxPrice;
+
     constructor(uint128 a, uint128 d) {
         _a = a;
         _d = d;
 
-        if (d == 0 || type(uint16).max * d > type(uint128).max - a) {
+        _maxIndex = 0xffff;
+        _maxPrice = a + type(uint16).max * d;
+
+        if (d == 0) {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);
         }
     }
 
-    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint128) {
+    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256) {
         return _a + _d * priceIndex;
     }
 
-    function _priceToIndex(uint128 price, bool roundingUp)
+    function _priceToIndex(uint256 price, bool roundingUp)
         internal
         view
         virtual
-        returns (uint16 index, uint128 correctedPrice)
+        returns (uint16 index, uint256 correctedPrice)
     {
         if (price < _a || price >= _a + _d * (2**16)) {
             revert Errors.CloberError(Errors.INVALID_PRICE);

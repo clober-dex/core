@@ -23,4 +23,5 @@ library Errors {
     uint256 public constant INVALID_ID = 14;
     uint256 public constant INVALID_QUOTE_TOKEN = 15;
     uint256 public constant INVALID_PRICE = 16;
+    uint256 public constant INVALID_INDEX = 17;
 }
