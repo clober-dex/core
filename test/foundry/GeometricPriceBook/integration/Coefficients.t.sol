@@ -57,7 +57,7 @@ contract GeometricPriceBookIntegrationTest is Test {
             vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
             market.indexToPrice(maxPriceIndex + 1);
         }
-        assertLe(market.indexToPrice(maxPriceIndex), market.maxPrice(), "WRONG_MAX_PRICE");
+        assertLe(market.indexToPrice(maxPriceIndex), market.priceUpperBound(), "WRONG_MAX_PRICE");
     }
 
     function testCoefficients() public {

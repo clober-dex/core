@@ -11,14 +11,14 @@ abstract contract ArithmeticPriceBook {
     uint128 private immutable _d;
 
     uint16 internal immutable _maxIndex;
-    uint256 internal immutable _maxPrice;
+    uint256 internal immutable _priceUpperBound;
 
     constructor(uint128 a, uint128 d) {
         _a = a;
         _d = d;
 
         _maxIndex = 0xffff;
-        _maxPrice = a + type(uint16).max * d;
+        _priceUpperBound = a + type(uint16).max * d;
 
         if (d == 0) {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);

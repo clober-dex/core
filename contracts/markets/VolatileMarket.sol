@@ -26,8 +26,8 @@ contract VolatileMarket is OrderBook, GeometricPriceBook {
         return _maxIndex;
     }
 
-    function maxPrice() public view override returns (uint256) {
-        return _maxPrice;
+    function priceUpperBound() public view override returns (uint256) {
+        return _priceUpperBound;
     }
 
     function indexToPrice(uint16 priceIndex) public view override returns (uint256) {

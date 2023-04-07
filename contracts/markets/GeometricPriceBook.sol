@@ -26,7 +26,7 @@ abstract contract GeometricPriceBook {
     uint256 private immutable _r16;
 
     uint16 internal immutable _maxIndex;
-    uint256 internal immutable _maxPrice;
+    uint256 internal immutable _priceUpperBound;
 
     constructor(uint128 a_, uint128 r_) {
         uint256 castedR = uint256(r_);
@@ -186,7 +186,7 @@ abstract contract GeometricPriceBook {
         _r16 = r;
 
         _maxIndex = maxIndex_;
-        _maxPrice = (maxPrice_ >> 64) * a_ + (((maxPrice_ & 0xffffffffffffffff) * a_) >> 64);
+        _priceUpperBound = (maxPrice_ >> 64) * a_ + (((maxPrice_ & 0xffffffffffffffff) * a_) >> 64);
     }
 
     function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
@@ -220,7 +220,7 @@ abstract contract GeometricPriceBook {
         virtual
         returns (uint16 index, uint256 correctedPrice)
     {
-        if (price < _a || price >= _maxPrice) {
+        if (price < _a || price >= _priceUpperBound) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;

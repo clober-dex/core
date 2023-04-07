@@ -374,7 +374,7 @@ interface CloberOrderBook {
      * @dev The max price can be bigger than `indexToPrice(maxPriceIndex())`.
      * @return The biggest price possible considering rounding down.
      */
-    function maxPrice() external view returns (uint256);
+    function priceUpperBound() external view returns (uint256);
 
     /**
      * @dev Converts the price index into the actual price.

@@ -23,7 +23,7 @@ contract MockOrderBook is OrderBook {
         return 0xffff;
     }
 
-    function maxPrice() public pure override returns (uint256) {
+    function priceUpperBound() public pure override returns (uint256) {
         return _PRICE_PRECISION << 16;
     }
 
