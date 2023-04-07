@@ -140,4 +140,22 @@ interface CloberRouter {
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
     ) external payable;
+
+    /**
+     * @notice Registers markets to be accepted by the router.
+     * @param markets Markets to be registered.
+     */
+    function registerMarkets(address[] calldata markets) external;
+
+    /**
+     * @notice Unregisters markets denying their use by the router.
+     * @param markets Markets to be unregistered.
+     */
+    function unregisterMarkets(address[] calldata markets) external;
+
+    /**
+     * @notice Checks if the market is registered.
+     * @param market The market to be checked for registration status.
+     */
+    function isRegisteredMarket(address market) external view returns (bool);
 }

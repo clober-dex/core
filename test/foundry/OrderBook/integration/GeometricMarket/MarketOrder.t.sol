@@ -106,6 +106,32 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         baseToken.approve(address(market), type(uint256).max);
     }
 
+    function _createMarket(
+        int24 makerFee,
+        uint24 takerFee,
+        uint128 r
+    ) private {
+        orderToken = new OrderNFT(address(this), address(this));
+        market = new VolatileMarket(
+            address(orderToken),
+            address(quoteToken),
+            address(baseToken),
+            10**4,
+            makerFee,
+            takerFee,
+            address(this),
+            Constants.GEOMETRIC_A,
+            r
+        );
+        orderToken.init("", "", address(market));
+
+        quoteToken.mint(address(this), type(uint128).max);
+        quoteToken.approve(address(market), type(uint256).max);
+
+        baseToken.mint(address(this), type(uint128).max);
+        baseToken.approve(address(market), type(uint256).max);
+    }
+
     function _toArray(OrderKey memory orderKey) private pure returns (OrderKey[] memory) {
         OrderKey[] memory ids = new OrderKey[](1);
         ids[0] = orderKey;
@@ -639,7 +665,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         );
     }
 
-    function testVerticalBidOrderFlow() public {
+    function testVerticalBidOrderFlowR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
@@ -664,7 +690,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         _checkTakeOrders(Constants.BID, 0, 0, baseAmount, expectedTakeOrders);
     }
 
-    function testVerticalAskOrderFlow() public {
+    function testVerticalAskOrderFlowR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
@@ -687,8 +713,8 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount * 313, 0, expectedTakeOrders);
     }
 
-    function testVerticalClaimedBidOrderFlow() public {
-        testVerticalBidOrderFlow();
+    function testVerticalClaimedBidOrderFlowR1001() public {
+        testVerticalBidOrderFlowR1001();
 
         // Takes
         uint16 priceIndex = 0;
@@ -712,8 +738,8 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         _checkTakeOrders(Constants.BID, 0, 0, baseAmount, expectedTakeOrders);
     }
 
-    function testVerticalClaimedAskOrderFlow() public {
-        testVerticalAskOrderFlow();
+    function testVerticalClaimedAskOrderFlowR1001() public {
+        testVerticalAskOrderFlowR1001();
 
         // Takes
         uint16 priceIndex = 0;
@@ -733,5 +759,132 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
             priceIndex += 128;
         }
         _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount * 313, 0, expectedTakeOrders);
+    }
+
+    function testVerticalBidOrderFlowR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+        uint256 baseAmount = 0;
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
+                Constants.USER_A,
+                priceIndex,
+                rawAmount,
+                0,
+                1,
+                new bytes(0)
+            );
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            baseAmount += market.rawToBase(rawAmount, priceIndex, true);
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.BID, 0, 0, baseAmount, expectedTakeOrders);
+    }
+
+    function testVerticalAskOrderFlowR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
+                Constants.USER_A,
+                priceIndex,
+                0,
+                market.rawToBase(rawAmount, priceIndex, true),
+                0,
+                new bytes(0)
+            );
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount * 313, 0, expectedTakeOrders);
+    }
+
+    function testVerticalClaimedBidOrderFlowR101() public {
+        testVerticalBidOrderFlowR101();
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+        uint256 baseAmount = 0;
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
+                Constants.USER_A,
+                priceIndex,
+                rawAmount,
+                0,
+                1,
+                new bytes(0)
+            );
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            baseAmount += market.rawToBase(rawAmount, priceIndex, true);
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.BID, 0, 0, baseAmount, expectedTakeOrders);
+    }
+
+    function testVerticalClaimedAskOrderFlowR101() public {
+        testVerticalAskOrderFlowR101();
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+        // To prevent too large price : 34 * 128 = 4352
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
+                Constants.USER_A,
+                priceIndex,
+                0,
+                market.rawToBase(rawAmount, priceIndex, true),
+                0,
+                new bytes(0)
+            );
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount * 313, 0, expectedTakeOrders);
+    }
+
+    function testMarketBidWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+        market.limitOrder(
+            Constants.USER_A,
+            maxPriceIndex,
+            0,
+            market.rawToBase(rawAmount, maxPriceIndex, true),
+            0,
+            new bytes(0)
+        );
+
+        Order[] memory expectedTakeOrders = new Order[](1);
+        expectedTakeOrders[0] = Order({rawAmount: rawAmount, priceIndex: maxPriceIndex});
+        _checkTakeOrders(Constants.ASK, type(uint16).max, rawAmount, 0, expectedTakeOrders);
+    }
+
+    function testMarketAskWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+        market.limitOrder(Constants.USER_A, maxPriceIndex, rawAmount, 0, 1, new bytes(0));
+
+        Order[] memory expectedTakeOrders = new Order[](1);
+        expectedTakeOrders[0] = Order({rawAmount: rawAmount, priceIndex: maxPriceIndex});
+        _checkTakeOrders(Constants.BID, 0, 0, market.rawToBase(rawAmount, maxPriceIndex, true), expectedTakeOrders);
     }
 }
