@@ -140,4 +140,13 @@ interface CloberRouter {
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
     ) external payable;
+
+    // TODO
+    function registerMarkets(address[] calldata market) external;
+
+    // TODO
+    function unregisterMarkets(address[] calldata market) external;
+
+    // TODO
+    function registeredMarket(address market) external view returns (bool);
 }
