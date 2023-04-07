@@ -23,6 +23,8 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
 
     CloberMarketFactory private immutable _factory;
 
+    mapping(address => bool) private _previousMarkets;
+
     modifier checkDeadline(uint64 deadline) {
         if (block.timestamp > deadline) {
             revert Errors.CloberError(Errors.DEADLINE);
@@ -42,7 +44,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         bytes calldata data
     ) external payable {
         // check if caller is registered market
-        if (_factory.getMarketHost(msg.sender) == address(0)) {
+        if (!_previousMarkets[msg.sender] && _factory.getMarketHost(msg.sender) == address(0)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
 
@@ -164,5 +166,14 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     ) external payable checkDeadline(marketOrderParams.deadline) {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _ASK);
+    }
+
+    function registerPreviousMarkets(address[] calldata market) external {
+        if (msg.sender != _factory.owner()) {
+            revert Errors.CloberError(Errors.ACCESS);
+        }
+        for (uint256 i = 0; i < market.length; ++i) {
+            _previousMarkets[market[i]] = true;
+        }
     }
 }

@@ -97,6 +97,25 @@ contract MarketRouterUnitTest is Test {
         IERC20(baseToken).approve(address(router), INIT_AMOUNT * 10**18);
     }
 
+    function _deployNewRouter() private returns (MarketRouter) {
+        uint64 thisNonce = vm.getNonce(address(this));
+        MarketFactory newFactory = new MarketFactory(
+            Create1.computeAddress(address(this), thisNonce + 3),
+            Create1.computeAddress(address(this), thisNonce + 4),
+            address(this),
+            address(this),
+            new address[](0)
+        );
+        newFactory.registerQuoteToken(quoteToken);
+
+        MarketRouter newRouter = new MarketRouter(address(newFactory));
+        vm.prank(USER);
+        IERC20(quoteToken).approve(address(newRouter), INIT_AMOUNT * 10**6);
+        vm.prank(USER);
+        IERC20(baseToken).approve(address(newRouter), INIT_AMOUNT * 10**18);
+        return newRouter;
+    }
+
     function testCloberMarketSwapCallback() public {
         uint256 beforeUserETHBalance = USER.balance;
         uint256 beforeUserTokenBalance = IERC20(quoteToken).balanceOf(USER);
@@ -698,5 +717,38 @@ contract MarketRouterUnitTest is Test {
         marketOrderParams.deadline = uint64(block.timestamp - 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DEADLINE));
         router.marketAskAfterClaim(claimParamsList, marketOrderParams);
+    }
+
+    function testPreviousMarketsOnNewRouterBeforeRegistration() public {
+        MarketRouter newRouter = _deployNewRouter();
+
+        CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
+        params.deadline = uint64(block.timestamp + 100);
+        vm.prank(USER);
+        vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
+    }
+
+    function testPreviousMarketsOnNewRouterAfterRegistration() public {
+        MarketRouter newRouter = _deployNewRouter();
+        address[] memory previousMarkets = new address[](1);
+        previousMarkets[0] = address(market1);
+        newRouter.registerPreviousMarkets(previousMarkets);
+
+        CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
+        params.deadline = uint64(block.timestamp + 100);
+        vm.prank(USER);
+        vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
+        newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
+    }
+
+    function testPreviousMarketsAccess() public {
+        address[] memory previousMarkets = new address[](1);
+        previousMarkets[0] = address(market1);
+
+        vm.prank(USER);
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        router.registerPreviousMarkets(previousMarkets);
     }
 }
