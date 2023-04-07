@@ -72,25 +72,19 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         }
     }
 
-    function limitBid(LimitOrderParams calldata params)
-        external
-        payable
-        checkDeadline(params.deadline)
-        returns (uint256)
-    {
+    function limitBid(LimitOrderParams calldata params) external payable returns (uint256) {
         return _limitOrder(params, _BID);
     }
 
-    function limitAsk(LimitOrderParams calldata params)
-        external
-        payable
-        checkDeadline(params.deadline)
-        returns (uint256)
-    {
+    function limitAsk(LimitOrderParams calldata params) external payable returns (uint256) {
         return _limitOrder(params, _ASK);
     }
 
-    function _limitOrder(LimitOrderParams calldata params, bool isBid) internal returns (uint256) {
+    function _limitOrder(LimitOrderParams calldata params, bool isBid)
+        internal
+        checkDeadline(params.deadline)
+        returns (uint256)
+    {
         return
             CloberOrderBook(params.market).limitOrder{value: uint256(params.claimBounty) * 1 gwei}(
                 params.user,
@@ -102,15 +96,15 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             );
     }
 
-    function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) {
+    function marketBid(MarketOrderParams calldata params) external payable {
         _marketOrder(params, _BID);
     }
 
-    function marketAsk(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) {
+    function marketAsk(MarketOrderParams calldata params) external payable {
         _marketOrder(params, _ASK);
     }
 
-    function _marketOrder(MarketOrderParams calldata params, bool isBid) internal {
+    function _marketOrder(MarketOrderParams calldata params, bool isBid) internal checkDeadline(params.deadline) {
         CloberOrderBook(params.market).marketOrder(
             params.user,
             params.limitPriceIndex,
