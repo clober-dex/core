@@ -30,6 +30,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     address public immutable override canceler;
     bytes32 private immutable _orderTokenBytecodeHash;
 
+    mapping(bytes32 => address) private _deployedPriceBook;
     mapping(address => bool) public override registeredQuoteTokens;
     address public override owner;
     address public override futureOwner;
@@ -95,7 +96,15 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         if (quoteUnit == 0) {
             revert Errors.CloberError(Errors.EMPTY_INPUT);
         }
-        new GeometricPriceBook(a, r);
+        address priceBook;
+        {
+            bytes32 priceBookKey = _priceBookKey(a, r, MarketType.VOLATILE);
+            priceBook = _deployedPriceBook[priceBookKey];
+            if (priceBook == address(0)) {
+                priceBook = address(new GeometricPriceBook(a, r));
+                _deployedPriceBook[priceBookKey] = priceBook;
+            }
+        }
         market = CloberMarketDeployer(marketDeployer).deploy(
             orderToken,
             quoteToken,
@@ -104,7 +113,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             quoteUnit,
             makerFee,
             takerFee,
-            address(new GeometricPriceBook(a, r))
+            priceBook
         );
         emit CreateVolatileMarket(
             market,
@@ -139,6 +148,15 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         if (quoteUnit == 0) {
             revert Errors.CloberError(Errors.EMPTY_INPUT);
         }
+        address priceBook;
+        {
+            bytes32 priceBookKey = _priceBookKey(a, d, MarketType.STABLE);
+            priceBook = _deployedPriceBook[priceBookKey];
+            if (priceBook == address(0)) {
+                priceBook = address(new ArithmeticPriceBook(a, d));
+                _deployedPriceBook[priceBookKey] = priceBook;
+            }
+        }
 
         market = CloberMarketDeployer(marketDeployer).deploy(
             orderToken,
@@ -148,7 +166,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             quoteUnit,
             makerFee,
             takerFee,
-            address(new ArithmeticPriceBook(a, d))
+            priceBook
         );
         emit CreateStableMarket(market, orderToken, quoteToken, baseToken, quoteUnit, nonce, makerFee, takerFee, a, d);
         _storeMarketInfo(market, marketHost, MarketType.STABLE, a, d);
@@ -173,6 +191,22 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         emit ChangeOwner(owner, newOwner);
         owner = newOwner;
         delete futureOwner;
+    }
+
+    function _priceBookKey(
+        uint128 a,
+        uint128 factor,
+        MarketType marketType
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(a, factor, marketType));
+    }
+
+    function deployedGeometricPriceBook(uint128 a, uint128 r) public view returns (address) {
+        return _deployedPriceBook[_priceBookKey(a, r, MarketType.VOLATILE)];
+    }
+
+    function deployedArithmeticPriceBook(uint128 a, uint128 d) public view returns (address) {
+        return _deployedPriceBook[_priceBookKey(a, d, MarketType.STABLE)];
     }
 
     function getMarketHost(address market) external view returns (address) {
