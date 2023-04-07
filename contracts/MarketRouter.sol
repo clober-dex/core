@@ -23,6 +23,8 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
 
     CloberMarketFactory private immutable _factory;
 
+    mapping(address => bool) private _registeredMarkets;
+
     modifier checkDeadline(uint64 deadline) {
         if (block.timestamp > deadline) {
             revert Errors.CloberError(Errors.DEADLINE);
@@ -42,7 +44,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         bytes calldata data
     ) external payable {
         // check if caller is registered market
-        if (_factory.getMarketHost(msg.sender) == address(0)) {
+        if (!isRegisteredMarket(msg.sender) && _factory.getMarketHost(msg.sender) == address(0)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
 
@@ -164,5 +166,27 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     ) external payable checkDeadline(marketOrderParams.deadline) {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _ASK);
+    }
+
+    function isRegisteredMarket(address market) public view returns (bool) {
+        return _registeredMarkets[market];
+    }
+
+    function registerMarkets(address[] calldata markets) external {
+        if (msg.sender != _factory.owner()) {
+            revert Errors.CloberError(Errors.ACCESS);
+        }
+        for (uint256 i = 0; i < markets.length; ++i) {
+            _registeredMarkets[markets[i]] = true;
+        }
+    }
+
+    function unregisterMarkets(address[] calldata markets) external {
+        if (msg.sender != _factory.owner()) {
+            revert Errors.CloberError(Errors.ACCESS);
+        }
+        for (uint256 i = 0; i < markets.length; ++i) {
+            _registeredMarkets[markets[i]] = false;
+        }
     }
 }
