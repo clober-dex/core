@@ -109,4 +109,9 @@ contract GeometricPriceBookR101UnitTest is Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         market.priceToIndex(maxPrice + 1, true);
     }
+
+    function testPriceUpperBound() public {
+        uint256 maxPrice = market.indexToPrice(market.maxPriceIndex());
+        assertGe(market.priceUpperBound(), maxPrice);
+    }
 }

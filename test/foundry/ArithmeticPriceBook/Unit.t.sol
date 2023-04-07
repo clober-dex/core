@@ -78,4 +78,9 @@ contract ArithmeticPriceBookUnitTest is Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         market.priceToIndex(A + (2**16) * D - 1, true);
     }
+
+    function testPriceUpperBound() public {
+        uint256 maxPrice = market.indexToPrice(market.maxPriceIndex());
+        assertGe(market.priceUpperBound(), maxPrice);
+    }
 }
