@@ -111,6 +111,32 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         baseToken.approve(address(market), type(uint256).max);
     }
 
+    function _createMarket(
+        int24 makerFee,
+        uint24 takerFee,
+        uint128 r
+    ) private {
+        orderToken = new OrderNFT(address(this), address(this));
+        market = new VolatileMarket(
+            address(orderToken),
+            address(quoteToken),
+            address(baseToken),
+            10**4,
+            makerFee,
+            takerFee,
+            address(this),
+            Constants.GEOMETRIC_A,
+            r
+        );
+        orderToken.init("", "", address(market));
+
+        quoteToken.mint(address(this), type(uint128).max);
+        quoteToken.approve(address(market), type(uint256).max);
+
+        baseToken.mint(address(this), type(uint128).max);
+        baseToken.approve(address(market), type(uint256).max);
+    }
+
     function _toArray(OrderKey memory orderKey) private pure returns (OrderKey[] memory) {
         OrderKey[] memory ids = new OrderKey[](1);
         ids[0] = orderKey;
@@ -363,7 +389,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
     function testFullyFillingBid() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.BID, _rawAmount, prices[i]);
@@ -384,7 +410,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
     function testFullyFillingAsk() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.ASK, _rawAmount, prices[i]);
@@ -405,7 +431,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
     function testPartialFillForHighestBidOrder() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.BID, _rawAmount, prices[i]);
@@ -427,7 +453,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
     function testPartialFillForLowestAskOrder() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.ASK, _rawAmount, prices[i]);
@@ -450,13 +476,13 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
         uint256 makeAmount = market.rawToBase(1225, 1, true);
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.BID, _rawAmount, prices[i]);
         }
 
-        // make sure to show that post-only limit orders revert.
+        // Make sure to show that post-only limit orders revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.POST_ONLY));
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(Constants.USER_A, 0, 0, makeAmount, 2, new bytes(0));
 
@@ -476,13 +502,13 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
         uint64 makeAmount = 1225;
 
-        // Post Only In Fibonacci
+        // Post only using Fibonacci
         for (uint256 i = 0; i < 20; i++) {
             uint64 _rawAmount = 3 * prices[i];
             _checkMakeOrder(Constants.ASK, _rawAmount, prices[i]);
         }
 
-        // make sure to show that post-only limit orders revert.
+        // Make sure to show that post-only limit orders revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.POST_ONLY));
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
             Constants.USER_A,
@@ -652,13 +678,13 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _checkTakeOrder(Constants.ASK, 777 * uint64(Constants.MAX_ORDER), priceIndex);
     }
 
-    function testVerticalBidOrderFlow() public {
+    function testVerticalBidOrderFlowWithR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
         uint16 priceIndex = 0;
         uint64 rawAmount = 3;
-        // To prevent too large price : 313 * 128 = 40064
+
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
@@ -668,13 +694,13 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
     }
 
-    function testVerticalAskOrderFlow() public {
+    function testVerticalAskOrderFlowWithR1001() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         // Takes
         uint16 priceIndex = 0;
         uint64 rawAmount = 3;
-        // To prevent too large price : 313 * 128 = 40064
+
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
@@ -682,5 +708,92 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             priceIndex += 128;
         }
         _checkTakeOrders(Constants.ASK, type(uint16).max, expectedTakeOrders, 0);
+    }
+
+    function testVerticalBidOrderFlowWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
+
+        expectedTakeOrders = new Order[](34);
+        priceIndex = market.maxPriceIndex();
+        for (uint16 i = 0; i < 34; i++) {
+            _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex -= 128;
+        }
+        _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
+    }
+
+    function testVerticalAskOrderFlowWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        // Takes
+        uint16 priceIndex = 0;
+        uint64 rawAmount = 3;
+
+        Order[] memory expectedTakeOrders = new Order[](34);
+        for (uint16 i = 0; i < 34; i++) {
+            _checkMakeOrder(Constants.ASK, rawAmount, priceIndex);
+            expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
+            priceIndex += 128;
+        }
+        _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
+
+        expectedTakeOrders = new Order[](21);
+        priceIndex = market.maxPriceIndex();
+        for (uint16 i = 0; i < 21; i++) {
+            market.limitOrder(
+                Constants.USER_A,
+                priceIndex,
+                0,
+                3 * 10**7, // baseAmount
+                0,
+                new bytes(0)
+            );
+            // expectedRawAmount: price * baseAmount * _basePrecisionComplement / quoteUnit * _quotePrecisionComplement * PRICE_PRECISION
+            uint256 expectedRawAmount = (market.indexToPrice(priceIndex) * 3 * 10**7 * 10**0) /
+                (10**4 * 10**12 * 10**18);
+            expectedTakeOrders[i] = Order({rawAmount: uint64(expectedRawAmount), priceIndex: priceIndex});
+            priceIndex -= 128;
+        }
+        _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
+    }
+
+    function testLimitBidWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        market.limitOrder(Constants.USER_A, maxPriceIndex + 1, rawAmount, 0, 1, new bytes(0)); // bid
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        market.limitOrder(Constants.USER_A, maxPriceIndex + 1, rawAmount, 0, 3, new bytes(0)); // bid + posyOnly
+    }
+
+    function testLimitAskWithInvalidPriceIndexWithR101() public {
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+
+        uint64 rawAmount = 3;
+        uint16 maxPriceIndex = market.maxPriceIndex();
+
+        uint256 baseAmount = market.rawToBase(rawAmount, maxPriceIndex, true);
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        market.limitOrder(Constants.USER_A, maxPriceIndex + 1, 0, baseAmount, 0, new bytes(0)); // ask
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        market.limitOrder(Constants.USER_A, maxPriceIndex + 1, 0, baseAmount, 2, new bytes(0)); // ask + posyOnly
     }
 }
