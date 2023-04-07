@@ -38,7 +38,7 @@ abstract contract GeometricPriceBook {
             revert Errors.CloberError(Errors.INVALID_COEFFICIENTS);
         }
         uint16 maxIndex_;
-        uint256 maxPrice_;
+        uint256 maxPrice_ = 1 << 64;
 
         uint256 r;
         if (_r0 < type(uint256).max / _r0) {
@@ -186,7 +186,7 @@ abstract contract GeometricPriceBook {
         _r16 = r;
 
         _maxIndex = maxIndex_;
-        _maxPrice = (maxPrice_ >> 64) * a_;
+        _maxPrice = (maxPrice_ >> 64) * a_ + (((maxPrice_ & 0xffffffffffffffff) * a_) >> 64);
     }
 
     function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
