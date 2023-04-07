@@ -757,12 +757,13 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
                 Constants.USER_A,
                 priceIndex,
                 0,
-                1, // baseAmount
+                3 * 10**7, // baseAmount
                 0,
                 new bytes(0)
             );
-            // expectedRawAmount: price * _basePrecisionComplement / _quotePrecisionComplement * PRICE_PRECISION * unitQuote
-            uint256 expectedRawAmount = market.indexToPrice(priceIndex) / (10**12 * 10**18 * 10**4);
+            // expectedRawAmount: price * baseAmount * _basePrecisionComplement / _quotePrecisionComplement * PRICE_PRECISION * unitQuote
+            uint256 expectedRawAmount = (market.indexToPrice(priceIndex) * 3 * 10**7 * 10**0) /
+                (10**12 * 10**18 * 10**4);
             expectedTakeOrders[i] = Order({rawAmount: uint64(expectedRawAmount), priceIndex: priceIndex});
             priceIndex -= 128;
         }
