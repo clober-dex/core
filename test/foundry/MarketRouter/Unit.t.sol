@@ -735,6 +735,7 @@ contract MarketRouterUnitTest is Test {
         address[] memory previousMarkets = new address[](1);
         previousMarkets[0] = address(market1);
         newRouter.registerMarkets(previousMarkets);
+        assertEq(newRouter.registeredMarket(address(market1)), true);
 
         CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
         params.deadline = uint64(block.timestamp + 100);
@@ -743,6 +744,8 @@ contract MarketRouterUnitTest is Test {
         newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
 
         newRouter.unregisterMarkets(previousMarkets);
+        assertEq(newRouter.registeredMarket(address(market1)), false);
+
         params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
         params.deadline = uint64(block.timestamp + 100);
         vm.prank(USER);
