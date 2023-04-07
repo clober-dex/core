@@ -23,7 +23,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
 
     CloberMarketFactory private immutable _factory;
 
-    mapping(address => bool) private _previousMarkets;
+    mapping(address => bool) private _registeredMarkets;
 
     modifier checkDeadline(uint64 deadline) {
         if (block.timestamp > deadline) {
@@ -169,7 +169,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     }
 
     function registeredMarket(address market) public view returns (bool) {
-        return _previousMarkets[market];
+        return _registeredMarkets[market];
     }
 
     function registerMarkets(address[] calldata market) external {
@@ -177,7 +177,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             revert Errors.CloberError(Errors.ACCESS);
         }
         for (uint256 i = 0; i < market.length; ++i) {
-            _previousMarkets[market[i]] = true;
+            _registeredMarkets[market[i]] = true;
         }
     }
 
@@ -186,7 +186,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             revert Errors.CloberError(Errors.ACCESS);
         }
         for (uint256 i = 0; i < market.length; ++i) {
-            _previousMarkets[market[i]] = false;
+            _registeredMarkets[market[i]] = false;
         }
     }
 }
