@@ -8,8 +8,9 @@ import "forge-std/Test.sol";
 import "../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
+import "../../../../contracts/OrderBook.sol";
 import "./Constants.sol";
 
 contract OrderBookSwapCallbackUnitTest is Test, CloberMarketSwapCallbackReceiver {
@@ -29,7 +30,7 @@ contract OrderBookSwapCallbackUnitTest is Test, CloberMarketSwapCallbackReceiver
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook orderBook;
+    OrderBook orderBook;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -37,14 +38,15 @@ contract OrderBookSwapCallbackUnitTest is Test, CloberMarketSwapCallbackReceiver
         baseToken = new MockBaseToken();
 
         orderToken = new OrderNFT(address(this), address(this));
-        orderBook = new MockOrderBook(
+        orderBook = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             10**4,
             0,
             0,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(orderBook));
 

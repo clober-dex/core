@@ -8,8 +8,9 @@ import "forge-std/Test.sol";
 import "../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
+import "../../../../contracts/OrderBook.sol";
 import "../utils/MockReentrancyToken.sol";
 import "./Constants.sol";
 
@@ -21,7 +22,7 @@ contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, 
 
     MockQuoteToken quoteToken;
     MockReentrancyToken baseToken;
-    MockOrderBook market;
+    OrderBook market;
     OrderNFT orderToken;
     uint256 receiveStatus;
     bytes receiveErr;
@@ -40,14 +41,15 @@ contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, 
         quoteToken = new MockQuoteToken();
         baseToken = new MockReentrancyToken();
         orderToken = new OrderNFT(address(this), address(this));
-        market = new MockOrderBook(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             10**4,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(market));
 

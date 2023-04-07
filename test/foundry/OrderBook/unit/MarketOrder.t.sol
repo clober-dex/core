@@ -8,9 +8,9 @@ import "forge-std/Test.sol";
 import "../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
-import "../../../../contracts/markets/VolatileMarket.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
+import "../../../../contracts/OrderBook.sol";
 import "./Constants.sol";
 
 contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
@@ -26,7 +26,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook orderBook;
+    OrderBook orderBook;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -54,14 +54,15 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
 
     function _createOrderBook(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        orderBook = new MockOrderBook(
+        orderBook = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             1,
             makerFee,
             takerFee,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(orderBook));
 
@@ -282,14 +283,15 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
 
     function testOverflowInQuoteToRawOnTake() public {
         orderToken = new OrderNFT(address(this), address(this));
-        orderBook = new MockOrderBook(
+        orderBook = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             1,
             0,
             Constants.MAX_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(orderBook));
 

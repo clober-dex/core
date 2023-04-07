@@ -9,8 +9,9 @@ import "../../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol
 import "../../../../../contracts/interfaces/CloberOrderBook.sol";
 import "../../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../../contracts/markets/StableMarket.sol";
+import "../../../../../contracts/markets/ArithmeticPriceBook.sol";
 import "../../../../../contracts/OrderNFT.sol";
+import "../../../../../contracts/OrderBook.sol";
 import "../../utils/MockingFactoryTest.sol";
 import "../Constants.sol";
 
@@ -48,7 +49,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     uint256 receivedEthers;
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    StableMarket market;
+    OrderBook market;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -86,7 +87,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
 
     function _createMarket(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        market = new StableMarket(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
@@ -94,8 +95,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
             makerFee,
             takerFee,
             address(this),
-            Constants.ARITHMETIC_A,
-            Constants.ARITHMETIC_D
+            address(new ArithmeticPriceBook(Constants.ARITHMETIC_A, Constants.ARITHMETIC_D))
         );
         orderToken.init("", "", address(market));
 

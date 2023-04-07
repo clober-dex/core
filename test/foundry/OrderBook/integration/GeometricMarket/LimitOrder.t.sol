@@ -9,8 +9,9 @@ import "../../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol
 import "../../../../../contracts/interfaces/CloberOrderBook.sol";
 import "../../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../../contracts/markets/VolatileMarket.sol";
+import "../../../../../contracts/markets/GeometricPriceBook.sol";
 import "../../../../../contracts/OrderNFT.sol";
+import "../../../../../contracts/OrderBook.sol";
 import "../../utils/MockingFactoryTest.sol";
 import "../Constants.sol";
 
@@ -57,7 +58,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
     uint16[20] prices;
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    VolatileMarket market;
+    OrderBook market;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -91,7 +92,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
 
     function _createMarket(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        market = new VolatileMarket(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
@@ -99,8 +100,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             makerFee,
             takerFee,
             address(this),
-            Constants.GEOMETRIC_A,
-            Constants.GEOMETRIC_R
+            address(new GeometricPriceBook(Constants.GEOMETRIC_A, Constants.GEOMETRIC_R))
         );
         orderToken.init("", "", address(market));
 
@@ -117,7 +117,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         uint128 r
     ) private {
         orderToken = new OrderNFT(address(this), address(this));
-        market = new VolatileMarket(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
@@ -125,8 +125,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             makerFee,
             takerFee,
             address(this),
-            Constants.GEOMETRIC_A,
-            r
+            address(new GeometricPriceBook(Constants.GEOMETRIC_A, r))
         );
         orderToken.init("", "", address(market));
 
@@ -726,7 +725,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _checkTakeOrders(Constants.BID, 0, expectedTakeOrders, 0);
 
         expectedTakeOrders = new Order[](34);
-        priceIndex = market.maxPriceIndex();
+        priceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();
         for (uint16 i = 0; i < 34; i++) {
             _checkMakeOrder(Constants.BID, rawAmount, priceIndex);
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
@@ -748,10 +747,10 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
         }
-        _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
+        _checkTakeOrders(Constants.ASK, CloberPriceBook(market.priceBook()).maxPriceIndex(), expectedTakeOrders, 0);
 
         expectedTakeOrders = new Order[](21);
-        priceIndex = market.maxPriceIndex();
+        priceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();
         for (uint16 i = 0; i < 21; i++) {
             market.limitOrder(
                 Constants.USER_A,
@@ -767,14 +766,14 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             expectedTakeOrders[i] = Order({rawAmount: uint64(expectedRawAmount), priceIndex: priceIndex});
             priceIndex -= 128;
         }
-        _checkTakeOrders(Constants.ASK, market.maxPriceIndex(), expectedTakeOrders, 0);
+        _checkTakeOrders(Constants.ASK, CloberPriceBook(market.priceBook()).maxPriceIndex(), expectedTakeOrders, 0);
     }
 
     function testLimitBidWithInvalidPriceIndexWithR101() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
 
         uint64 rawAmount = 3;
-        uint16 maxPriceIndex = market.maxPriceIndex();
+        uint16 maxPriceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         market.limitOrder(Constants.USER_A, maxPriceIndex + 1, rawAmount, 0, 1, new bytes(0)); // bid
@@ -787,7 +786,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
 
         uint64 rawAmount = 3;
-        uint16 maxPriceIndex = market.maxPriceIndex();
+        uint16 maxPriceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();
 
         uint256 baseAmount = market.rawToBase(rawAmount, maxPriceIndex, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));

@@ -6,10 +6,11 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
-import "./Constants.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
+import "../../../../contracts/OrderBook.sol";
+import "./Constants.sol";
 
 contract OrderBookGetOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
     uint96 private constant _QUOTE_UNIT = 10**4; // unit is 1 USDC
@@ -22,7 +23,7 @@ contract OrderBookGetOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook market;
+    OrderBook market;
     OrderNFT orderToken;
 
     uint256 orderIndex;
@@ -41,14 +42,15 @@ contract OrderBookGetOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
         orderToken = new OrderNFT(address(this), address(this));
         quoteToken = new MockQuoteToken();
         baseToken = new MockBaseToken();
-        market = new MockOrderBook(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             _QUOTE_UNIT,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(market));
 

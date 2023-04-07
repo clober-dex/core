@@ -9,8 +9,9 @@ import "../../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol
 import "../../../../../contracts/interfaces/CloberOrderBook.sol";
 import "../../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../../contracts/markets/VolatileMarket.sol";
+import "../../../../../contracts/markets/GeometricPriceBook.sol";
 import "../../../../../contracts/OrderNFT.sol";
+import "../../../../../contracts/OrderBook.sol";
 import "../Constants.sol";
 
 contract ClaimIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
@@ -50,7 +51,7 @@ contract ClaimIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
     uint256 receivedEthers;
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    VolatileMarket market;
+    OrderBook market;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -79,7 +80,7 @@ contract ClaimIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
     function _createMarket(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        market = new VolatileMarket(
+        market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
@@ -87,8 +88,7 @@ contract ClaimIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
             makerFee,
             takerFee,
             address(this),
-            Constants.GEOMETRIC_A,
-            Constants.GEOMETRIC_R
+            address(new GeometricPriceBook(Constants.GEOMETRIC_A, Constants.GEOMETRIC_R))
         );
         orderToken.init("", "", address(market));
 

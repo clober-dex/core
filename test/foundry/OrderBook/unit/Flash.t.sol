@@ -7,7 +7,8 @@ import "forge-std/Test.sol";
 
 import "../../../../contracts/mocks/MockBaseToken.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
+import "../../../../contracts/OrderBook.sol";
 import "./Constants.sol";
 
 contract OrderBookFlashUnitTest is Test, CloberMarketFlashCallbackReceiver {
@@ -26,21 +27,22 @@ contract OrderBookFlashUnitTest is Test, CloberMarketFlashCallbackReceiver {
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook market;
+    OrderBook market;
 
     bytes customData;
 
     function setUp() public {
         quoteToken = new MockQuoteToken();
         baseToken = new MockBaseToken();
-        market = new MockOrderBook(
+        market = new OrderBook(
             address(0x123),
             address(quoteToken),
             address(baseToken),
             _QUOTE_UNIT,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
 
         quoteToken.mint(address(market), _INIT_AMOUNT * 1e6);
