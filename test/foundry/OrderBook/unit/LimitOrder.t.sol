@@ -437,4 +437,19 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             data: new bytes(0)
         });
     }
+
+    function testLimitBidWithInvalidPrice() public {
+        _createOrderBook(0, 0);
+
+        uint16 invalidPriceIndex = orderBook.maxPriceIndex() + 1;
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
+        orderBook.limitOrder({
+            user: Constants.MAKER,
+            priceIndex: invalidPriceIndex,
+            rawAmount: Constants.RAW_AMOUNT,
+            baseAmount: 0,
+            options: _buildLimitOrderOptions(Constants.BID, !Constants.POST_ONLY),
+            data: new bytes(0)
+        });
+    }
 }

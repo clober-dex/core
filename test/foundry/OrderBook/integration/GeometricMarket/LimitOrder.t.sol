@@ -776,10 +776,10 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         uint64 rawAmount = 3;
         uint16 maxPriceIndex = market.maxPriceIndex();
 
-        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         market.limitOrder(Constants.USER_A, maxPriceIndex + 1, rawAmount, 0, 1, new bytes(0)); // bid
 
-        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         market.limitOrder(Constants.USER_A, maxPriceIndex + 1, rawAmount, 0, 3, new bytes(0)); // bid + posyOnly
     }
 
@@ -790,10 +790,10 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         uint16 maxPriceIndex = market.maxPriceIndex();
 
         uint256 baseAmount = market.rawToBase(rawAmount, maxPriceIndex, true);
-        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         market.limitOrder(Constants.USER_A, maxPriceIndex + 1, 0, baseAmount, 0, new bytes(0)); // ask
 
-        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         market.limitOrder(Constants.USER_A, maxPriceIndex + 1, 0, baseAmount, 2, new bytes(0)); // ask + posyOnly
     }
 }

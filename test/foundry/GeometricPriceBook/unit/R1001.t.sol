@@ -81,7 +81,7 @@ contract GeometricPriceBookR101UnitTest is Test {
                 vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
                 market.priceToIndex(price + price / 999, false); // = price * 1000 / 999 => price * 1.001001001001001
                 if (index < 0xffff) {
-                    vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+                    vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
                     market.indexToPrice(index + 1);
                 }
                 break;
@@ -103,5 +103,10 @@ contract GeometricPriceBookR101UnitTest is Test {
         market.priceToIndex((maxPrice * R) / (10**18) + 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         market.priceToIndex(maxPrice + 1, true);
+    }
+
+    function testPriceUpperBound() public {
+        uint256 maxPrice = market.indexToPrice(market.maxPriceIndex());
+        assertGe(market.priceUpperBound(), maxPrice);
     }
 }

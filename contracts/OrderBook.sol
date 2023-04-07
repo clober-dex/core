@@ -116,7 +116,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
             revert Errors.CloberError(Errors.OVERFLOW_UNDERFLOW);
         }
         if (priceIndex > maxPriceIndex()) {
-            revert Errors.CloberError(Errors.INVALID_INDEX);
+            revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
         }
         bool isBid = (options & 1) == 1;
 
@@ -509,7 +509,7 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
 
     function maxPriceIndex() public view virtual returns (uint16);
 
-    function maxPrice() public view virtual returns (uint256);
+    function priceUpperBound() public view virtual returns (uint256);
 
     function indexToPrice(uint16 priceIndex) public view virtual returns (uint256);
 
