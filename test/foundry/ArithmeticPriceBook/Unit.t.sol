@@ -6,41 +6,21 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../contracts/markets/ArithmeticPriceBook.sol";
-import "../../../contracts/markets/StableMarket.sol";
-import "../../../contracts/mocks/MockQuoteToken.sol";
-import "../../../contracts/mocks/MockBaseToken.sol";
-import "../../../contracts/OrderNFT.sol";
 
 contract ArithmeticPriceBookUnitTest is Test {
     uint128 public constant A = 10**14;
     uint128 public constant D = 10**14;
 
-    StableMarket market;
-    MockQuoteToken quoteToken;
-    MockBaseToken baseToken;
-    OrderNFT orderToken;
+    ArithmeticPriceBook priceBook;
 
     function setUp() public {
-        quoteToken = new MockQuoteToken();
-        baseToken = new MockBaseToken();
-        orderToken = new OrderNFT(address(this), address(this));
-        market = new StableMarket(
-            address(orderToken),
-            address(quoteToken),
-            address(baseToken),
-            1,
-            0,
-            0,
-            address(this),
-            A,
-            D
-        );
+        priceBook = new ArithmeticPriceBook(A, D);
     }
 
     function testIndexToPrice() public {
-        assertEq(market.indexToPrice(0), A);
-        assertEq(market.indexToPrice(5), A + 5 * D);
-        assertEq(market.indexToPrice(type(uint16).max), A + type(uint16).max * D);
+        assertEq(priceBook.indexToPrice(0), A);
+        assertEq(priceBook.indexToPrice(5), A + 5 * D);
+        assertEq(priceBook.indexToPrice(type(uint16).max), A + type(uint16).max * D);
     }
 
     function _testPriceToIndex(
@@ -48,9 +28,9 @@ contract ArithmeticPriceBookUnitTest is Test {
         bool roundingUp,
         uint16 expectedIndex
     ) private {
-        (uint16 priceIndex, uint256 correctedPrice) = market.priceToIndex(price, roundingUp);
+        (uint16 priceIndex, uint256 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
-        assertEq(correctedPrice, market.indexToPrice(expectedIndex));
+        assertEq(correctedPrice, priceBook.indexToPrice(expectedIndex));
     }
 
     function testPriceToIndex() public {
@@ -68,19 +48,19 @@ contract ArithmeticPriceBookUnitTest is Test {
 
     function testRevertPriceToIndex() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        market.priceToIndex(A - 1, true);
+        priceBook.priceToIndex(A - 1, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        market.priceToIndex(A - 1, false);
+        priceBook.priceToIndex(A - 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        market.priceToIndex(A + (2**16) * D, true);
+        priceBook.priceToIndex(A + (2**16) * D, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        market.priceToIndex(A + (2**16) * D, false);
+        priceBook.priceToIndex(A + (2**16) * D, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        market.priceToIndex(A + (2**16) * D - 1, true);
+        priceBook.priceToIndex(A + (2**16) * D - 1, true);
     }
 
     function testPriceUpperBound() public {
-        uint256 maxPrice = market.indexToPrice(market.maxPriceIndex());
-        assertGe(market.priceUpperBound(), maxPrice);
+        uint256 maxPrice = priceBook.indexToPrice(priceBook.maxPriceIndex());
+        assertGe(priceBook.priceUpperBound(), maxPrice);
     }
 }
