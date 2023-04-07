@@ -38,6 +38,7 @@ contract OrderBookUtils is Test {
     address public baseToken;
     OrderCanceler orderCanceler;
     MarketRouter public router;
+    GeometricPriceBook public volatilePriceBook;
 
     function createMarket() public {
         address factoryOwner = address(this);
@@ -48,7 +49,7 @@ contract OrderBookUtils is Test {
         address[] memory initialQuoteTokenRegistrations = new address[](1);
         initialQuoteTokenRegistrations[0] = quoteToken;
         factory = new MarketFactory(
-            Create1.computeAddress(factoryOwner, nonce + 5),
+            Create1.computeAddress(factoryOwner, nonce + 4),
             factoryOwner, // initialDaoTreasury
             address(orderCanceler), // canceler_
             initialQuoteTokenRegistrations
