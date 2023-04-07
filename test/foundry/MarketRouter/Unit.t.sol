@@ -719,7 +719,7 @@ contract MarketRouterUnitTest is Test {
         router.marketAskAfterClaim(claimParamsList, marketOrderParams);
     }
 
-    function testPreviousMarketsOnNewRouterBeforeRegistration() public {
+    function testUnregisteredMarketAccessDenial() public {
         MarketRouter newRouter = _deployNewRouter();
 
         CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
@@ -730,12 +730,12 @@ contract MarketRouterUnitTest is Test {
         newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
     }
 
-    function testPreviousMarketsOnNewRouterAfterRegistration() public {
+    function testMarketRegistration() public {
         MarketRouter newRouter = _deployNewRouter();
-        address[] memory previousMarkets = new address[](1);
-        previousMarkets[0] = address(market1);
-        newRouter.registerMarkets(previousMarkets);
-        assertEq(newRouter.registeredMarket(address(market1)), true);
+        address[] memory markets = new address[](1);
+        markets[0] = address(market1);
+        newRouter.registerMarkets(markets);
+        assertEq(newRouter.isRegisteredMarket(address(market1)), true);
 
         CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
         params.deadline = uint64(block.timestamp + 100);
@@ -743,8 +743,8 @@ contract MarketRouterUnitTest is Test {
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
 
-        newRouter.unregisterMarkets(previousMarkets);
-        assertEq(newRouter.registeredMarket(address(market1)), false);
+        newRouter.unregisterMarkets(markets);
+        assertEq(newRouter.isRegisteredMarket(address(market1)), false);
 
         params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
         params.deadline = uint64(block.timestamp + 100);
@@ -754,16 +754,16 @@ contract MarketRouterUnitTest is Test {
         newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
     }
 
-    function testPreviousMarketsAccess() public {
-        address[] memory previousMarkets = new address[](1);
-        previousMarkets[0] = address(market1);
+    function testRegistrationPermission() public {
+        address[] memory markets = new address[](1);
+        markets[0] = address(market1);
 
         vm.prank(USER);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        router.registerMarkets(previousMarkets);
+        router.registerMarkets(markets);
 
         vm.prank(USER);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        router.unregisterMarkets(previousMarkets);
+        router.unregisterMarkets(markets);
     }
 }
