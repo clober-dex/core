@@ -16,7 +16,6 @@ interface CloberOrderNFT is IERC721, IERC721Metadata {
 
     /**
      * @notice Returns the contract URI for the metadata of this NFT collection.
-     * https://docs.opensea.io/docs/contract-level-metadata
      * @return The contract URI for the metadata of this NFT collection.
      */
     function contractURI() external view returns (string memory);
