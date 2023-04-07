@@ -74,7 +74,7 @@ contract MarketFactoryUnitTest is Test {
         factory.registerQuoteToken(quoteToken);
     }
 
-    function testCreateVolatileMarketAA() public {
+    function testCreateVolatileMarket() public {
         uint128 a = 10**10;
         uint128 r = 1001 * 10**15;
         uint256 currentNonce = factory.nonce();
