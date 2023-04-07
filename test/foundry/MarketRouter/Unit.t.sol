@@ -734,12 +734,20 @@ contract MarketRouterUnitTest is Test {
         MarketRouter newRouter = _deployNewRouter();
         address[] memory previousMarkets = new address[](1);
         previousMarkets[0] = address(market1);
-        newRouter.registerPreviousMarkets(previousMarkets);
+        newRouter.registerMarkets(previousMarkets);
 
         CloberRouter.LimitOrderParams memory params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
         params.deadline = uint64(block.timestamp + 100);
         vm.prank(USER);
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
+        newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
+
+        newRouter.unregisterMarkets(previousMarkets);
+        params = _buildLimitOrderParams(address(market1), 10, 0, POST_ONLY);
+        params.deadline = uint64(block.timestamp + 100);
+        vm.prank(USER);
+        vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
         newRouter.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
     }
 
@@ -749,6 +757,10 @@ contract MarketRouterUnitTest is Test {
 
         vm.prank(USER);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        router.registerPreviousMarkets(previousMarkets);
+        router.registerMarkets(previousMarkets);
+
+        vm.prank(USER);
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        router.unregisterMarkets(previousMarkets);
     }
 }

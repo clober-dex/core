@@ -168,12 +168,21 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         _marketOrder(marketOrderParams, _ASK);
     }
 
-    function registerPreviousMarkets(address[] calldata market) external {
+    function registerMarkets(address[] calldata market) external {
         if (msg.sender != _factory.owner()) {
             revert Errors.CloberError(Errors.ACCESS);
         }
         for (uint256 i = 0; i < market.length; ++i) {
             _previousMarkets[market[i]] = true;
+        }
+    }
+
+    function unregisterMarkets(address[] calldata market) external {
+        if (msg.sender != _factory.owner()) {
+            revert Errors.CloberError(Errors.ACCESS);
+        }
+        for (uint256 i = 0; i < market.length; ++i) {
+            _previousMarkets[market[i]] = false;
         }
     }
 }
