@@ -63,6 +63,17 @@ contract OrderNFTUnitTest is Test {
         orderToken.changeBaseURI("URI");
     }
 
+    function testChangeContractURI() public {
+        orderToken.changeContractURI("URI");
+        assertEq(orderToken.contractURI(), "URI", "URI");
+    }
+
+    function testChangeContractURIAccess() public {
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        vm.prank(address(1));
+        orderToken.changeContractURI("URI");
+    }
+
     function testSupportsInterface() public {
         assertTrue(orderToken.supportsInterface(type(IERC721).interfaceId));
         assertTrue(orderToken.supportsInterface(type(IERC721Metadata).interfaceId));

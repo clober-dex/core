@@ -44,7 +44,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         bytes calldata data
     ) external payable {
         // check if caller is registered market
-        if (!registeredMarket(msg.sender) && _factory.getMarketHost(msg.sender) == address(0)) {
+        if (!isRegisteredMarket(msg.sender) && _factory.getMarketHost(msg.sender) == address(0)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
 
@@ -162,25 +162,25 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         _marketOrder(marketOrderParams, _ASK);
     }
 
-    function registeredMarket(address market) public view returns (bool) {
+    function isRegisteredMarket(address market) public view returns (bool) {
         return _registeredMarkets[market];
     }
 
-    function registerMarkets(address[] calldata market) external {
+    function registerMarkets(address[] calldata markets) external {
         if (msg.sender != _factory.owner()) {
             revert Errors.CloberError(Errors.ACCESS);
         }
-        for (uint256 i = 0; i < market.length; ++i) {
-            _registeredMarkets[market[i]] = true;
+        for (uint256 i = 0; i < markets.length; ++i) {
+            _registeredMarkets[markets[i]] = true;
         }
     }
 
-    function unregisterMarkets(address[] calldata market) external {
+    function unregisterMarkets(address[] calldata markets) external {
         if (msg.sender != _factory.owner()) {
             revert Errors.CloberError(Errors.ACCESS);
         }
-        for (uint256 i = 0; i < market.length; ++i) {
-            _registeredMarkets[market[i]] = false;
+        for (uint256 i = 0; i < markets.length; ++i) {
+            _registeredMarkets[markets[i]] = false;
         }
     }
 }
