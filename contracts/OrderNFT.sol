@@ -25,6 +25,7 @@ contract OrderNFT is ERC165, CloberOrderNFT {
     string public override name;
     string public override symbol;
     string public override baseURI;
+    string public override contractURI;
     address public override market;
 
     mapping(address => uint256) private _balances;
@@ -71,6 +72,13 @@ contract OrderNFT is ERC165, CloberOrderNFT {
             revert Errors.CloberError(Errors.ACCESS);
         }
         baseURI = newBaseURI;
+    }
+
+    function changeContractURI(string memory newContractURI) external {
+        if (_getHost() != msg.sender) {
+            revert Errors.CloberError(Errors.ACCESS);
+        }
+        contractURI = newContractURI;
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
