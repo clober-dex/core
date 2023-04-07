@@ -115,6 +115,9 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         if (msg.value / _CLAIM_BOUNTY_UNIT > type(uint32).max) {
             revert Errors.CloberError(Errors.OVERFLOW_UNDERFLOW);
         }
+        if (priceIndex > maxPriceIndex()) {
+            revert Errors.CloberError(Errors.INVALID_INDEX);
+        }
         bool isBid = (options & 1) == 1;
 
         uint256 inputAmount;
@@ -504,13 +507,17 @@ abstract contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegat
         return _blockTradeLogs[index];
     }
 
-    function indexToPrice(uint16 priceIndex) public view virtual returns (uint128);
+    function maxPriceIndex() public view virtual returns (uint16);
 
-    function priceToIndex(uint128 price, bool roundingUp)
+    function maxPrice() public view virtual returns (uint256);
+
+    function indexToPrice(uint16 priceIndex) public view virtual returns (uint256);
+
+    function priceToIndex(uint256 price, bool roundingUp)
         public
         view
         virtual
-        returns (uint16 index, uint128 correctedPrice);
+        returns (uint16 index, uint256 correctedPrice);
 
     function _cleanHeap(bool isBid) private {
         OctopusHeap.Core storage heap = _getHeap(isBid);

@@ -44,11 +44,11 @@ contract ArithmeticPriceBookUnitTest is Test {
     }
 
     function _testPriceToIndex(
-        uint128 price,
+        uint256 price,
         bool roundingUp,
         uint16 expectedIndex
     ) private {
-        (uint16 priceIndex, uint128 correctedPrice) = market.priceToIndex(price, roundingUp);
+        (uint16 priceIndex, uint256 correctedPrice) = market.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
         assertEq(correctedPrice, market.indexToPrice(expectedIndex));
     }
