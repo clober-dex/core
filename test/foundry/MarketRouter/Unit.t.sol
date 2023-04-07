@@ -98,7 +98,6 @@ contract MarketRouterUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         MarketFactory newFactory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 3),
-            Create1.computeAddress(address(this), thisNonce + 4),
             address(this),
             address(this),
             new address[](0)

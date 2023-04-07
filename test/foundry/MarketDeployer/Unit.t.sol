@@ -38,7 +38,7 @@ contract MarketDeployerUnitTest is Test {
             0,
             address(this)
         );
-        assertEq(VolatileMarket(market).quoteToken(), quoteToken, "MARKET_QUOTE");
-        assertEq(VolatileMarket(market).baseToken(), baseToken, "MARKET_BASE");
+        assertEq(CloberOrderBook(market).quoteToken(), quoteToken, "MARKET_QUOTE");
+        assertEq(CloberOrderBook(market).baseToken(), baseToken, "MARKET_BASE");
     }
 }

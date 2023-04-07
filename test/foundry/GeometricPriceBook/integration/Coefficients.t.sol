@@ -18,13 +18,13 @@ contract GeometricPriceBookIntegrationTest is Test {
     }
 
     function _testCoefficients(uint128 a, uint128 r) internal {
-        GeometricPriceBook market = new GeometricPriceBook(a, r);
-        uint16 maxPriceIndex = market.maxPriceIndex();
+        GeometricPriceBook priceBook = new GeometricPriceBook(a, r);
+        uint16 maxPriceIndex = priceBook.maxPriceIndex();
         if (maxPriceIndex < 0xffff) {
             vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
-            market.indexToPrice(maxPriceIndex + 1);
+            priceBook.indexToPrice(maxPriceIndex + 1);
         }
-        assertLe(market.indexToPrice(maxPriceIndex), market.priceUpperBound(), "WRONG_MAX_PRICE");
+        assertLe(priceBook.indexToPrice(maxPriceIndex), priceBook.priceUpperBound(), "WRONG_MAX_PRICE");
     }
 
     function testCoefficients() public {
