@@ -186,7 +186,7 @@ abstract contract GeometricPriceBook {
         _r16 = r;
 
         _maxIndex = maxIndex_;
-        _maxPrice = maxPrice_;
+        _maxPrice = (maxPrice_ >> 64) * a_;
     }
 
     function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
@@ -220,7 +220,7 @@ abstract contract GeometricPriceBook {
         virtual
         returns (uint16 index, uint256 correctedPrice)
     {
-        if (price < _a || price >= (_a * (_maxPrice >> 64))) {
+        if (price < _a || price >= _maxPrice) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;
