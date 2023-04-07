@@ -10,7 +10,6 @@ import "../../../../contracts/mocks/MockBaseToken.sol";
 import "../../../../contracts/OrderNFT.sol";
 
 contract GeometricPriceBookIntegrationTest is Test {
-    VolatileMarket market;
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
     OrderNFT orderToken;
@@ -22,22 +21,9 @@ contract GeometricPriceBookIntegrationTest is Test {
     }
 
     function testCoefficients(uint128 a, uint128 r) public {
-        vm.assume(uint256(a) * r < 2**192 * 10**18);
         if ((uint256(r) * a) / 10**18 <= a) {
-            vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_COEFFICIENTS));
-            market = new VolatileMarket(
-                address(orderToken),
-                address(quoteToken),
-                address(baseToken),
-                1,
-                0,
-                0,
-                address(this),
-                a,
-                r
-            );
-        } else {
-            market = new VolatileMarket(
+            vm.expectRevert();
+            new VolatileMarket(
                 address(orderToken),
                 address(quoteToken),
                 address(baseToken),
@@ -49,5 +35,31 @@ contract GeometricPriceBookIntegrationTest is Test {
                 r
             );
         }
+    }
+
+    function _testCoefficients(uint128 a, uint128 r) internal {
+        VolatileMarket market = new VolatileMarket(
+            address(orderToken),
+            address(quoteToken),
+            address(baseToken),
+            1,
+            0,
+            0,
+            address(this),
+            a,
+            r
+        );
+        uint16 maxPriceIndex = market.maxPriceIndex();
+        if (maxPriceIndex < 0xffff) {
+            vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+            market.indexToPrice(maxPriceIndex + 1);
+        }
+        assertLe(market.indexToPrice(maxPriceIndex), market.maxPrice(), "WRONG_MAX_PRICE");
+    }
+
+    function testCoefficients() public {
+        _testCoefficients(1000000, 100001 * 10**13);
+        _testCoefficients(1, 2 * 10**18);
+        _testCoefficients(10**5, 10001 * 10**14);
     }
 }
