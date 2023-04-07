@@ -80,6 +80,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
+        uint64 factoryNonce = vm.getNonce(address(factory));
+        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -92,7 +94,7 @@ contract MarketFactoryUnitTest is Test {
                     QUOTE_UNIT,
                     MAKER_FEE,
                     TAKER_FEE,
-                    address(volatilePriceBook)
+                    expectedPriceBookAddress
                 )
             )
         );
@@ -231,11 +233,13 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
+        uint64 factoryNonce = vm.getNonce(address(factory));
+        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
                 marketDeployer.deploy,
-                (expectedOrderTokenAddress, quoteToken, baseToken, salt, QUOTE_UNIT, 10, 10, address(volatilePriceBook))
+                (expectedOrderTokenAddress, quoteToken, baseToken, salt, QUOTE_UNIT, 10, 10, expectedPriceBookAddress)
             )
         );
         CloberOrderBook market = CloberOrderBook(
@@ -298,6 +302,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
+        uint64 factoryNonce = vm.getNonce(address(factory));
+        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -310,7 +316,7 @@ contract MarketFactoryUnitTest is Test {
                     QUOTE_UNIT,
                     MAKER_FEE,
                     TAKER_FEE,
-                    address(stablePriceBook)
+                    expectedPriceBookAddress
                 )
             )
         );
@@ -449,11 +455,13 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
+        uint64 factoryNonce = vm.getNonce(address(factory));
+        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
                 marketDeployer.deploy,
-                (expectedOrderTokenAddress, quoteToken, baseToken, salt, QUOTE_UNIT, 10, 10, address(stablePriceBook))
+                (expectedOrderTokenAddress, quoteToken, baseToken, salt, QUOTE_UNIT, 10, 10, expectedPriceBookAddress)
             )
         );
         CloberOrderBook market = CloberOrderBook(
