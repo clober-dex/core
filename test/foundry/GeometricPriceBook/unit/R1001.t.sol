@@ -7,7 +7,7 @@ import "forge-std/Test.sol";
 
 import "../../../../contracts/markets/GeometricPriceBook.sol";
 
-contract GeometricPriceBookR101UnitTest is Test {
+contract GeometricPriceBookR1001UnitTest is Test {
     uint128 public constant A = 10**10;
     uint128 public constant R = 1001 * 10**15;
 
