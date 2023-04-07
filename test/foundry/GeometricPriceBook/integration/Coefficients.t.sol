@@ -21,6 +21,7 @@ contract GeometricPriceBookIntegrationTest is Test {
     }
 
     function testCoefficients(uint128 a, uint128 r) public {
+        vm.assume(a < 3 * 10**38 && r < 3 * 10**38);
         if ((uint256(r) * a) / 10**18 <= a) {
             vm.expectRevert();
             new VolatileMarket(
@@ -34,6 +35,8 @@ contract GeometricPriceBookIntegrationTest is Test {
                 a,
                 r
             );
+        } else {
+            _testCoefficients(a, r);
         }
     }
 
