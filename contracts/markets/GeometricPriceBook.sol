@@ -191,7 +191,7 @@ abstract contract GeometricPriceBook {
 
     function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
         if (priceIndex > _maxIndex) {
-            revert Errors.CloberError(Errors.INVALID_INDEX);
+            revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
         }
         price = _a;
         unchecked {

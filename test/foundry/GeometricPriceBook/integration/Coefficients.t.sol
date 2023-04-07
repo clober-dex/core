@@ -54,7 +54,7 @@ contract GeometricPriceBookIntegrationTest is Test {
         );
         uint16 maxPriceIndex = market.maxPriceIndex();
         if (maxPriceIndex < 0xffff) {
-            vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_INDEX));
+            vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
             market.indexToPrice(maxPriceIndex + 1);
         }
         assertLe(market.indexToPrice(maxPriceIndex), market.priceUpperBound(), "WRONG_MAX_PRICE");
