@@ -19,12 +19,16 @@ deployerTask(
     const marketDeployer = await deployer.deploy('MarketDeployer', [
       computedFactoryAddress,
     ])
+    const priceBookDeployer = await deployer.deploy('PriceBookDeployer', [
+      computedFactoryAddress,
+    ])
 
     const initialQuoteTokenRegistrations = [
       ...new Set(marketConfigs[hre.network.name]?.map((v) => v.quoteToken)),
     ]
     const factory = await deployer.deploy('MarketFactory', [
       marketDeployer,
+      priceBookDeployer,
       signer.address,
       canceler,
       initialQuoteTokenRegistrations,

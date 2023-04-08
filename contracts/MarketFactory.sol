@@ -14,6 +14,7 @@ import "./utils/ReentrancyGuard.sol";
 import "./OrderNFT.sol";
 import "./utils/BoringERC20.sol";
 import "./interfaces/CloberMarketDeployer.sol";
+import "./interfaces/CloberPriceBookDeployer.sol";
 import "./markets/GeometricPriceBook.sol";
 import "./markets/ArithmeticPriceBook.sol";
 
@@ -27,6 +28,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
 
     uint256 private immutable _cachedChainId;
     address public immutable override marketDeployer;
+    address public immutable override priceBookDeployer;
     address public immutable override canceler;
     bytes32 private immutable _orderTokenBytecodeHash;
 
@@ -59,6 +61,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
 
     constructor(
         address marketDeployer_,
+        address priceBookDeployer_,
         address initialDaoTreasury,
         address canceler_,
         address[] memory initialQuoteTokenRegistrations_
@@ -68,6 +71,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         emit ChangeOwner(address(0), msg.sender);
 
         marketDeployer = marketDeployer_;
+        priceBookDeployer = priceBookDeployer_;
         daoTreasury = initialDaoTreasury;
         emit ChangeDaoTreasury(address(0), initialDaoTreasury);
         _orderTokenBytecodeHash = keccak256(
@@ -101,7 +105,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             bytes32 priceBookKey = _priceBookKey(a, r, MarketType.VOLATILE);
             priceBook = _deployedPriceBook[priceBookKey];
             if (priceBook == address(0)) {
-                priceBook = address(new GeometricPriceBook(a, r));
+                priceBook = CloberPriceBookDeployer(priceBookDeployer).deployGeometricPriceBook(a, r);
                 _deployedPriceBook[priceBookKey] = priceBook;
             }
         }
@@ -153,7 +157,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             bytes32 priceBookKey = _priceBookKey(a, d, MarketType.STABLE);
             priceBook = _deployedPriceBook[priceBookKey];
             if (priceBook == address(0)) {
-                priceBook = address(new ArithmeticPriceBook(a, d));
+                priceBook = CloberPriceBookDeployer(priceBookDeployer).deployArithmeticPriceBook(a, d);
                 _deployedPriceBook[priceBookKey] = priceBook;
             }
         }

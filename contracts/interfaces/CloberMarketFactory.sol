@@ -104,6 +104,12 @@ interface CloberMarketFactory {
     function marketDeployer() external view returns (address);
 
     /**
+     * @notice Returns the address of the priceBookDeployer.
+     * @return The address of the priceBookDeployer.
+     */
+    function priceBookDeployer() external view returns (address);
+
+    /**
      * @notice Returns the address of the OrderCanceler.
      * @return The address of the OrderCanceler.
      */

@@ -25,9 +25,13 @@ deployerTask(
     const marketDeployer = await deployer.deploy('MarketDeployer', [
       computedFactoryAddress,
     ])
+    const priceBookDeployer = await deployer.deploy('PriceBookDeployer', [
+      computedFactoryAddress,
+    ])
 
     const factoryAddress = await deployer.deploy('MarketFactory', [
       marketDeployer,
+      priceBookDeployer,
       CLOBER_DAO_TREASURY[hre.network.name],
       canceler,
       initialRegisteredQuoteTokens[hre.network.name],
