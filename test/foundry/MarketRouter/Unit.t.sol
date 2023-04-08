@@ -11,6 +11,7 @@ import "../../../contracts/MarketRouter.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockWETH.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
+import "../../../contracts/markets/PriceDeployer.sol";
 
 contract MarketRouterUnitTest is Test {
     bool constant USE_NATIVE = true;
@@ -30,7 +31,8 @@ contract MarketRouterUnitTest is Test {
     address payable baseToken;
 
     MarketFactory factory;
-    MarketDeployer deployer;
+    MarketDeployer marketDeployer;
+    PriceBookDeployer priceBookDeployer;
 
     MarketRouter router;
 
@@ -46,11 +48,13 @@ contract MarketRouterUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         factory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 1),
+            Create1.computeAddress(address(this), thisNonce + 2),
             address(this),
             address(this),
             new address[](0)
         );
-        deployer = new MarketDeployer(address(factory));
+        marketDeployer = new MarketDeployer(address(factory));
+        priceBookDeployer = new PriceBookDeployer(address(factory));
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = payable(address(new MockWETH()));
@@ -98,6 +102,7 @@ contract MarketRouterUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         MarketFactory newFactory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 3),
+            Create1.computeAddress(address(this), thisNonce + 4),
             address(this),
             address(this),
             new address[](0)

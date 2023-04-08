@@ -14,6 +14,7 @@ import "../../../contracts/mocks/MockBaseToken.sol";
 import "../../../contracts/mocks/report/GasReporter.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
 import "./GasReportUtils.sol";
+import "../../../contracts/markets/PriceDeployer.sol";
 
 contract OrderBookUtils is Test {
     uint24 public constant TAKE_FEE = 1000;
@@ -50,11 +51,13 @@ contract OrderBookUtils is Test {
         initialQuoteTokenRegistrations[0] = quoteToken;
         factory = new MarketFactory(
             Create1.computeAddress(factoryOwner, nonce + 4),
+            Create1.computeAddress(factoryOwner, nonce + 5),
             factoryOwner, // initialDaoTreasury
             address(orderCanceler), // canceler_
             initialQuoteTokenRegistrations
         );
         new MarketDeployer(address(factory));
+        new PriceBookDeployer(address(factory));
 
         market = OrderBook(
             factory.createVolatileMarket(

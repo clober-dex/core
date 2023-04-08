@@ -10,6 +10,7 @@ import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/MarketFactory.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
+import "../../../contracts/markets/PriceDeployer.sol";
 
 contract MarketFactoryUnitTest is Test {
     event CreateVolatileMarket(
@@ -50,6 +51,7 @@ contract MarketFactoryUnitTest is Test {
 
     MarketFactory factory;
     MarketDeployer marketDeployer;
+    PriceBookDeployer priceBookDeployer;
     ArithmeticPriceBook stablePriceBook;
     GeometricPriceBook volatilePriceBook;
     address quoteToken;
@@ -60,11 +62,13 @@ contract MarketFactoryUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         factory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 1),
+            Create1.computeAddress(address(this), thisNonce + 2),
             address(this),
             address(this),
             new address[](0)
         );
         marketDeployer = new MarketDeployer(address(factory));
+        priceBookDeployer = new PriceBookDeployer(address(factory));
         stablePriceBook = new ArithmeticPriceBook(10**14, 10**14);
         volatilePriceBook = new GeometricPriceBook(10**10, 1001 * 10**15);
 
@@ -80,8 +84,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
-        uint64 factoryNonce = vm.getNonce(address(factory));
-        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
+        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
+        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -235,8 +239,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
-        uint64 factoryNonce = vm.getNonce(address(factory));
-        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
+        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
+        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -304,8 +308,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
-        uint64 factoryNonce = vm.getNonce(address(factory));
-        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
+        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
+        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -459,8 +463,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = factory.computeTokenAddress(currentNonce);
-        uint64 factoryNonce = vm.getNonce(address(factory));
-        address expectedPriceBookAddress = Create1.computeAddress(address(factory), factoryNonce + 1);
+        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
+        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
