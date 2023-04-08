@@ -52,8 +52,6 @@ contract MarketFactoryUnitTest is Test {
     MarketFactory factory;
     MarketDeployer marketDeployer;
     PriceBookDeployer priceBookDeployer;
-    ArithmeticPriceBook stablePriceBook;
-    GeometricPriceBook volatilePriceBook;
     address quoteToken;
     address baseToken;
     address proxy;
@@ -69,8 +67,6 @@ contract MarketFactoryUnitTest is Test {
         );
         marketDeployer = new MarketDeployer(address(factory));
         priceBookDeployer = new PriceBookDeployer(address(factory));
-        stablePriceBook = new ArithmeticPriceBook(10**14, 10**14);
-        volatilePriceBook = new GeometricPriceBook(10**10, 1001 * 10**15);
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = address(new MockERC20("base", "BASE", 18));
@@ -684,5 +680,17 @@ contract MarketFactoryUnitTest is Test {
     function testFailAlreadyArithmeticPriceBookExists() public {
         testCreateStableMarket();
         testCreateStableMarket();
+    }
+
+    function testDeployArithmeticPriceBookAccess() public {
+        vm.prank(address(0x123));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        priceBookDeployer.deployArithmeticPriceBook(10**14, 10**14);
+    }
+
+    function testDeployGeometricPriceBookAccess() public {
+        vm.prank(address(0x123));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
+        priceBookDeployer.deployGeometricPriceBook(10**10, 1001 * 10**15);
     }
 }
