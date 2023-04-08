@@ -7,10 +7,10 @@ import "../interfaces/CloberMarketDeployer.sol";
 import "../OrderBook.sol";
 
 contract MarketDeployer is CloberMarketDeployer {
-    address private immutable _factory;
+    address public immutable factory;
 
     constructor(address factory_) {
-        _factory = factory_;
+        factory = factory_;
     }
 
     function deploy(
@@ -23,7 +23,7 @@ contract MarketDeployer is CloberMarketDeployer {
         uint24 takerFee,
         address priceBook
     ) external returns (address market) {
-        if (msg.sender != _factory) {
+        if (msg.sender != factory) {
             revert Errors.CloberError(Errors.ACCESS);
         }
         market = address(
@@ -34,7 +34,7 @@ contract MarketDeployer is CloberMarketDeployer {
                 quoteUnit,
                 makerFee,
                 takerFee,
-                _factory,
+                factory,
                 priceBook
             )
         );
