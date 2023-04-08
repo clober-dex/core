@@ -19,7 +19,7 @@ deployerTask(
     const nonce = await signer.getTransactionCount('latest')
     const computedFactoryAddress = computeCreate1Address(
       signer.address,
-      BigNumber.from(nonce + 1),
+      BigNumber.from(nonce + 2),
     )
 
     const marketDeployer = await deployer.deploy('MarketDeployer', [
