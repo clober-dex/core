@@ -206,9 +206,9 @@ const config: HardhatConfig = {
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
           : [],
-      gas: 7800000,
-      gasPrice: 3500000000,
-      gasMultiplier: 1,
+      gas: 10000000,
+      gasPrice: 100000000000,
+      gasMultiplier: 1.5,
       timeout: 3000000,
       httpHeaders: {},
       live: true,
