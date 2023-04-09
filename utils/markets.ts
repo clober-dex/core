@@ -71,11 +71,11 @@ export const marketConfigs: MarketConfigs = {
       quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
       baseToken: TOKEN[polygonZkEvmTestnet.id].MANGO, // MANGO
       quoteUnit: BigNumber.from('1'),
-      makeFee: -200,
-      takeFee: 400,
+      makeFee: 0,
+      takeFee: 3000,
       a: BigNumber.from(10).pow(13),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
-      address: '0x374fCc7a5c520948840D098f13ed5533b15B737F',
+      address: '0x8E02612391843175B13883a284FD65A6C66FDD79',
     },
   ],
   [zkSyncTestnet.id]: [
