@@ -73,9 +73,9 @@ export const marketConfigs: MarketConfigs = {
       quoteUnit: BigNumber.from('1'),
       makeFee: -200,
       takeFee: 400,
-      a: BigNumber.from(10).pow(10),
+      a: BigNumber.from(10).pow(13),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
-      address: '0x42F82EE16F95A44c28219B3B5FeD5b92730D4d7D',
+      address: '0x374fCc7a5c520948840D098f13ed5533b15B737F',
     },
   ],
   [zkSyncTestnet.id]: [
