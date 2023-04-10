@@ -204,7 +204,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xE462374433029Bf889532F7fd3692ccAB736a559',
     },
     {
-      name: 'ARB/USDC',
+      name: 'plsARB/ARB',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].ARB,
