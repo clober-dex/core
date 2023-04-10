@@ -72,6 +72,13 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     uint16 public override blockTradeLogIndex;
     BlockTradeLog[65536] private _blockTradeLogs;
 
+    modifier checkPriceIndex(uint16 priceIndex) {
+        if (priceIndex > _priceBook.maxPriceIndex()) {
+            revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
+        }
+        _;
+    }
+
     constructor(
         address orderToken_,
         address quoteToken_,
@@ -119,7 +126,6 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         if (msg.value / _CLAIM_BOUNTY_UNIT > type(uint32).max) {
             revert Errors.CloberError(Errors.OVERFLOW_UNDERFLOW);
         }
-        // TODO: check at modifier
         if (priceIndex > _priceBook.maxPriceIndex()) {
             revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
         }
