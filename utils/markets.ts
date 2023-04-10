@@ -209,11 +209,12 @@ export const marketConfigs: MarketConfigs = {
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].ARB,
       baseToken: TOKEN[arbitrum.id].plsARB,
-      quoteUnit: BigNumber.from('10').pow(9),
+      quoteUnit: BigNumber.from(10).pow(9),
       makeFee: 0,
       takeFee: 3000,
       a: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
       d: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
+      address: '0xa416b5807c68259B057326dEEF59d5B2053969EE',
     },
     {
       name: 'ARB$0_5PUT/USDC',
