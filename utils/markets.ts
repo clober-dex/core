@@ -204,6 +204,18 @@ export const marketConfigs: MarketConfigs = {
       address: '0xE462374433029Bf889532F7fd3692ccAB736a559',
     },
     {
+      name: 'ARB/USDC',
+      host: CLOBER_ADMIN[arbitrum.id],
+      type: MARKET_TYPE.STABLE,
+      quoteToken: TOKEN[arbitrum.id].ARB,
+      baseToken: TOKEN[arbitrum.id].plsARB,
+      quoteUnit: BigNumber.from('10').pow(9),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
+      d: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
+    },
+    {
       name: 'ARB$0_5PUT/USDC',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
