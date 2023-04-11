@@ -8,8 +8,9 @@ import "forge-std/Test.sol";
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/interfaces/CloberOrderBook.sol";
+import "../../../../contracts/OrderBook.sol";
 import "../utils/MockReentrancyGuard.sol";
 import "./Constants.sol";
 
@@ -20,19 +21,20 @@ contract OrderBookCallTypeUnitTest is Test {
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook market;
+    OrderBook market;
 
     function setUp() public {
         quoteToken = new MockQuoteToken();
         baseToken = new MockBaseToken();
-        market = new MockOrderBook(
+        market = new OrderBook(
             address(0x123),
             address(quoteToken),
             address(baseToken),
             _QUOTE_UNIT,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         address unlockTemplate = address(new MockReentrancyGuard());
         proxy = address(new TransparentUpgradeableProxy(unlockTemplate, address(0x123), new bytes(0)));

@@ -94,6 +94,16 @@ interface CloberOrderBook {
         address owner;
     }
 
+    /**
+     * @notice A struct that represents a block trade log.
+     * @param blockTime The timestamp of the block.
+     * @param askVolume The volume taken on the ask side.
+     * @param bidVolume The volume taken on the bid side.
+     * @param open The price book index on the open.
+     * @param high The highest price book index in the block.
+     * @param low The lowest price book index in the block.
+     * @param close The price book index on the close.
+     */
     struct BlockTradeLog {
         uint64 blockTime;
         uint64 askVolume;
@@ -304,8 +314,17 @@ interface CloberOrderBook {
      */
     function bestPriceIndex(bool isBid) external view returns (uint16);
 
+    /**
+     * @notice Returns the current block trade log index.
+     * @return The current block trade log index.
+     */
     function blockTradeLogIndex() external view returns (uint16);
 
+    /**
+     * @notice Returns the block trade log for a certain index.
+     * @param index The block trade log index used to query the block trade log.
+     * @return The queried block trade log.
+     */
     function blockTradeLogs(uint16 index) external view returns (BlockTradeLog memory);
 
     /**
@@ -366,22 +385,14 @@ interface CloberOrderBook {
     function changeOrderOwner(OrderKey calldata orderKey, address newOwner) external;
 
     /**
-     * @return The biggest price book index supported.
-     */
-    function maxPriceIndex() external view returns (uint16);
-
-    // TODO
-    function priceUpperBound() external view returns (uint256);
-
-    /**
-     * @dev Converts the price index into the actual price.
+     * @notice Converts the price index into the actual price.
      * @param priceIndex The price book index.
      * @return price The actual price.
      */
     function indexToPrice(uint16 priceIndex) external view returns (uint256);
 
     /**
-     * @dev Returns the price book index closest to the provided price.
+     * @notice Returns the price book index closest to the provided price.
      * @param price Provided price.
      * @param roundingUp Determines whether to round up or down.
      * @return index The price book index.

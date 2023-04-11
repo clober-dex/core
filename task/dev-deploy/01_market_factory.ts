@@ -13,14 +13,10 @@ deployerTask(
     const nonce = await signer.getTransactionCount('latest')
     const computedFactoryAddress = computeCreate1Address(
       signer.address,
-      BigNumber.from(nonce + 2),
+      BigNumber.from(nonce + 1),
     )
 
-    const volatileMarketDeployer = await deployer.deploy(
-      'VolatileMarketDeployer',
-      [computedFactoryAddress],
-    )
-    const stableMarketDeployer = await deployer.deploy('StableMarketDeployer', [
+    const marketDeployer = await deployer.deploy('MarketDeployer', [
       computedFactoryAddress,
     ])
 
@@ -28,8 +24,7 @@ deployerTask(
       ...new Set(marketConfigs[hre.network.name]?.map((v) => v.quoteToken)),
     ]
     const factory = await deployer.deploy('MarketFactory', [
-      volatileMarketDeployer,
-      stableMarketDeployer,
+      marketDeployer,
       signer.address,
       canceler,
       initialQuoteTokenRegistrations,

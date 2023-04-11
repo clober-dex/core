@@ -7,11 +7,10 @@ import "forge-std/Test.sol";
 
 import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/MarketFactory.sol";
-import "../../../contracts/markets/VolatileMarketDeployer.sol";
-import "../../../contracts/markets/StableMarketDeployer.sol";
 import "../../../contracts/MarketRouter.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockWETH.sol";
+import "../../../contracts/markets/MarketDeployer.sol";
 
 contract MarketRouterUnitTest is Test {
     bool constant USE_NATIVE = true;
@@ -31,7 +30,7 @@ contract MarketRouterUnitTest is Test {
     address payable baseToken;
 
     MarketFactory factory;
-    StableMarketDeployer deployer;
+    MarketDeployer deployer;
 
     MarketRouter router;
 
@@ -47,13 +46,11 @@ contract MarketRouterUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         factory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 1),
-            Create1.computeAddress(address(this), thisNonce + 2),
             address(this),
             address(this),
             new address[](0)
         );
-        new VolatileMarketDeployer(address(factory));
-        deployer = new StableMarketDeployer(address(factory));
+        deployer = new MarketDeployer(address(factory));
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = payable(address(new MockWETH()));
@@ -101,7 +98,6 @@ contract MarketRouterUnitTest is Test {
         uint64 thisNonce = vm.getNonce(address(this));
         MarketFactory newFactory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 3),
-            Create1.computeAddress(address(this), thisNonce + 4),
             address(this),
             address(this),
             new address[](0)

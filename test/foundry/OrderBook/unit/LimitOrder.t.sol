@@ -8,9 +8,9 @@ import "forge-std/Test.sol";
 import "../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
-import "../../../../contracts/markets/VolatileMarket.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
+import "../../../../contracts/OrderBook.sol";
 import "../utils/MockingFactoryTest.sol";
 import "./Constants.sol";
 
@@ -46,7 +46,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
 
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook orderBook;
+    OrderBook orderBook;
     OrderNFT orderToken;
 
     function setUp() public {
@@ -74,14 +74,15 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
 
     function _createOrderBook(int24 makerFee, uint24 takerFee) private {
         orderToken = new OrderNFT(address(this), address(this));
-        orderBook = new MockOrderBook(
+        orderBook = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             10**4,
             makerFee,
             takerFee,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(orderBook));
 
@@ -441,7 +442,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
     function testLimitBidWithInvalidPrice() public {
         _createOrderBook(0, 0);
 
-        uint16 invalidPriceIndex = orderBook.maxPriceIndex() + 1;
+        uint16 invalidPriceIndex = CloberPriceBook(orderBook.priceBook()).maxPriceIndex() + 1;
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE_INDEX));
         orderBook.limitOrder({
             user: Constants.MAKER,

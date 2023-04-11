@@ -4,8 +4,9 @@
 pragma solidity ^0.8.0;
 
 import "../Errors.sol";
+import "../interfaces/CloberPriceBook.sol";
 
-abstract contract GeometricPriceBook {
+contract GeometricPriceBook is CloberPriceBook {
     uint256 private immutable _a;
     uint256 private immutable _r0;
     uint256 private immutable _r1;
@@ -25,8 +26,8 @@ abstract contract GeometricPriceBook {
     uint256 private immutable _r15;
     uint256 private immutable _r16;
 
-    uint16 internal immutable _maxIndex;
-    uint256 internal immutable _priceUpperBound;
+    uint16 public immutable maxPriceIndex;
+    uint256 public immutable override priceUpperBound;
 
     constructor(uint128 a_, uint128 r_) {
         uint256 castedR = uint256(r_);
@@ -185,42 +186,37 @@ abstract contract GeometricPriceBook {
         }
         _r16 = r;
 
-        _maxIndex = maxIndex_;
-        _priceUpperBound = (maxPrice_ >> 64) * a_ + (((maxPrice_ & 0xffffffffffffffff) * a_) >> 64);
+        maxPriceIndex = maxIndex_;
+        priceUpperBound = (maxPrice_ >> 64) * a_ + (((maxPrice_ & 0xffffffffffffffff) * a_) >> 64);
     }
 
-    function _indexToPrice(uint16 priceIndex) internal view virtual returns (uint256 price) {
-        if (priceIndex > _maxIndex) {
+    function indexToPrice(uint16 priceIndex) public view returns (uint256 price) {
+        if (priceIndex > maxPriceIndex) {
             revert Errors.CloberError(Errors.INVALID_PRICE_INDEX);
         }
         price = _a;
         unchecked {
-            if (priceIndex & (_maxIndex & 0x8000) != 0) price = (price * _r15) >> 64;
-            if (priceIndex & (_maxIndex & 0x4000) != 0) price = (price * _r14) >> 64;
-            if (priceIndex & (_maxIndex & 0x2000) != 0) price = (price * _r13) >> 64;
-            if (priceIndex & (_maxIndex & 0x1000) != 0) price = (price * _r12) >> 64;
-            if (priceIndex & (_maxIndex & 0x800) != 0) price = (price * _r11) >> 64;
-            if (priceIndex & (_maxIndex & 0x400) != 0) price = (price * _r10) >> 64;
-            if (priceIndex & (_maxIndex & 0x200) != 0) price = (price * _r9) >> 64;
-            if (priceIndex & (_maxIndex & 0x100) != 0) price = (price * _r8) >> 64;
-            if (priceIndex & (_maxIndex & 0x80) != 0) price = (price * _r7) >> 64;
-            if (priceIndex & (_maxIndex & 0x40) != 0) price = (price * _r6) >> 64;
-            if (priceIndex & (_maxIndex & 0x20) != 0) price = (price * _r5) >> 64;
-            if (priceIndex & (_maxIndex & 0x10) != 0) price = (price * _r4) >> 64;
-            if (priceIndex & (_maxIndex & 0x8) != 0) price = (price * _r3) >> 64;
-            if (priceIndex & (_maxIndex & 0x4) != 0) price = (price * _r2) >> 64;
-            if (priceIndex & (_maxIndex & 0x2) != 0) price = (price * _r1) >> 64;
-            if (priceIndex & (_maxIndex & 0x1) != 0) price = (price * _r0) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x8000) != 0) price = (price * _r15) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x4000) != 0) price = (price * _r14) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x2000) != 0) price = (price * _r13) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x1000) != 0) price = (price * _r12) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x800) != 0) price = (price * _r11) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x400) != 0) price = (price * _r10) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x200) != 0) price = (price * _r9) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x100) != 0) price = (price * _r8) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x80) != 0) price = (price * _r7) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x40) != 0) price = (price * _r6) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x20) != 0) price = (price * _r5) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x10) != 0) price = (price * _r4) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x8) != 0) price = (price * _r3) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x4) != 0) price = (price * _r2) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x2) != 0) price = (price * _r1) >> 64;
+            if (priceIndex & (maxPriceIndex & 0x1) != 0) price = (price * _r0) >> 64;
         }
     }
 
-    function _priceToIndex(uint256 price, bool roundingUp)
-        internal
-        view
-        virtual
-        returns (uint16 index, uint256 correctedPrice)
-    {
-        if (price < _a || price >= _priceUpperBound) {
+    function priceToIndex(uint256 price, bool roundingUp) external view returns (uint16 index, uint256 correctedPrice) {
+        if (price < _a || price >= priceUpperBound) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = 0;
@@ -228,63 +224,63 @@ abstract contract GeometricPriceBook {
         uint256 shiftedPrice = (price + 1) << 64;
 
         unchecked {
-            if (_maxIndex > 0x8000 && shiftedPrice > _r15 * _correctedPrice) {
+            if (maxPriceIndex > 0x8000 && shiftedPrice > _r15 * _correctedPrice) {
                 index = index | 0x8000;
                 _correctedPrice = (_correctedPrice * _r15) >> 64;
             }
-            if (_maxIndex > 0x4000 && shiftedPrice > _r14 * _correctedPrice) {
+            if (maxPriceIndex > 0x4000 && shiftedPrice > _r14 * _correctedPrice) {
                 index = index | 0x4000;
                 _correctedPrice = (_correctedPrice * _r14) >> 64;
             }
-            if (_maxIndex > 0x2000 && shiftedPrice > _r13 * _correctedPrice) {
+            if (maxPriceIndex > 0x2000 && shiftedPrice > _r13 * _correctedPrice) {
                 index = index | 0x2000;
                 _correctedPrice = (_correctedPrice * _r13) >> 64;
             }
-            if (_maxIndex > 0x1000 && shiftedPrice > _r12 * _correctedPrice) {
+            if (maxPriceIndex > 0x1000 && shiftedPrice > _r12 * _correctedPrice) {
                 index = index | 0x1000;
                 _correctedPrice = (_correctedPrice * _r12) >> 64;
             }
-            if (_maxIndex > 0x800 && shiftedPrice > _r11 * _correctedPrice) {
+            if (maxPriceIndex > 0x800 && shiftedPrice > _r11 * _correctedPrice) {
                 index = index | 0x0800;
                 _correctedPrice = (_correctedPrice * _r11) >> 64;
             }
-            if (_maxIndex > 0x400 && shiftedPrice > _r10 * _correctedPrice) {
+            if (maxPriceIndex > 0x400 && shiftedPrice > _r10 * _correctedPrice) {
                 index = index | 0x0400;
                 _correctedPrice = (_correctedPrice * _r10) >> 64;
             }
-            if (_maxIndex > 0x200 && shiftedPrice > _r9 * _correctedPrice) {
+            if (maxPriceIndex > 0x200 && shiftedPrice > _r9 * _correctedPrice) {
                 index = index | 0x0200;
                 _correctedPrice = (_correctedPrice * _r9) >> 64;
             }
-            if (_maxIndex > 0x100 && shiftedPrice > _r8 * _correctedPrice) {
+            if (maxPriceIndex > 0x100 && shiftedPrice > _r8 * _correctedPrice) {
                 index = index | 0x0100;
                 _correctedPrice = (_correctedPrice * _r8) >> 64;
             }
-            if (_maxIndex > 0x80 && shiftedPrice > _r7 * _correctedPrice) {
+            if (maxPriceIndex > 0x80 && shiftedPrice > _r7 * _correctedPrice) {
                 index = index | 0x0080;
                 _correctedPrice = (_correctedPrice * _r7) >> 64;
             }
-            if (_maxIndex > 0x40 && shiftedPrice > _r6 * _correctedPrice) {
+            if (maxPriceIndex > 0x40 && shiftedPrice > _r6 * _correctedPrice) {
                 index = index | 0x0040;
                 _correctedPrice = (_correctedPrice * _r6) >> 64;
             }
-            if (_maxIndex > 0x20 && shiftedPrice > _r5 * _correctedPrice) {
+            if (maxPriceIndex > 0x20 && shiftedPrice > _r5 * _correctedPrice) {
                 index = index | 0x0020;
                 _correctedPrice = (_correctedPrice * _r5) >> 64;
             }
-            if (_maxIndex > 0x10 && shiftedPrice > _r4 * _correctedPrice) {
+            if (maxPriceIndex > 0x10 && shiftedPrice > _r4 * _correctedPrice) {
                 index = index | 0x0010;
                 _correctedPrice = (_correctedPrice * _r4) >> 64;
             }
-            if (_maxIndex > 0x8 && shiftedPrice > _r3 * _correctedPrice) {
+            if (maxPriceIndex > 0x8 && shiftedPrice > _r3 * _correctedPrice) {
                 index = index | 0x0008;
                 _correctedPrice = (_correctedPrice * _r3) >> 64;
             }
-            if (_maxIndex > 0x4 && shiftedPrice > _r2 * _correctedPrice) {
+            if (maxPriceIndex > 0x4 && shiftedPrice > _r2 * _correctedPrice) {
                 index = index | 0x0004;
                 _correctedPrice = (_correctedPrice * _r2) >> 64;
             }
-            if (_maxIndex > 0x2 && shiftedPrice > _r1 * _correctedPrice) {
+            if (maxPriceIndex > 0x2 && shiftedPrice > _r1 * _correctedPrice) {
                 index = index | 0x0002;
                 _correctedPrice = (_correctedPrice * _r1) >> 64;
             }
@@ -295,12 +291,12 @@ abstract contract GeometricPriceBook {
         }
         if (roundingUp && _correctedPrice < price) {
             unchecked {
-                if (index >= _maxIndex) {
+                if (index >= maxPriceIndex) {
                     revert Errors.CloberError(Errors.INVALID_PRICE);
                 }
                 index += 1;
             }
-            correctedPrice = _indexToPrice(index);
+            correctedPrice = indexToPrice(index);
         } else {
             correctedPrice = _correctedPrice;
         }

@@ -5,16 +5,14 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
+import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/MarketFactory.sol";
 import "../../../contracts/MarketRouter.sol";
-import "../../../contracts/markets/VolatileMarketDeployer.sol";
-import "../../../contracts/markets/StableMarketDeployer.sol";
 import "../../../contracts/mocks/MockERC20.sol";
-import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../contracts/mocks/MockBaseToken.sol";
-import "../../../contracts/mocks/MockOrderBook.sol";
 import "../../../contracts/mocks/report/GasReporter.sol";
+import "../../../contracts/markets/MarketDeployer.sol";
 import "./GasReportUtils.sol";
 
 contract OrderBookUtils is Test {
@@ -38,9 +36,9 @@ contract OrderBookUtils is Test {
     GasReporter public gasReporter;
     address public quoteToken;
     address public baseToken;
-    MockOrderBook orderBook;
     OrderCanceler orderCanceler;
     MarketRouter public router;
+    GeometricPriceBook public volatilePriceBook;
 
     function createMarket() public {
         address factoryOwner = address(this);
@@ -51,14 +49,12 @@ contract OrderBookUtils is Test {
         address[] memory initialQuoteTokenRegistrations = new address[](1);
         initialQuoteTokenRegistrations[0] = quoteToken;
         factory = new MarketFactory(
-            Create1.computeAddress(factoryOwner, nonce + 5),
-            Create1.computeAddress(factoryOwner, nonce + 6),
+            Create1.computeAddress(factoryOwner, nonce + 4),
             factoryOwner, // initialDaoTreasury
             address(orderCanceler), // canceler_
             initialQuoteTokenRegistrations
         );
-        new VolatileMarketDeployer(address(factory));
-        new StableMarketDeployer(address(factory));
+        new MarketDeployer(address(factory));
 
         market = OrderBook(
             factory.createVolatileMarket(

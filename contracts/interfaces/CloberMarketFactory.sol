@@ -86,16 +86,22 @@ interface CloberMarketFactory {
     event ChangeHost(address indexed market, address previousHost, address newHost);
 
     /**
-     * @notice Returns the address of the VolatileMarketDeployer.
-     * @return The address of the VolatileMarketDeployer.
+     * @notice Returns the address of the deployed GeometricPriceBook.
+     * @return The address of the GeometricPriceBook.
      */
-    function volatileMarketDeployer() external view returns (address);
+    function deployedGeometricPriceBook(uint128 a, uint128 r) external view returns (address);
 
     /**
-     * @notice Returns the address of the StableMarketDeployer.
-     * @return The address of the StableMarketDeployer.
+     * @notice Returns the address of the deployed GeometricPriceBook.
+     * @return The address of the GeometricPriceBook.
      */
-    function stableMarketDeployer() external view returns (address);
+    function deployedArithmeticPriceBook(uint128 a, uint128 d) external view returns (address);
+
+    /**
+     * @notice Returns the address of the MarketDeployer.
+     * @return The address of the MarketDeployer.
+     */
+    function marketDeployer() external view returns (address);
 
     /**
      * @notice Returns the address of the OrderCanceler.

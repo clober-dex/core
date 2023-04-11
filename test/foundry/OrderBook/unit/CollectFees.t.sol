@@ -6,15 +6,16 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "../../../../contracts/mocks/MockBaseToken.sol";
 import "../../../../contracts/mocks/MockQuoteToken.sol";
+import "../../../../contracts/mocks/MockPriceBook.sol";
 import "../../../../contracts/OrderNFT.sol";
-import "../../../../contracts/mocks/MockOrderBook.sol";
+import "../../../../contracts/OrderBook.sol";
 import "../utils/MockingFactoryTest.sol";
 import "./Constants.sol";
 
 contract OrderBookCollectFeesUnitTest is Test, CloberMarketSwapCallbackReceiver, MockingFactoryTest {
     MockQuoteToken quoteToken;
     MockBaseToken baseToken;
-    MockOrderBook orderBook;
+    OrderBook orderBook;
     OrderNFT orderToken;
 
     function cloberMarketSwapCallback(
@@ -33,14 +34,15 @@ contract OrderBookCollectFeesUnitTest is Test, CloberMarketSwapCallbackReceiver,
         baseToken = new MockBaseToken();
 
         orderToken = new OrderNFT(address(this), address(this));
-        orderBook = new MockOrderBook(
+        orderBook = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
             10**4,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
-            address(this)
+            address(this),
+            address(new MockPriceBook())
         );
         orderToken.init("", "", address(orderBook));
 

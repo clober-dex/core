@@ -3,10 +3,10 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/CloberVolatileMarketDeployer.sol";
-import "./VolatileMarket.sol";
+import "../interfaces/CloberMarketDeployer.sol";
+import "../OrderBook.sol";
 
-contract VolatileMarketDeployer is CloberVolatileMarketDeployer {
+contract MarketDeployer is CloberMarketDeployer {
     address private immutable _factory;
 
     constructor(address factory_) {
@@ -21,14 +21,13 @@ contract VolatileMarketDeployer is CloberVolatileMarketDeployer {
         uint96 quoteUnit,
         int24 makerFee,
         uint24 takerFee,
-        uint128 a,
-        uint128 r
+        address priceBook
     ) external returns (address market) {
         if (msg.sender != _factory) {
             revert Errors.CloberError(Errors.ACCESS);
         }
         market = address(
-            new VolatileMarket{salt: salt}(
+            new OrderBook{salt: salt}(
                 orderToken,
                 quoteToken,
                 baseToken,
@@ -36,8 +35,7 @@ contract VolatileMarketDeployer is CloberVolatileMarketDeployer {
                 makerFee,
                 takerFee,
                 _factory,
-                a,
-                r
+                priceBook
             )
         );
         emit Deploy(market);
