@@ -77,6 +77,19 @@ export const marketConfigs: MarketConfigs = {
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
       address: '0x8E02612391843175B13883a284FD65A6C66FDD79',
     },
+    {
+      name: 'MANGO/cUSD-makerFee',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
+      baseToken: TOKEN[polygonZkEvmTestnet.id].MANGO, // MANGO
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 3000,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xF62302981718c8B6d28cF10a9A175FC227Fb27E8',
+    },
   ],
   [zkSyncTestnet.id]: [
     {
