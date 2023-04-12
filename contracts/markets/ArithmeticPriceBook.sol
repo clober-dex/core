@@ -17,7 +17,7 @@ contract ArithmeticPriceBook is CloberPriceBook {
         _a = a;
         _d = d;
 
-        maxPriceIndex = 0xffff;
+        maxPriceIndex = type(uint16).max;
         priceUpperBound = a + type(uint16).max * d;
 
         if (d == 0) {
