@@ -36,7 +36,4 @@ interface CloberMarketDeployer {
         uint24 takerFee,
         address priceBook
     ) external returns (address);
-
-    // TODO: add docstring
-    function factory() external view returns (address);
 }

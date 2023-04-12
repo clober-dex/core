@@ -8,7 +8,4 @@ interface CloberPriceBookDeployer {
 
     // TODO: add docstring
     function deployGeometricPriceBook(uint128 a, uint128 r) external returns (address);
-
-    // TODO: add docstring
-    function factory() external view returns (address);
 }
