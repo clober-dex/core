@@ -17,7 +17,7 @@ contract OrderTokenDeployer is CloberOrderTokenDeployer {
         _factory = factory_;
         _canceler = canceler_;
         _orderTokenBytecodeHash = keccak256(
-            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(address(this), canceler_))
+            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(factory_, canceler_))
         );
     }
 
