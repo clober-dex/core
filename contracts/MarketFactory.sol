@@ -14,6 +14,7 @@ import "./utils/ReentrancyGuard.sol";
 import "./OrderNFT.sol";
 import "./utils/BoringERC20.sol";
 import "./interfaces/CloberMarketDeployer.sol";
+import "./interfaces/CloberOrderTokenDeployer.sol";
 import "./interfaces/CloberPriceBookDeployer.sol";
 import "./markets/GeometricPriceBook.sol";
 import "./markets/ArithmeticPriceBook.sol";
@@ -29,6 +30,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     uint256 private immutable _cachedChainId;
     address public immutable override marketDeployer;
     address public immutable override priceBookDeployer;
+    address public immutable override orderTokenDeployer;
     address public immutable override canceler;
     bytes32 private immutable _orderTokenBytecodeHash;
 
@@ -62,6 +64,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     constructor(
         address marketDeployer_,
         address priceBookDeployer_,
+        address orderTokenDeployer_,
         address initialDaoTreasury,
         address canceler_,
         address[] memory initialQuoteTokenRegistrations_
@@ -72,6 +75,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
 
         marketDeployer = marketDeployer_;
         priceBookDeployer = priceBookDeployer_;
+        orderTokenDeployer = orderTokenDeployer_;
         daoTreasury = initialDaoTreasury;
         emit ChangeDaoTreasury(address(0), initialDaoTreasury);
         _orderTokenBytecodeHash = keccak256(
@@ -261,7 +265,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     }
 
     function _deployToken(bytes32 salt) internal returns (address) {
-        return address(new OrderNFT{salt: salt}(address(this), canceler));
+        return CloberOrderTokenDeployer(orderTokenDeployer).deploy(salt);
     }
 
     function _initToken(
