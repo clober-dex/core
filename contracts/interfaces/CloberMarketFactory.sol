@@ -248,12 +248,6 @@ interface CloberMarketFactory {
      */
     function executeHandOverHost(address market) external;
 
-    /**
-     * @notice Computes the OrderNFT contract address.
-     * @param marketNonce The nonce to compute the OrderNFT contract address via CREATE2.
-     */
-    function computeTokenAddress(uint256 marketNonce) external view returns (address);
-
     enum MarketType {
         NONE,
         VOLATILE,

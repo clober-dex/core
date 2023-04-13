@@ -4,7 +4,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/CloberMarketFactory.sol";
@@ -32,7 +31,6 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     address public immutable override priceBookDeployer;
     address public immutable override orderTokenDeployer;
     address public immutable override canceler;
-    bytes32 private immutable _orderTokenBytecodeHash;
 
     mapping(bytes32 => address) private _deployedPriceBook;
     mapping(address => bool) public override registeredQuoteTokens;
@@ -78,9 +76,6 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         orderTokenDeployer = orderTokenDeployer_;
         daoTreasury = initialDaoTreasury;
         emit ChangeDaoTreasury(address(0), initialDaoTreasury);
-        _orderTokenBytecodeHash = keccak256(
-            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(address(this), canceler_))
-        );
         canceler = canceler_;
 
         for (uint256 i = 0; i < initialQuoteTokenRegistrations_.length; ++i) {
@@ -300,10 +295,6 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             futureHost: address(0)
         });
         emit ChangeHost(market, address(0), host);
-    }
-
-    function computeTokenAddress(uint256 marketNonce) external view returns (address) {
-        return Create2.computeAddress(_calculateSalt(marketNonce), _orderTokenBytecodeHash);
     }
 
     function getMarketInfo(address market) external view returns (MarketInfo memory) {

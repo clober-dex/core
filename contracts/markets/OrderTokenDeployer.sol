@@ -3,16 +3,22 @@
 
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Create2.sol";
+
 import "../interfaces/CloberOrderTokenDeployer.sol";
 import "../OrderNFT.sol";
 
 contract OrderTokenDeployer is CloberOrderTokenDeployer {
     address private immutable _factory;
     address private immutable _canceler;
+    bytes32 private immutable _orderTokenBytecodeHash;
 
     constructor(address factory_, address canceler_) {
         _factory = factory_;
         _canceler = canceler_;
+        _orderTokenBytecodeHash = keccak256(
+            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(address(this), canceler_))
+        );
     }
 
     function deploy(bytes32 salt) external returns (address) {
@@ -20,5 +26,9 @@ contract OrderTokenDeployer is CloberOrderTokenDeployer {
             revert Errors.CloberError(Errors.ACCESS);
         }
         return address(new OrderNFT{salt: salt}(_factory, _canceler));
+    }
+
+    function computeTokenAddress(bytes32 salt) external view returns (address) {
+        return Create2.computeAddress(salt, _orderTokenBytecodeHash);
     }
 }
