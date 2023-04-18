@@ -15,6 +15,7 @@ import "../../../contracts/mocks/report/GasReporter.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
 import "./GasReportUtils.sol";
 import "../../../contracts/markets/PriceDeployer.sol";
+import "../../../contracts/markets/OrderTokenDeployer.sol";
 
 contract OrderBookUtils is Test {
     uint24 public constant TAKE_FEE = 1000;
@@ -52,12 +53,14 @@ contract OrderBookUtils is Test {
         factory = new MarketFactory(
             Create1.computeAddress(factoryOwner, nonce + 4),
             Create1.computeAddress(factoryOwner, nonce + 5),
+            Create1.computeAddress(factoryOwner, nonce + 6),
             factoryOwner, // initialDaoTreasury
             address(orderCanceler), // canceler_
             initialQuoteTokenRegistrations
         );
         new MarketDeployer(address(factory));
         new PriceBookDeployer(address(factory));
+        new OrderTokenDeployer(address(factory), address(orderCanceler));
 
         market = OrderBook(
             factory.createVolatileMarket(

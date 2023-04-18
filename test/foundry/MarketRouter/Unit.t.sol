@@ -12,6 +12,8 @@ import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockWETH.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
 import "../../../contracts/markets/PriceDeployer.sol";
+import "../../../contracts/markets/OrderTokenDeployer.sol";
+import "../../../contracts/OrderCanceler.sol";
 
 contract MarketRouterUnitTest is Test {
     bool constant USE_NATIVE = true;
@@ -33,6 +35,8 @@ contract MarketRouterUnitTest is Test {
     MarketFactory factory;
     MarketDeployer marketDeployer;
     PriceBookDeployer priceBookDeployer;
+    OrderTokenDeployer orderTokenDeployer;
+    OrderCanceler orderCanceler;
 
     MarketRouter router;
 
@@ -49,12 +53,14 @@ contract MarketRouterUnitTest is Test {
         factory = new MarketFactory(
             Create1.computeAddress(address(this), thisNonce + 1),
             Create1.computeAddress(address(this), thisNonce + 2),
+            Create1.computeAddress(address(this), thisNonce + 3),
             address(this),
             address(this),
             new address[](0)
         );
         marketDeployer = new MarketDeployer(address(factory));
         priceBookDeployer = new PriceBookDeployer(address(factory));
+        orderTokenDeployer = new OrderTokenDeployer(address(factory), address(this));
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = payable(address(new MockWETH()));
@@ -101,8 +107,9 @@ contract MarketRouterUnitTest is Test {
     function _deployNewRouter() private returns (MarketRouter) {
         uint64 thisNonce = vm.getNonce(address(this));
         MarketFactory newFactory = new MarketFactory(
-            Create1.computeAddress(address(this), thisNonce + 3),
             Create1.computeAddress(address(this), thisNonce + 4),
+            Create1.computeAddress(address(this), thisNonce + 5),
+            Create1.computeAddress(address(this), thisNonce + 6),
             address(this),
             address(this),
             new address[](0)
