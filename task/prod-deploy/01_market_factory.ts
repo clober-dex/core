@@ -19,15 +19,24 @@ deployerTask(
     const nonce = await signer.getTransactionCount('latest')
     const computedFactoryAddress = computeCreate1Address(
       signer.address,
-      BigNumber.from(nonce + 1),
+      BigNumber.from(nonce + 3),
     )
 
     const marketDeployer = await deployer.deploy('MarketDeployer', [
       computedFactoryAddress,
     ])
+    const priceBookDeployer = await deployer.deploy('PriceBookDeployer', [
+      computedFactoryAddress,
+    ])
+    const orderTokenDeployer = await deployer.deploy('OrderTokenDeployer', [
+      computedFactoryAddress,
+      canceler,
+    ])
 
     const factoryAddress = await deployer.deploy('MarketFactory', [
       marketDeployer,
+      priceBookDeployer,
+      orderTokenDeployer,
       CLOBER_DAO_TREASURY[hre.network.name],
       canceler,
       initialRegisteredQuoteTokens[hre.network.name],

@@ -24,6 +24,8 @@ import {
   localhost,
   mainnet,
   polygon,
+  polygonZkEvm,
+  polygonZkEvmTestnet,
 } from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
@@ -68,7 +70,12 @@ const getMainnetPrivateKey = () => {
     }
   }
 
-  const prodNetworks = new Set<number>([mainnet.id, polygon.id, arbitrum.id])
+  const prodNetworks = new Set<number>([
+    mainnet.id,
+    polygon.id,
+    arbitrum.id,
+    polygonZkEvm.id,
+  ])
   if (network && prodNetworks.has(network)) {
     if (privateKey) {
       return privateKey
@@ -161,6 +168,20 @@ const config: HardhatConfig = {
       tags: ['mainnet', 'prod'],
       companionNetworks: {},
     },
+    [polygonZkEvm.id]: {
+      url: polygonZkEvm.rpcUrls.default.http[0],
+      chainId: polygonZkEvm.id,
+      accounts: [getMainnetPrivateKey()],
+      gas: 'auto',
+      gasPrice: 'auto',
+      gasMultiplier: 1,
+      timeout: 3000000,
+      httpHeaders: {},
+      live: true,
+      saveDeployments: true,
+      tags: ['mainnet', 'prod'],
+      companionNetworks: {},
+    },
     [arbitrumGoerli.id]: {
       url: arbitrumGoerli.rpcUrls.default.http[0],
       chainId: arbitrumGoerli.id,
@@ -178,17 +199,16 @@ const config: HardhatConfig = {
       tags: ['testnet', 'dev'],
       companionNetworks: {},
     },
-    // TODO: use `@wagmi/chains`
-    [1442]: {
-      url: 'https://rpc.public.zkevm-test.net',
-      chainId: 1442,
+    [polygonZkEvmTestnet.id]: {
+      url: polygonZkEvmTestnet.rpcUrls.default.http[0],
+      chainId: polygonZkEvmTestnet.id,
       accounts:
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
           : [],
-      gas: 7800000,
-      gasPrice: 3500000000,
-      gasMultiplier: 1,
+      gas: 10000000,
+      gasPrice: 100000000000,
+      gasMultiplier: 1.5,
       timeout: 3000000,
       httpHeaders: {},
       live: true,

@@ -104,6 +104,18 @@ interface CloberMarketFactory {
     function marketDeployer() external view returns (address);
 
     /**
+     * @notice Returns the address of the priceBookDeployer.
+     * @return The address of the priceBookDeployer.
+     */
+    function priceBookDeployer() external view returns (address);
+
+    /**
+     * @notice Returns the address of the orderTokenDeployer.
+     * @return The address of the orderTokenDeployer.
+     */
+    function orderTokenDeployer() external view returns (address);
+
+    /**
      * @notice Returns the address of the OrderCanceler.
      * @return The address of the OrderCanceler.
      */
@@ -235,12 +247,6 @@ interface CloberMarketFactory {
      * @param market The market address for which the host will be changed.
      */
     function executeHandOverHost(address market) external;
-
-    /**
-     * @notice Computes the OrderNFT contract address.
-     * @param marketNonce The nonce to compute the OrderNFT contract address via CREATE2.
-     */
-    function computeTokenAddress(uint256 marketNonce) external view returns (address);
 
     enum MarketType {
         NONE,

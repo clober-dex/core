@@ -3,6 +3,7 @@ import {
   arbitrumGoerli,
   mainnet,
   polygon,
+  polygonZkEvmTestnet,
   zkSyncTestnet,
 } from '@wagmi/chains'
 
@@ -64,10 +65,10 @@ export const TOKEN = {
     DAI: '0x57710D5CBF5231D6c7ED7ca3E6D4132D95AE7d96',
     CLOB: '0x5E86396Bb0eC915c2ab1980d9453Fa8924803223',
   },
-  // TODO: use `@wagmi/chain`
-  [1442]: {
+  [polygonZkEvmTestnet.id]: {
     CUSD: '0x4d7E15fc589EbBF7EDae1B5236845b3A42D412B7',
     DAI: '0x56398abB6ffBAFD035E598C9139cB78E8e110fAB',
     CLOB: '0xc2f0e04cCC89D73Db18BA83810c34CbB6B33E440',
+    MANGO: '0x1c1f6B8d0e4D83347fCA9fF16738DF482500EeA5',
   },
 }
