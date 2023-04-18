@@ -164,24 +164,6 @@ const config: HardhatConfig = {
       tags: ['mainnet', 'prod'],
       companionNetworks: {},
     },
-    [polygonZkEvm.id]: {
-      url: polygonZkEvm.rpcUrls.default.http[0],
-      chainId: polygonZkEvm.id,
-      // TODO: set deployer
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
-      gas: 'auto',
-      gasPrice: 'auto',
-      gasMultiplier: 1,
-      timeout: 3000000,
-      httpHeaders: {},
-      live: true,
-      saveDeployments: true,
-      tags: ['mainnet', 'prod'],
-      companionNetworks: {},
-    },
     [arbitrumGoerli.id]: {
       url: arbitrumGoerli.rpcUrls.default.http[0],
       chainId: arbitrumGoerli.id,
@@ -206,9 +188,9 @@ const config: HardhatConfig = {
         process.env.DEV_PRIVATE_KEY !== undefined
           ? [process.env.DEV_PRIVATE_KEY]
           : [],
-      gas: 7800000,
-      gasPrice: 3500000000,
-      gasMultiplier: 1,
+      gas: 10000000,
+      gasPrice: 100000000000,
+      gasMultiplier: 1.5,
       timeout: 3000000,
       httpHeaders: {},
       live: true,

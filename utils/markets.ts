@@ -5,6 +5,7 @@ import {
   mainnet,
   polygon,
   zkSyncTestnet,
+  polygonZkEvmTestnet,
 } from '@wagmi/chains'
 
 import { CLOBER_ADMIN, MARKET_TYPE, TOKEN } from './constant'
@@ -36,33 +37,58 @@ type MarketConfigs = {
 }
 
 export const marketConfigs: MarketConfigs = {
-  // TODO: use `@wagmi/chain`
-  [1442]: [
+  [polygonZkEvmTestnet.id]: [
     {
       name: 'DAI/cUSD',
       host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
       type: MARKET_TYPE.STABLE,
-      quoteToken: TOKEN[1442].CUSD, // cUSD
-      baseToken: TOKEN[1442].DAI, // DAI
+      quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
+      baseToken: TOKEN[polygonZkEvmTestnet.id].DAI, // DAI
       quoteUnit: BigNumber.from('1'),
       makeFee: -40,
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0xF65DBd02D15b944D19dC809951821FFba7A18Ee8',
+      address: '0x300591d044836ED4c93c3703e3FD18Cd864cc79D',
     },
     {
       name: 'CLOB/cUSD',
       host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
       type: MARKET_TYPE.VOLATILE,
-      quoteToken: TOKEN[1442].CUSD, // cUSD
-      baseToken: TOKEN[1442].CLOB, // CLOB
+      quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
+      baseToken: TOKEN[polygonZkEvmTestnet.id].CLOB, // CLOB
       quoteUnit: BigNumber.from('1'),
       makeFee: -200,
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0xbd3fd3219790508709fed95C635e49Eba94169e7',
+      address: '0xb8c224D12888DA9De4D833aBCDCF6D744A39EBA6',
+    },
+    {
+      name: 'MANGO/cUSD',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
+      baseToken: TOKEN[polygonZkEvmTestnet.id].MANGO, // MANGO
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x8E02612391843175B13883a284FD65A6C66FDD79',
+    },
+    {
+      name: 'MANGO/cUSD-makerFee',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[polygonZkEvmTestnet.id].CUSD, // cUSD
+      baseToken: TOKEN[polygonZkEvmTestnet.id].MANGO, // MANGO
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 3000,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xF62302981718c8B6d28cF10a9A175FC227Fb27E8',
     },
   ],
   [zkSyncTestnet.id]: [
