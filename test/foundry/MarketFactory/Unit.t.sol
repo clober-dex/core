@@ -131,6 +131,7 @@ contract MarketFactoryUnitTest is Test {
         assertEq(marketInfo.a, 10**10, "MARKET_INFO_A");
         assertEq(marketInfo.factor, 1001 * 10**15, "MARKET_INFO_FACTOR");
         assert(factory.deployedGeometricPriceBook(a, r) != address(0));
+        assert(factory.deployedGeometricPriceBook(a, r) == priceBookDeployer.computeGeometricPriceBookAddress(a, r));
         assertEq(factory.deployedGeometricPriceBook(a, r + 1), address(0));
     }
 
@@ -354,6 +355,7 @@ contract MarketFactoryUnitTest is Test {
         assertEq(marketInfo.a, 10**14, "MARKET_INFO_A");
         assertEq(marketInfo.factor, 10**14, "MARKET_INFO_FACTOR");
         assert(factory.deployedArithmeticPriceBook(a, d) != address(0));
+        assert(factory.deployedArithmeticPriceBook(a, d) == priceBookDeployer.computeArithmeticPriceBookAddress(a, d));
         assertEq(factory.deployedArithmeticPriceBook(a, d + 1), address(0));
     }
 
