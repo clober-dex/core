@@ -84,8 +84,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
-        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
+        address expectedPriceBookAddress = priceBookDeployer.computeGeometricPriceBookAddress(a, r);
+        assert(factory.deployedGeometricPriceBook(a, r) == address(0));
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -239,8 +239,7 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
-        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
+        address expectedPriceBookAddress = priceBookDeployer.computeGeometricPriceBookAddress(10**10, 1001 * 10**15);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -308,8 +307,8 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
-        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
+        address expectedPriceBookAddress = priceBookDeployer.computeArithmeticPriceBookAddress(a, d);
+        assert(factory.deployedGeometricPriceBook(a, d) == address(0));
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -463,8 +462,7 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        uint64 priceBookDeployerNonce = vm.getNonce(address(priceBookDeployer));
-        address expectedPriceBookAddress = Create1.computeAddress(address(priceBookDeployer), priceBookDeployerNonce);
+        address expectedPriceBookAddress = priceBookDeployer.computeArithmeticPriceBookAddress(10**14, 10**14);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -675,16 +673,6 @@ contract MarketFactoryUnitTest is Test {
             10**10,
             1001 * 10**15
         );
-    }
-
-    function testFailAlreadyGeometricPriceBookExists() public {
-        testCreateVolatileMarket();
-        testCreateVolatileMarket();
-    }
-
-    function testFailAlreadyArithmeticPriceBookExists() public {
-        testCreateStableMarket();
-        testCreateStableMarket();
     }
 
     function testDeployArithmeticPriceBookAccess() public {
