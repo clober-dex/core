@@ -70,8 +70,12 @@ const getMainnetPrivateKey = () => {
     }
   }
 
-  // TODO add polygon-zkevm-mainnet
-  const prodNetworks = new Set<number>([mainnet.id, polygon.id, arbitrum.id])
+  const prodNetworks = new Set<number>([
+    mainnet.id,
+    polygon.id,
+    arbitrum.id,
+    polygonZkEvm.id,
+  ])
   if (network && prodNetworks.has(network)) {
     if (privateKey) {
       return privateKey
@@ -153,6 +157,20 @@ const config: HardhatConfig = {
     [arbitrum.id]: {
       url: arbitrum.rpcUrls.default.http[0],
       chainId: arbitrum.id,
+      accounts: [getMainnetPrivateKey()],
+      gas: 'auto',
+      gasPrice: 'auto',
+      gasMultiplier: 1,
+      timeout: 3000000,
+      httpHeaders: {},
+      live: true,
+      saveDeployments: true,
+      tags: ['mainnet', 'prod'],
+      companionNetworks: {},
+    },
+    [polygonZkEvm.id]: {
+      url: polygonZkEvm.rpcUrls.default.http[0],
+      chainId: polygonZkEvm.id,
       accounts: [getMainnetPrivateKey()],
       gas: 'auto',
       gasPrice: 'auto',
