@@ -4,7 +4,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/CloberMarketFactory.sol";
@@ -14,6 +13,7 @@ import "./utils/ReentrancyGuard.sol";
 import "./OrderNFT.sol";
 import "./utils/BoringERC20.sol";
 import "./interfaces/CloberMarketDeployer.sol";
+import "./interfaces/CloberOrderTokenDeployer.sol";
 import "./interfaces/CloberPriceBookDeployer.sol";
 import "./markets/GeometricPriceBook.sol";
 import "./markets/ArithmeticPriceBook.sol";
@@ -29,8 +29,8 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     uint256 private immutable _cachedChainId;
     address public immutable override marketDeployer;
     address public immutable override priceBookDeployer;
+    address public immutable override orderTokenDeployer;
     address public immutable override canceler;
-    bytes32 private immutable _orderTokenBytecodeHash;
 
     mapping(bytes32 => address) private _deployedPriceBook;
     mapping(address => bool) public override registeredQuoteTokens;
@@ -62,6 +62,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     constructor(
         address marketDeployer_,
         address priceBookDeployer_,
+        address orderTokenDeployer_,
         address initialDaoTreasury,
         address canceler_,
         address[] memory initialQuoteTokenRegistrations_
@@ -72,11 +73,9 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
 
         marketDeployer = marketDeployer_;
         priceBookDeployer = priceBookDeployer_;
+        orderTokenDeployer = orderTokenDeployer_;
         daoTreasury = initialDaoTreasury;
         emit ChangeDaoTreasury(address(0), initialDaoTreasury);
-        _orderTokenBytecodeHash = keccak256(
-            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(address(this), canceler_))
-        );
         canceler = canceler_;
 
         for (uint256 i = 0; i < initialQuoteTokenRegistrations_.length; ++i) {
@@ -261,7 +260,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     }
 
     function _deployToken(bytes32 salt) internal returns (address) {
-        return address(new OrderNFT{salt: salt}(address(this), canceler));
+        return CloberOrderTokenDeployer(orderTokenDeployer).deploy(salt);
     }
 
     function _initToken(
@@ -296,10 +295,6 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             futureHost: address(0)
         });
         emit ChangeHost(market, address(0), host);
-    }
-
-    function computeTokenAddress(uint256 marketNonce) external view returns (address) {
-        return Create2.computeAddress(_calculateSalt(marketNonce), _orderTokenBytecodeHash);
     }
 
     function getMarketInfo(address market) external view returns (MarketInfo memory) {
