@@ -2,7 +2,7 @@
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.clober.io/)
 [![codecov](https://codecov.io/gh/clober-dex/core/branch/dev/graph/badge.svg?token=QNSGDYQOL7)](https://codecov.io/gh/clober-dex/core)
-[![CI status](https://github.com/clober-dex/core/actions/workflows/ci.yaml/badge.svg)](https://github.com/clober-dex/core/actions/workflows/ci.yaml)
+[![CI status](https://github.com/clober-dex/core/actions/workflows/test.yaml/badge.svg)](https://github.com/clober-dex/core/actions/workflows/test.yaml)
 [![Discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=Join&color=blue)](https://discord.gg/clober)
 [![Twitter](https://img.shields.io/static/v1?logo=twitter&label=twitter&message=Follow&color=blue)](https://twitter.com/CloberDEX)
 
