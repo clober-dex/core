@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../../../../contracts/markets/GeometricPriceBook.sol";
+import "../../../../contracts/GeometricPriceBook.sol";
 
 contract GeometricPriceBookIntegrationTest is Test {
     function testCoefficients(uint128 a, uint128 r) public {

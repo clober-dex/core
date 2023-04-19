@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../contracts/mocks/MockERC20.sol";
-import "../../../contracts/markets/MarketDeployer.sol";
+import "../../../contracts/MarketDeployer.sol";
 
 contract MarketDeployerUnitTest is Test {
     MarketDeployer marketDeployer;

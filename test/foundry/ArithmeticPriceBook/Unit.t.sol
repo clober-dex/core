@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../../../contracts/markets/ArithmeticPriceBook.sol";
+import "../../../contracts/ArithmeticPriceBook.sol";
 
 contract ArithmeticPriceBookUnitTest is Test {
     uint128 public constant A = 10**14;

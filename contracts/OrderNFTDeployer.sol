@@ -5,8 +5,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 
-import "../interfaces/CloberOrderNFTDeployer.sol";
-import "../OrderNFT.sol";
+import "./interfaces/CloberOrderNFTDeployer.sol";
+import "./OrderNFT.sol";
 
 contract OrderNFTDeployer is CloberOrderNFTDeployer {
     address private immutable _factory;

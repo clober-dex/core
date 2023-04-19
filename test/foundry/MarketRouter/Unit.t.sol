@@ -10,9 +10,9 @@ import "../../../contracts/MarketFactory.sol";
 import "../../../contracts/MarketRouter.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockWETH.sol";
-import "../../../contracts/markets/MarketDeployer.sol";
-import "../../../contracts/markets/PriceBookDeployer.sol";
-import "../../../contracts/markets/OrderNFTDeployer.sol";
+import "../../../contracts/MarketDeployer.sol";
+import "../../../contracts/PriceBookDeployer.sol";
+import "../../../contracts/OrderNFTDeployer.sol";
 import "../../../contracts/OrderCanceler.sol";
 
 contract MarketRouterUnitTest is Test {
@@ -60,7 +60,7 @@ contract MarketRouterUnitTest is Test {
         );
         marketDeployer = new MarketDeployer(address(factory));
         priceBookDeployer = new PriceBookDeployer(address(factory));
-        orderTokenDeployer = new OrderTokenDeployer(address(factory), address(this));
+        orderTokenDeployer = new OrderNFTDeployer(address(factory), address(this));
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = payable(address(new MockWETH()));

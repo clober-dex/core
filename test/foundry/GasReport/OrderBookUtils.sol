@@ -12,10 +12,10 @@ import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../contracts/mocks/MockBaseToken.sol";
 import "../../../contracts/mocks/report/GasReporter.sol";
-import "../../../contracts/markets/MarketDeployer.sol";
+import "../../../contracts/MarketDeployer.sol";
 import "./GasReportUtils.sol";
-import "../../../contracts/markets/PriceBookDeployer.sol";
-import "../../../contracts/markets/OrderNFTDeployer.sol";
+import "../../../contracts/PriceBookDeployer.sol";
+import "../../../contracts/OrderNFTDeployer.sol";
 
 contract OrderBookUtils is Test {
     uint24 public constant TAKE_FEE = 1000;
@@ -60,7 +60,7 @@ contract OrderBookUtils is Test {
         );
         new MarketDeployer(address(factory));
         new PriceBookDeployer(address(factory));
-        new OrderTokenDeployer(address(factory), address(orderCanceler));
+        new OrderNFTDeployer(address(factory), address(orderCanceler));
 
         market = OrderBook(
             factory.createVolatileMarket(

@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/CloberMarketDeployer.sol";
-import "../OrderBook.sol";
+import "./interfaces/CloberMarketDeployer.sol";
+import "./OrderBook.sol";
 
 contract MarketDeployer is CloberMarketDeployer {
     address private immutable _factory;
