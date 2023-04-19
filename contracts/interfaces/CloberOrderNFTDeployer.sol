@@ -3,7 +3,10 @@
 pragma solidity ^0.8.0;
 
 interface CloberOrderNFTDeployer {
-    // TODO: add docstring
+    /**
+     * @notice Deploys the OrderNFT contract.
+     * @param salt The salt to compute the OrderNFT contract address via CREATE2.
+     */
     function deploy(bytes32 salt) external returns (address);
 
     /**
