@@ -22,7 +22,7 @@ deployerTask(
     const priceBookDeployer = await deployer.deploy('PriceBookDeployer', [
       computedFactoryAddress,
     ])
-    const orderTokenDeployer = await deployer.deploy('OrderTokenDeployer', [
+    const orderNFTDeployer = await deployer.deploy('OrderNFTDeployer', [
       computedFactoryAddress,
       canceler,
     ])
@@ -33,7 +33,7 @@ deployerTask(
     const factory = await deployer.deploy('MarketFactory', [
       marketDeployer,
       priceBookDeployer,
-      orderTokenDeployer,
+      orderNFTDeployer,
       signer.address,
       canceler,
       initialQuoteTokenRegistrations,

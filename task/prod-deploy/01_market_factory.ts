@@ -28,7 +28,7 @@ deployerTask(
     const priceBookDeployer = await deployer.deploy('PriceBookDeployer', [
       computedFactoryAddress,
     ])
-    const orderTokenDeployer = await deployer.deploy('OrderTokenDeployer', [
+    const orderNFTDeployer = await deployer.deploy('OrderNFTDeployer', [
       computedFactoryAddress,
       canceler,
     ])
@@ -36,7 +36,7 @@ deployerTask(
     const factoryAddress = await deployer.deploy('MarketFactory', [
       marketDeployer,
       priceBookDeployer,
-      orderTokenDeployer,
+      orderNFTDeployer,
       CLOBER_DAO_TREASURY[hre.network.name],
       canceler,
       initialRegisteredQuoteTokens[hre.network.name],
