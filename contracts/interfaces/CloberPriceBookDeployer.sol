@@ -8,4 +8,8 @@ interface CloberPriceBookDeployer {
 
     // TODO: add docstring
     function deployGeometricPriceBook(uint128 a, uint128 r) external returns (address);
+
+    function computeArithmeticPriceBookAddress(uint128 a, uint128 d) external view returns (address);
+
+    function computeGeometricPriceBookAddress(uint128 a, uint128 r) external view returns (address);
 }
