@@ -14,8 +14,8 @@ import "../../../contracts/mocks/MockBaseToken.sol";
 import "../../../contracts/mocks/report/GasReporter.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
 import "./GasReportUtils.sol";
-import "../../../contracts/markets/PriceDeployer.sol";
-import "../../../contracts/markets/OrderTokenDeployer.sol";
+import "../../../contracts/markets/PriceBookDeployer.sol";
+import "../../../contracts/markets/OrderNFTDeployer.sol";
 
 contract OrderBookUtils is Test {
     uint24 public constant TAKE_FEE = 1000;

@@ -10,8 +10,8 @@ import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/MarketFactory.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
-import "../../../contracts/markets/PriceDeployer.sol";
-import "../../../contracts/markets/OrderTokenDeployer.sol";
+import "../../../contracts/markets/PriceBookDeployer.sol";
+import "../../../contracts/markets/OrderNFTDeployer.sol";
 
 contract MarketFactoryUnitTest is Test {
     event CreateVolatileMarket(
@@ -53,7 +53,7 @@ contract MarketFactoryUnitTest is Test {
     MarketFactory factory;
     MarketDeployer marketDeployer;
     PriceBookDeployer priceBookDeployer;
-    OrderTokenDeployer orderTokenDeployer;
+    OrderNFTDeployer orderTokenDeployer;
     address quoteToken;
     address baseToken;
     address proxy;

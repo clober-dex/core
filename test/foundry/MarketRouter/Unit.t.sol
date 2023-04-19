@@ -11,8 +11,8 @@ import "../../../contracts/MarketRouter.sol";
 import "../../../contracts/mocks/MockERC20.sol";
 import "../../../contracts/mocks/MockWETH.sol";
 import "../../../contracts/markets/MarketDeployer.sol";
-import "../../../contracts/markets/PriceDeployer.sol";
-import "../../../contracts/markets/OrderTokenDeployer.sol";
+import "../../../contracts/markets/PriceBookDeployer.sol";
+import "../../../contracts/markets/OrderNFTDeployer.sol";
 import "../../../contracts/OrderCanceler.sol";
 
 contract MarketRouterUnitTest is Test {
@@ -35,7 +35,7 @@ contract MarketRouterUnitTest is Test {
     MarketFactory factory;
     MarketDeployer marketDeployer;
     PriceBookDeployer priceBookDeployer;
-    OrderTokenDeployer orderTokenDeployer;
+    OrderNFTDeployer orderTokenDeployer;
     OrderCanceler orderCanceler;
 
     MarketRouter router;

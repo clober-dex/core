@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface CloberOrderTokenDeployer {
+interface CloberOrderNFTDeployer {
     // TODO: add docstring
     function deploy(bytes32 salt) external returns (address);
 
