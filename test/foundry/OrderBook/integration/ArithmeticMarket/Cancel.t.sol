@@ -8,7 +8,7 @@ import "forge-std/Test.sol";
 import "../../../../../contracts/interfaces/CloberMarketSwapCallbackReceiver.sol";
 import "../../../../../contracts/mocks/MockQuoteToken.sol";
 import "../../../../../contracts/mocks/MockBaseToken.sol";
-import "../../../../../contracts/markets/ArithmeticPriceBook.sol";
+import "../../../../../contracts/ArithmeticPriceBook.sol";
 import "../../../../../contracts/OrderNFT.sol";
 import "../../../../../contracts/OrderBook.sol";
 import "../Constants.sol";

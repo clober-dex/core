@@ -13,10 +13,10 @@ import "./utils/ReentrancyGuard.sol";
 import "./OrderNFT.sol";
 import "./utils/BoringERC20.sol";
 import "./interfaces/CloberMarketDeployer.sol";
-import "./interfaces/CloberOrderTokenDeployer.sol";
+import "./interfaces/CloberOrderNFTDeployer.sol";
 import "./interfaces/CloberPriceBookDeployer.sol";
-import "./markets/GeometricPriceBook.sol";
-import "./markets/ArithmeticPriceBook.sol";
+import "./GeometricPriceBook.sol";
+import "./ArithmeticPriceBook.sol";
 
 contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegateCall {
     using BoringERC20 for IERC20;
@@ -260,7 +260,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
     }
 
     function _deployToken(bytes32 salt) internal returns (address) {
-        return CloberOrderTokenDeployer(orderTokenDeployer).deploy(salt);
+        return CloberOrderNFTDeployer(orderTokenDeployer).deploy(salt);
     }
 
     function _initToken(

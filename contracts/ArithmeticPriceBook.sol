@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../Errors.sol";
-import "../interfaces/CloberPriceBook.sol";
+import "./Errors.sol";
+import "./interfaces/CloberPriceBook.sol";
 
 contract ArithmeticPriceBook is CloberPriceBook {
     uint128 private immutable _a;

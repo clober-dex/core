@@ -9,9 +9,9 @@ import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.so
 import "@clober/library/contracts/Create1.sol";
 import "../../../contracts/MarketFactory.sol";
 import "../../../contracts/mocks/MockERC20.sol";
-import "../../../contracts/markets/MarketDeployer.sol";
-import "../../../contracts/markets/PriceDeployer.sol";
-import "../../../contracts/markets/OrderTokenDeployer.sol";
+import "../../../contracts/MarketDeployer.sol";
+import "../../../contracts/PriceBookDeployer.sol";
+import "../../../contracts/OrderNFTDeployer.sol";
 
 contract MarketFactoryUnitTest is Test {
     event CreateVolatileMarket(
@@ -53,7 +53,7 @@ contract MarketFactoryUnitTest is Test {
     MarketFactory factory;
     MarketDeployer marketDeployer;
     PriceBookDeployer priceBookDeployer;
-    OrderTokenDeployer orderTokenDeployer;
+    OrderNFTDeployer orderTokenDeployer;
     address quoteToken;
     address baseToken;
     address proxy;
@@ -70,7 +70,7 @@ contract MarketFactoryUnitTest is Test {
         );
         marketDeployer = new MarketDeployer(address(factory));
         priceBookDeployer = new PriceBookDeployer(address(factory));
-        orderTokenDeployer = new OrderTokenDeployer(address(factory), address(this));
+        orderTokenDeployer = new OrderNFTDeployer(address(factory), address(this));
 
         quoteToken = address(new MockERC20("quote", "QUOTE", 6));
         baseToken = address(new MockERC20("base", "BASE", 18));

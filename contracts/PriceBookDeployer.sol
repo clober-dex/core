@@ -3,9 +3,9 @@
 
 pragma solidity ^0.8.0;
 
+import "./interfaces/CloberPriceBookDeployer.sol";
 import "./ArithmeticPriceBook.sol";
 import "./GeometricPriceBook.sol";
-import "../interfaces/CloberPriceBookDeployer.sol";
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 

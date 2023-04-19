@@ -5,10 +5,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 
-import "../interfaces/CloberOrderTokenDeployer.sol";
-import "../OrderNFT.sol";
+import "./interfaces/CloberOrderNFTDeployer.sol";
+import "./OrderNFT.sol";
 
-contract OrderTokenDeployer is CloberOrderTokenDeployer {
+contract OrderNFTDeployer is CloberOrderNFTDeployer {
     address private immutable _factory;
     address private immutable _canceler;
     bytes32 private immutable _orderTokenBytecodeHash;

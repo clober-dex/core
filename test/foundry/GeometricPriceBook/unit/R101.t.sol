@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../../../../contracts/markets/GeometricPriceBook.sol";
+import "../../../../contracts/GeometricPriceBook.sol";
 
 contract GeometricPriceBookR101UnitTest is Test {
     uint128 public constant A = 10**10;
