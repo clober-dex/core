@@ -6,6 +6,7 @@ import {
   polygon,
   zkSyncTestnet,
   polygonZkEvmTestnet,
+  polygonZkEvm,
 } from '@wagmi/chains'
 
 import { CLOBER_ADMIN, MARKET_TYPE, TOKEN } from './constant'
@@ -89,6 +90,21 @@ export const marketConfigs: MarketConfigs = {
       a: BigNumber.from(10).pow(13),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
       address: '0xF62302981718c8B6d28cF10a9A175FC227Fb27E8',
+    },
+  ],
+  [polygonZkEvm.id]: [
+    {
+      name: 'MANGO/USDC',
+      host: '0x62e5E8D25c88D9c4b67f09c46D96C9ECD3864757', // mango admin
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[polygonZkEvm.id].USDC,
+      baseToken: TOKEN[polygonZkEvm.id].MANGO,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x1FC38BA10E741F357b1c8B69DC08eA654c21Ae37',
     },
   ],
   [zkSyncTestnet.id]: [
@@ -419,4 +435,5 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].DAI,
     TOKEN[arbitrum.id].USDT,
   ],
+  [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC],
 }

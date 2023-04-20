@@ -82,7 +82,7 @@ const getMainnetPrivateKey = () => {
     }
     const keythereum = require('keythereum')
 
-    const KEYSTORE = './clober-deployer-key.json'
+    const KEYSTORE = './clober-v1.1-deployer-key.json'
     const PASSWORD = readlineSync.question('Password: ', {
       hideEchoBack: true,
     })
