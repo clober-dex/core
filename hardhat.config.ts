@@ -122,7 +122,16 @@ const config: HardhatConfig = {
   },
   etherscan: {
     apiKey: 'API_KEY',
-    customChains: [],
+    customChains: [
+      {
+        network: `${polygonZkEvm.id}`,
+        chainId: polygonZkEvm.id,
+        urls: {
+          apiURL: 'https://api-zkevm.polygonscan.com/api',
+          browserURL: 'https://zkevm.polygonscan.com',
+        },
+      },
+    ],
   },
   defaultNetwork: 'hardhat',
   networks: {
