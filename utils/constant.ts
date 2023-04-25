@@ -3,6 +3,7 @@ import {
   arbitrumGoerli,
   mainnet,
   polygon,
+  polygonZkEvm,
   polygonZkEvmTestnet,
   zkSyncTestnet,
 } from '@wagmi/chains'
@@ -17,12 +18,14 @@ export const CLOBER_ADMIN: { [network: string]: string } = {
   [mainnet.id]: '0xa8a05ED6Ab403e1D2b90D2e5050ed0a1f98b11be',
   [arbitrum.id]: '0x290D9de8d51fDf4683Aa761865743a28909b2553',
   [polygon.id]: '0xF4155c2a753B4f5e001357d3a81169245b374FCf',
+  [polygonZkEvm.id]: '0x39F0b609aA86E1474B1afb228Be3E29338B4983B',
 }
 
 export const CLOBER_DAO_TREASURY: { [network: string]: string } = {
   [mainnet.id]: '0xD91012FCd663E9636afA20ff29cF3ed3090A137f',
   [arbitrum.id]: '0xc60eb261CD031F7ccf4b6cbd9ae677E11456A22a',
   [polygon.id]: '0x309bCc19DC4d8F4c31312DF2BEFb3b2821646e7f',
+  [polygonZkEvm.id]: '0x1bA77cd6E9b5213E1bA468Ce498A26E1AD0782Bc',
 }
 
 export const TOKEN = {
@@ -70,5 +73,11 @@ export const TOKEN = {
     DAI: '0x56398abB6ffBAFD035E598C9139cB78E8e110fAB',
     CLOB: '0xc2f0e04cCC89D73Db18BA83810c34CbB6B33E440',
     MANGO: '0x1c1f6B8d0e4D83347fCA9fF16738DF482500EeA5',
+  },
+  [polygonZkEvm.id]: {
+    MANGO: '0x1fA03eDB1B8839a5319A7D2c1Ae6AAE492342bAD',
+    WETH: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9',
+    MATIC: '0xa2036f0538221a77A3937F1379699f44945018d0',
+    USDC: '0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035',
   },
 }

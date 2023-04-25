@@ -82,7 +82,7 @@ const getMainnetPrivateKey = () => {
     }
     const keythereum = require('keythereum')
 
-    const KEYSTORE = './clober-deployer-key.json'
+    const KEYSTORE = './clober-v1.1-deployer-key.json'
     const PASSWORD = readlineSync.question('Password: ', {
       hideEchoBack: true,
     })
@@ -122,7 +122,16 @@ const config: HardhatConfig = {
   },
   etherscan: {
     apiKey: 'API_KEY',
-    customChains: [],
+    customChains: [
+      {
+        network: `${polygonZkEvm.id}`,
+        chainId: polygonZkEvm.id,
+        urls: {
+          apiURL: 'https://api-zkevm.polygonscan.com/api',
+          browserURL: 'https://zkevm.polygonscan.com',
+        },
+      },
+    ],
   },
   defaultNetwork: 'hardhat',
   networks: {
