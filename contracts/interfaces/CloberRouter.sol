@@ -44,7 +44,7 @@ interface CloberRouter {
      * @notice Places limit orders.
      * @param limitOrderParamsList The limit order parameters list.
      * @param claimParamsList Array of ClaimOrderParams: The list of orders to be claimed.
-     * @return The order indices. If an order is not made `type(uint256).max` is returned instead.
+     * @return orderIds The order indices. If an order is not made `type(uint256).max` is returned instead.
      */
     function limitOrder(
         GeneralLimitOrderParams[] calldata limitOrderParamsList,
