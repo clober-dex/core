@@ -125,7 +125,7 @@ contract MarketRouterUnitTest is Test {
     }
 
     function testCloberMarketSwapCallback() public {
-        uint256 beforeUserETHBalance = USER.balance;
+        uint256 beforeRouterETHBalance = address(router).balance;
         uint256 beforeUserTokenBalance = IERC20(quoteToken).balanceOf(USER);
         uint256 beforeMarketTokenBalance = IERC20(quoteToken).balanceOf(address(market1));
         uint256 requestedQuote = 10;
@@ -136,15 +136,14 @@ contract MarketRouterUnitTest is Test {
             baseToken,
             requestedQuote,
             10,
-            abi.encode(USER, !USE_NATIVE)
+            abi.encode(USER, !USE_NATIVE, 0)
         );
         uint256 userTokenDiff = beforeUserTokenBalance - IERC20(quoteToken).balanceOf(USER);
         uint256 marketTokenDiff = IERC20(quoteToken).balanceOf(address(market1)) - beforeMarketTokenBalance;
-        uint256 userETHDiff = USER.balance - beforeUserETHBalance;
+        uint256 routerETHDiff = address(router).balance - beforeRouterETHBalance;
         assertEq(userTokenDiff, marketTokenDiff);
         assertEq(userTokenDiff, requestedQuote);
-        assertEq(userETHDiff, uint256(CLAIM_BOUNTY) * 1 gwei);
-        assertEq(address(router).balance, 0);
+        assertEq(routerETHDiff, uint256(CLAIM_BOUNTY) * 1 gwei);
     }
 
     function testCloberMarketSwapCallbackUsingNative() public {
@@ -159,7 +158,7 @@ contract MarketRouterUnitTest is Test {
             quoteToken,
             inputAmount,
             10,
-            abi.encode(USER, USE_NATIVE)
+            abi.encode(USER, USE_NATIVE, 0)
         );
         assertEq(address(router).balance, 0, "ROUTER_BALANCE");
         assertEq(address(baseToken).balance - beforeWETHBalance, inputAmount, "WETH_BALANCE");
@@ -169,7 +168,7 @@ contract MarketRouterUnitTest is Test {
     function testCloberMarketSwapCallbackUsingNativeWhenBalanceIsBiggerThanInputAmount() public {
         uint256 beforeWETHBalance = baseToken.balance;
         uint256 beforeUserBaseAmount = IERC20(baseToken).balanceOf(USER);
-        uint256 beforeUserETHAmount = USER.balance;
+        uint256 beforeRouterETHAmount = address(router).balance;
         uint256 inputAmount = 12312421;
         uint256 extra = 123;
         vm.deal(address(market1), uint256(CLAIM_BOUNTY) * 1 gwei); // to refund claim bounty
@@ -181,12 +180,15 @@ contract MarketRouterUnitTest is Test {
             quoteToken,
             inputAmount,
             10,
-            abi.encode(USER, USE_NATIVE)
+            abi.encode(USER, USE_NATIVE, 0)
         );
-        assertEq(address(router).balance, 0, "ROUTER_BALANCE");
         assertEq(address(baseToken).balance - beforeWETHBalance, inputAmount, "WETH_BALANCE");
         assertEq(IERC20(baseToken).balanceOf(USER), beforeUserBaseAmount, "USER_BALANCE");
-        assertEq(USER.balance - beforeUserETHAmount, uint256(CLAIM_BOUNTY) * 1 gwei + extra, "USER_ETH_BALANCE");
+        assertEq(
+            address(router).balance - beforeRouterETHAmount,
+            uint256(CLAIM_BOUNTY) * 1 gwei + extra,
+            "ROUTER_ETH_BALANCE"
+        );
     }
 
     function testCloberMarketSwapCallbackUsingNativeWhenInputIsBiggerThanBalance() public {
@@ -202,7 +204,7 @@ contract MarketRouterUnitTest is Test {
             quoteToken,
             inputAmount,
             10,
-            abi.encode(USER, USE_NATIVE)
+            abi.encode(USER, USE_NATIVE, 0)
         );
         assertEq(address(router).balance, 0, "ROUTER_BALANCE");
         assertEq(address(baseToken).balance - beforeWETHBalance, inputAmount - extra, "WETH_BALANCE");
@@ -218,31 +220,14 @@ contract MarketRouterUnitTest is Test {
             quoteToken,
             0,
             10,
-            abi.encode(USER, USE_NATIVE)
+            abi.encode(USER, USE_NATIVE, 0)
         );
     }
 
     function testCloberMarketSwapCallbackAccess() public {
         marketId = 12;
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        router.cloberMarketSwapCallback(quoteToken, baseToken, 10, 10, abi.encode(USER, !USE_NATIVE));
-    }
-
-    function testCloberMarketSwapCallbackFailedValueTransfer() public {
-        uint256 requestedQuote = 10;
-        MockERC20(quoteToken).mint(address(this), requestedQuote);
-        MockERC20(quoteToken).approve(address(router), requestedQuote);
-
-        vm.prank(address(market1));
-        vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.FAILED_TO_SEND_VALUE));
-        vm.deal(address(market1), uint256(CLAIM_BOUNTY) * 1 gwei);
-        router.cloberMarketSwapCallback{value: uint256(CLAIM_BOUNTY) * 1 gwei}(
-            quoteToken,
-            baseToken,
-            requestedQuote,
-            10,
-            abi.encode(address(this), !USE_NATIVE)
-        ); // no receive()
+        router.cloberMarketSwapCallback(quoteToken, baseToken, 10, 10, abi.encode(USER, !USE_NATIVE, 0));
     }
 
     function _buildLimitOrderParams(
@@ -278,13 +263,16 @@ contract MarketRouterUnitTest is Test {
                     params.rawAmount,
                     params.baseAmount,
                     params.postOnly ? 3 : 1,
-                    abi.encode(params.user, !USE_NATIVE)
+                    abi.encode(params.user, !USE_NATIVE, 0)
                 )
             )
         );
+        vm.deal(address(router), 123);
         vm.prank(USER);
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         router.limitBid{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
+        assertEq(address(router).balance, 0, "ROUTER_BALANCE");
+        assertEq(USER.balance, 123, "USER_BALANCE");
     }
 
     function testLimitBidDeadline() public {
@@ -310,13 +298,16 @@ contract MarketRouterUnitTest is Test {
                     params.rawAmount,
                     params.baseAmount,
                     params.postOnly ? 2 : 0,
-                    abi.encode(params.user, !USE_NATIVE)
+                    abi.encode(params.user, !USE_NATIVE, 0)
                 )
             )
         );
+        vm.deal(address(router), 123);
         vm.prank(USER);
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         router.limitAsk{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
+        assertEq(address(router).balance, 0, "ROUTER_BALANCE");
+        assertEq(USER.balance, 123, "USER_BALANCE");
     }
 
     function testLimitAskDeadline() public {
@@ -388,7 +379,7 @@ contract MarketRouterUnitTest is Test {
                     params.rawAmount,
                     params.baseAmount,
                     params.expendInput ? 3 : 1,
-                    abi.encode(params.user, !USE_NATIVE)
+                    abi.encode(params.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -433,7 +424,7 @@ contract MarketRouterUnitTest is Test {
                     params.rawAmount,
                     params.baseAmount,
                     params.expendInput ? 2 : 0,
-                    abi.encode(params.user, !USE_NATIVE)
+                    abi.encode(params.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -527,7 +518,7 @@ contract MarketRouterUnitTest is Test {
                     limitOrderParams.rawAmount,
                     limitOrderParams.baseAmount,
                     limitOrderParams.postOnly ? 3 : 1,
-                    abi.encode(limitOrderParams.user, !USE_NATIVE)
+                    abi.encode(limitOrderParams.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -586,7 +577,7 @@ contract MarketRouterUnitTest is Test {
                     limitOrderParams.rawAmount,
                     limitOrderParams.baseAmount,
                     limitOrderParams.postOnly ? 2 : 0,
-                    abi.encode(limitOrderParams.user, !USE_NATIVE)
+                    abi.encode(limitOrderParams.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -642,7 +633,7 @@ contract MarketRouterUnitTest is Test {
                     marketOrderParams.rawAmount,
                     marketOrderParams.baseAmount,
                     marketOrderParams.expendInput ? 3 : 1,
-                    abi.encode(marketOrderParams.user, !USE_NATIVE)
+                    abi.encode(marketOrderParams.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -699,7 +690,7 @@ contract MarketRouterUnitTest is Test {
                     marketOrderParams.rawAmount,
                     marketOrderParams.baseAmount,
                     marketOrderParams.expendInput ? 2 : 0,
-                    abi.encode(marketOrderParams.user, !USE_NATIVE)
+                    abi.encode(marketOrderParams.user, !USE_NATIVE, 0)
                 )
             )
         );
@@ -773,5 +764,76 @@ contract MarketRouterUnitTest is Test {
         vm.prank(USER);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
         router.unregisterMarkets(markets);
+    }
+
+    function testBatchLimitOrder() public {
+        CloberRouter.ClaimOrderParams[] memory claimParamsList = new CloberRouter.ClaimOrderParams[](1);
+        claimParamsList[0].market = address(market1);
+        claimParamsList[0].orderKeys = new OrderKey[](1);
+        claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
+
+        CloberRouter.LimitOrderParams memory bidLimitOrderParams = _buildLimitOrderParams(
+            address(market2),
+            10,
+            0,
+            POST_ONLY
+        );
+        bidLimitOrderParams.priceIndex--;
+        CloberRouter.LimitOrderParams memory askLimitOrderParams = _buildLimitOrderParams(
+            address(market2),
+            0,
+            10 * 1e18,
+            POST_ONLY
+        );
+
+        CloberRouter.GeneralLimitOrderParams[] memory limitOrderParamsList = new CloberRouter.GeneralLimitOrderParams[](
+            2
+        );
+        limitOrderParamsList[0].isBid = true;
+        limitOrderParamsList[0].params = bidLimitOrderParams;
+        limitOrderParamsList[1].isBid = false;
+        limitOrderParamsList[1].params = askLimitOrderParams;
+
+        vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei * 10);
+        vm.startPrank(USER);
+
+        uint256 snapshot = vm.snapshot();
+        vm.expectCall(address(market1), abi.encodeCall(CloberOrderBook.claim, (USER, claimParamsList[0].orderKeys)));
+        router.limitOrder{value: uint256(CLAIM_BOUNTY) * 1 gwei * 2}(limitOrderParamsList, claimParamsList);
+        vm.revertTo(snapshot);
+        vm.expectCall(
+            address(market2),
+            uint256(CLAIM_BOUNTY) * 1 gwei,
+            abi.encodeCall(
+                CloberOrderBook.limitOrder,
+                (
+                    bidLimitOrderParams.user,
+                    bidLimitOrderParams.priceIndex,
+                    bidLimitOrderParams.rawAmount,
+                    bidLimitOrderParams.baseAmount,
+                    bidLimitOrderParams.postOnly ? 3 : 1,
+                    abi.encode(bidLimitOrderParams.user, !USE_NATIVE, uint256(CLAIM_BOUNTY) * 1 gwei)
+                )
+            )
+        );
+        router.limitOrder{value: uint256(CLAIM_BOUNTY) * 1 gwei * 2}(limitOrderParamsList, claimParamsList);
+        vm.revertTo(snapshot);
+        vm.expectCall(
+            address(market2),
+            uint256(CLAIM_BOUNTY) * 1 gwei,
+            abi.encodeCall(
+                CloberOrderBook.limitOrder,
+                (
+                    askLimitOrderParams.user,
+                    askLimitOrderParams.priceIndex,
+                    askLimitOrderParams.rawAmount,
+                    askLimitOrderParams.baseAmount,
+                    askLimitOrderParams.postOnly ? 2 : 0,
+                    abi.encode(askLimitOrderParams.user, !USE_NATIVE, 0)
+                )
+            )
+        );
+        router.limitOrder{value: uint256(CLAIM_BOUNTY) * 1 gwei * 2}(limitOrderParamsList, claimParamsList);
+        vm.stopPrank();
     }
 }
