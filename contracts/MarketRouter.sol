@@ -62,11 +62,11 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             revert Errors.CloberError(Errors.ACCESS);
         }
 
-        (address payer, bool useNative) = abi.decode(data, (address, bool));
+        (address payer, bool useNative, uint256 ethToRemain) = abi.decode(data, (address, bool, uint256));
 
         // transfer input tokens
         if (useNative) {
-            uint256 nativeAmount = address(this).balance;
+            uint256 nativeAmount = address(this).balance - ethToRemain;
             (inputAmount, nativeAmount) = nativeAmount > inputAmount
                 ? (0, inputAmount)
                 : (inputAmount - nativeAmount, nativeAmount);
@@ -85,9 +85,15 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     ) external payable clearEth returns (uint256[] memory orderIds) {
         orderIds = new uint256[](limitOrderParamsList.length);
         _claim(claimParamsList);
+        uint256 ethToRemain;
         for (uint256 i = 0; i < limitOrderParamsList.length; ++i) {
             _checkDeadline(limitOrderParamsList[i].params.deadline);
-            orderIds[i] = _limitOrder(limitOrderParamsList[i].params, limitOrderParamsList[i].isBid);
+            ethToRemain += uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
+        }
+
+        for (uint256 i = 0; i < limitOrderParamsList.length; ++i) {
+            ethToRemain -= uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
+            orderIds[i] = _limitOrder(limitOrderParamsList[i].params, limitOrderParamsList[i].isBid, ethToRemain);
         }
     }
 
@@ -112,6 +118,14 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     }
 
     function _limitOrder(LimitOrderParams calldata params, bool isBid) internal returns (uint256) {
+        return _limitOrder(params, isBid, 0);
+    }
+
+    function _limitOrder(
+        LimitOrderParams calldata params,
+        bool isBid,
+        uint256 ethToRemain
+    ) internal returns (uint256) {
         return
             CloberOrderBook(params.market).limitOrder{value: uint256(params.claimBounty) * 1 gwei}(
                 params.user,
@@ -119,7 +133,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
                 params.rawAmount,
                 params.baseAmount,
                 (isBid ? 1 : 0) + (params.postOnly ? 2 : 0),
-                abi.encode(msg.sender, params.useNative)
+                abi.encode(msg.sender, params.useNative, ethToRemain)
             );
     }
 
@@ -138,7 +152,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             params.rawAmount,
             params.baseAmount,
             (isBid ? 1 : 0) + (params.expendInput ? 2 : 0),
-            abi.encode(msg.sender, params.useNative)
+            abi.encode(msg.sender, params.useNative, 0)
         );
     }
 
