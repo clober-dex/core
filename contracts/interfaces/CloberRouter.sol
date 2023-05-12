@@ -30,11 +30,22 @@ interface CloberRouter {
         uint256 baseAmount;
     }
 
+    /**
+     * @notice LimitOrderParams struct is a generalized version of LimitOrderParam to be used for both bids and asks.
+     * @param params This is the LimitOrderParams struct which contains all the necessary information of a limit order.
+     * @param isBid This flag, if set to true, means that the order is a bid. If false, the order is an ask.
+     */
     struct GeneralLimitOrderParams {
         LimitOrderParams params;
         bool isBid;
     }
 
+    /**
+     * @notice Places limit orders.
+     * @param limitOrderParamsList The limit order parameters list.
+     * @param claimParamsList Array of ClaimOrderParams: The list of orders to be claimed.
+     * @return The order indices. If an order is not made `type(uint256).max` is returned instead.
+     */
     function limitOrder(
         GeneralLimitOrderParams[] calldata limitOrderParamsList,
         ClaimOrderParams[] calldata claimParamsList
