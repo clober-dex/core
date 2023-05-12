@@ -36,7 +36,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         }
     }
 
-    modifier clearEth() {
+    modifier flushNative() {
         _;
         if (address(this).balance > 0) {
             (bool success, ) = msg.sender.call{value: address(this).balance}("");
@@ -62,11 +62,11 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             revert Errors.CloberError(Errors.ACCESS);
         }
 
-        (address payer, bool useNative, uint256 ethToRemain) = abi.decode(data, (address, bool, uint256));
+        (address payer, bool useNative, uint256 nativeToRemain) = abi.decode(data, (address, bool, uint256));
 
         // transfer input tokens
         if (useNative) {
-            uint256 nativeAmount = address(this).balance - ethToRemain;
+            uint256 nativeAmount = address(this).balance - nativeToRemain;
             (inputAmount, nativeAmount) = nativeAmount > inputAmount
                 ? (0, inputAmount)
                 : (inputAmount - nativeAmount, nativeAmount);
@@ -82,18 +82,18 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function limitOrder(
         GeneralLimitOrderParams[] calldata limitOrderParamsList,
         ClaimOrderParams[] calldata claimParamsList
-    ) external payable clearEth returns (uint256[] memory orderIds) {
+    ) external payable flushNative returns (uint256[] memory orderIds) {
         orderIds = new uint256[](limitOrderParamsList.length);
         _claim(claimParamsList);
-        uint256 ethToRemain;
+        uint256 nativeToRemain;
         for (uint256 i = 0; i < limitOrderParamsList.length; ++i) {
             _checkDeadline(limitOrderParamsList[i].params.deadline);
-            ethToRemain += uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
+            nativeToRemain += uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
         }
 
         for (uint256 i = 0; i < limitOrderParamsList.length; ++i) {
-            ethToRemain -= uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
-            orderIds[i] = _limitOrder(limitOrderParamsList[i].params, limitOrderParamsList[i].isBid, ethToRemain);
+            nativeToRemain -= uint256(limitOrderParamsList[i].params.claimBounty) * 1 gwei;
+            orderIds[i] = _limitOrder(limitOrderParamsList[i].params, limitOrderParamsList[i].isBid, nativeToRemain);
         }
     }
 
@@ -101,7 +101,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(params.deadline)
-        clearEth
+        flushNative
         returns (uint256)
     {
         return _limitOrder(params, _BID);
@@ -111,7 +111,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(params.deadline)
-        clearEth
+        flushNative
         returns (uint256)
     {
         return _limitOrder(params, _ASK);
@@ -124,7 +124,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function _limitOrder(
         LimitOrderParams calldata params,
         bool isBid,
-        uint256 ethToRemain
+        uint256 nativeToRemain
     ) internal returns (uint256) {
         return
             CloberOrderBook(params.market).limitOrder{value: uint256(params.claimBounty) * 1 gwei}(
@@ -133,15 +133,15 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
                 params.rawAmount,
                 params.baseAmount,
                 (isBid ? 1 : 0) + (params.postOnly ? 2 : 0),
-                abi.encode(msg.sender, params.useNative, ethToRemain)
+                abi.encode(msg.sender, params.useNative, nativeToRemain)
             );
     }
 
-    function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) clearEth {
+    function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) flushNative {
         _marketOrder(params, _BID);
     }
 
-    function marketAsk(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) clearEth {
+    function marketAsk(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) flushNative {
         _marketOrder(params, _ASK);
     }
 
@@ -156,7 +156,11 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         );
     }
 
-    function claim(uint64 deadline, ClaimOrderParams[] calldata paramsList) external checkDeadline(deadline) clearEth {
+    function claim(uint64 deadline, ClaimOrderParams[] calldata paramsList)
+        external
+        checkDeadline(deadline)
+        flushNative
+    {
         _claim(paramsList);
     }
 
@@ -171,7 +175,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(limitOrderParams.deadline)
-        clearEth
+        flushNative
         returns (uint256)
     {
         _claim(claimParamsList);
@@ -182,7 +186,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(limitOrderParams.deadline)
-        clearEth
+        flushNative
         returns (uint256)
     {
         _claim(claimParamsList);
@@ -192,7 +196,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function marketBidAfterClaim(
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
-    ) external payable checkDeadline(marketOrderParams.deadline) clearEth {
+    ) external payable checkDeadline(marketOrderParams.deadline) flushNative {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _BID);
     }
@@ -200,7 +204,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function marketAskAfterClaim(
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
-    ) external payable checkDeadline(marketOrderParams.deadline) clearEth {
+    ) external payable checkDeadline(marketOrderParams.deadline) flushNative {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _ASK);
     }
