@@ -30,6 +30,16 @@ interface CloberRouter {
         uint256 baseAmount;
     }
 
+    struct GeneralLimitOrderParams {
+        LimitOrderParams params;
+        bool isBid;
+    }
+
+    function limitOrder(
+        GeneralLimitOrderParams[] calldata limitOrderParamsList,
+        ClaimOrderParams[] calldata claimParamsList
+    ) external payable returns (uint256[] memory orderIds);
+
     /**
      * @notice Places a limit order on the bid side.
      * @param params The limit order parameters.

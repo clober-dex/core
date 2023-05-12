@@ -26,10 +26,24 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     mapping(address => bool) private _registeredMarkets;
 
     modifier checkDeadline(uint64 deadline) {
+        _checkDeadline(deadline);
+        _;
+    }
+
+    function _checkDeadline(uint64 deadline) internal view {
         if (block.timestamp > deadline) {
             revert Errors.CloberError(Errors.DEADLINE);
         }
+    }
+
+    modifier clearEth() {
         _;
+        if (address(this).balance > 0) {
+            (bool success, ) = msg.sender.call{value: address(this).balance}("");
+            if (!success) {
+                revert Errors.CloberError(Errors.FAILED_TO_SEND_VALUE);
+            }
+        }
     }
 
     constructor(address factory) {
@@ -52,7 +66,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
 
         // transfer input tokens
         if (useNative) {
-            uint256 nativeAmount = address(this).balance - msg.value;
+            uint256 nativeAmount = address(this).balance;
             (inputAmount, nativeAmount) = nativeAmount > inputAmount
                 ? (0, inputAmount)
                 : (inputAmount - nativeAmount, nativeAmount);
@@ -63,12 +77,17 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         if (inputAmount > 0) {
             IERC20(inputToken).safeTransferFrom(payer, msg.sender, inputAmount);
         }
+    }
 
-        if (address(this).balance > 0) {
-            (bool success, ) = payer.call{value: address(this).balance}("");
-            if (!success) {
-                revert Errors.CloberError(Errors.FAILED_TO_SEND_VALUE);
-            }
+    function limitOrder(
+        GeneralLimitOrderParams[] calldata limitOrderParamsList,
+        ClaimOrderParams[] calldata claimParamsList
+    ) external payable clearEth returns (uint256[] memory orderIds) {
+        orderIds = new uint256[](limitOrderParamsList.length);
+        _claim(claimParamsList);
+        for (uint256 i = 0; i < limitOrderParamsList.length; ++i) {
+            _checkDeadline(limitOrderParamsList[i].params.deadline);
+            orderIds[i] = _limitOrder(limitOrderParamsList[i].params, limitOrderParamsList[i].isBid);
         }
     }
 
@@ -76,6 +95,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(params.deadline)
+        clearEth
         returns (uint256)
     {
         return _limitOrder(params, _BID);
@@ -85,6 +105,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(params.deadline)
+        clearEth
         returns (uint256)
     {
         return _limitOrder(params, _ASK);
@@ -102,11 +123,11 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
             );
     }
 
-    function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) {
+    function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) clearEth {
         _marketOrder(params, _BID);
     }
 
-    function marketAsk(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) {
+    function marketAsk(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) clearEth {
         _marketOrder(params, _ASK);
     }
 
@@ -121,7 +142,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         );
     }
 
-    function claim(uint64 deadline, ClaimOrderParams[] calldata paramsList) external checkDeadline(deadline) {
+    function claim(uint64 deadline, ClaimOrderParams[] calldata paramsList) external checkDeadline(deadline) clearEth {
         _claim(paramsList);
     }
 
@@ -136,6 +157,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(limitOrderParams.deadline)
+        clearEth
         returns (uint256)
     {
         _claim(claimParamsList);
@@ -146,6 +168,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         external
         payable
         checkDeadline(limitOrderParams.deadline)
+        clearEth
         returns (uint256)
     {
         _claim(claimParamsList);
@@ -155,7 +178,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function marketBidAfterClaim(
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
-    ) external payable checkDeadline(marketOrderParams.deadline) {
+    ) external payable checkDeadline(marketOrderParams.deadline) clearEth {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _BID);
     }
@@ -163,7 +186,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     function marketAskAfterClaim(
         ClaimOrderParams[] calldata claimParamsList,
         MarketOrderParams calldata marketOrderParams
-    ) external payable checkDeadline(marketOrderParams.deadline) {
+    ) external payable checkDeadline(marketOrderParams.deadline) clearEth {
         _claim(claimParamsList);
         _marketOrder(marketOrderParams, _ASK);
     }
