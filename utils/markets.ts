@@ -178,7 +178,7 @@ export const marketConfigs: MarketConfigs = {
   ],
   [polygon.id]: [
     {
-      name: 'WETH/USDC',
+      name: 'WETH/USDC-v1',
       host: CLOBER_ADMIN[polygon.id],
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[polygon.id].USDC,
@@ -191,7 +191,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x6EF4dBa10BE9A64fC8A4BD74d613999787488666',
     },
     {
-      name: 'WMATIC/USDC',
+      name: 'WMATIC/USDC-v1',
       host: CLOBER_ADMIN[polygon.id],
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[polygon.id].USDC,
@@ -204,7 +204,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x410b33f656EE634B977BB1334E827d81d25E0Cb6',
     },
     {
-      name: 'DAI/USDC',
+      name: 'DAI/USDC-v1',
       host: CLOBER_ADMIN[polygon.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[polygon.id].USDC,
@@ -218,7 +218,7 @@ export const marketConfigs: MarketConfigs = {
     },
 
     {
-      name: 'USDC/USDT',
+      name: 'USDC/USDT-v1',
       host: CLOBER_ADMIN[polygon.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[polygon.id].USDT,
@@ -233,7 +233,7 @@ export const marketConfigs: MarketConfigs = {
   ],
   [arbitrum.id]: [
     {
-      name: 'ARB/USDC',
+      name: 'ARB/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -246,7 +246,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xE462374433029Bf889532F7fd3692ccAB736a559',
     },
     {
-      name: 'plsARB/ARB',
+      name: 'plsARB/ARB-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].ARB,
@@ -259,7 +259,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xa416b5807c68259B057326dEEF59d5B2053969EE',
     },
     {
-      name: 'ARB$0_5PUT/USDC',
+      name: 'ARB$0_5PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -272,7 +272,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xDD4faa66E88f8EB52138FD7135d5b90EEeF42ca6',
     },
     {
-      name: 'ARB$1PUT/USDC',
+      name: 'ARB$1PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -285,7 +285,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x9f7d97c2A6faf67172FD953e5300Af2d812c2ADD',
     },
     {
-      name: 'ARB$2PUT/USDC',
+      name: 'ARB$2PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -298,7 +298,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xe10a215D29E0DEC9eF8eAB4ad0c40aE89E1a0569',
     },
     {
-      name: 'ARB$4PUT/USDC',
+      name: 'ARB$4PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -311,7 +311,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x31953016364543d12FEFbc1418810Ded511044a0',
     },
     {
-      name: 'ARB$8PUT/USDC',
+      name: 'ARB$8PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -324,7 +324,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x5A2d06949057Ce3a3d85fb6Bd53ebe8936609D3D',
     },
     {
-      name: 'ARB$16PUT/USDC',
+      name: 'ARB$16PUT/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -337,7 +337,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x0071a75f81Fd939f65c09cC15E90f3c140FC591a',
     },
     {
-      name: 'WETH/USDC',
+      name: 'WETH/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.VOLATILE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -350,7 +350,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0xC3c5316AE6f1e522E65074b70608C1Df01F93AE0',
     },
     {
-      name: 'DAI/USDC',
+      name: 'DAI/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDC,
@@ -363,7 +363,7 @@ export const marketConfigs: MarketConfigs = {
       address: '0x02F4DC911919AcB274ceA42DfEb3481C88E4D330',
     },
     {
-      name: 'USDC/USDT',
+      name: 'USDC/USDT-v1',
       host: CLOBER_ADMIN[arbitrum.id],
       type: MARKET_TYPE.STABLE,
       quoteToken: TOKEN[arbitrum.id].USDT,
@@ -434,6 +434,8 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].USDC,
     TOKEN[arbitrum.id].DAI,
     TOKEN[arbitrum.id].USDT,
+    TOKEN[arbitrum.id].EUROe,
+    TOKEN[arbitrum.id].ARB,
   ],
   [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC],
 }
