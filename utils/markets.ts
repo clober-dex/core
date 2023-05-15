@@ -442,6 +442,19 @@ export const marketConfigs: MarketConfigs = {
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
       address: '0x004131C39a20899AF2A52c89cE0F90f03Af7B167',
     },
+    {
+      name: 'CLOB/cUSD',
+      host: '0x5F79EE8f8fA862E98201120d83c4eC39D9468D49',
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[arbitrumGoerli.id].CUSD,
+      baseToken: TOKEN[arbitrumGoerli.id].CLOB,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xB129d96A1973A252693dD28C334492Dcf211Dc25',
+    },
   ],
 }
 
