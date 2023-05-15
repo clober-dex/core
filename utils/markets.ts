@@ -178,6 +178,19 @@ export const marketConfigs: MarketConfigs = {
   ],
   [polygon.id]: [
     {
+      name: 'MANGO/USDC-v1.1',
+      host: CLOBER_ADMIN[polygon.id],
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[polygon.id].USDC,
+      baseToken: TOKEN[polygon.id].MANGO,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x2E599A3E0b02bc24c3acfbdA183BBCeb020FBd6F',
+    },
+    {
       name: 'WETH/USDC-v1',
       host: CLOBER_ADMIN[polygon.id],
       type: MARKET_TYPE.VOLATILE,
@@ -232,6 +245,19 @@ export const marketConfigs: MarketConfigs = {
     },
   ],
   [arbitrum.id]: [
+    {
+      name: 'MANGO/USDC-v1.1',
+      host: CLOBER_ADMIN[arbitrum.id],
+      type: MARKET_TYPE.VOLATILE,
+      quoteToken: TOKEN[arbitrum.id].USDC,
+      baseToken: TOKEN[arbitrum.id].MANGO,
+      quoteUnit: BigNumber.from('1'),
+      makeFee: 0,
+      takeFee: 3000,
+      a: BigNumber.from(10).pow(13),
+      r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xcA4C669093572c5a23DE04B848a7f706eCBdFAC2',
+    },
     {
       name: 'ARB/USDC-v1',
       host: CLOBER_ADMIN[arbitrum.id],
@@ -438,4 +464,22 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].ARB,
   ],
   [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC],
+}
+
+export const legacyMarketsToRegister: { [network: string]: string[] } = {
+  [arbitrum.id]: [
+    '0x55fe89ada9277573d536f2cb332fe38e4a995549',
+    '0x4d9cf78cc2a27100007a8f1b6435334d2bafeab3',
+    '0xa416b5807c68259b057326deef59d5b2053969ee',
+    '0xe462374433029bf889532f7fd3692ccab736a559',
+    '0x0071a75f81fd939f65c09cc15e90f3c140fc591a',
+    '0x5a2d06949057ce3a3d85fb6bd53ebe8936609d3d',
+    '0x31953016364543d12fefbc1418810ded511044a0',
+    '0xe10a215d29e0dec9ef8eab4ad0c40ae89e1a0569',
+    '0x9f7d97c2a6faf67172fd953e5300af2d812c2add',
+    '0xdd4faa66e88f8eb52138fd7135d5b90eeef42ca6',
+    '0x2639a9b9c2627c0b65a0e7ac26a197fdbae26e26',
+    '0x02f4dc911919acb274cea42dfeb3481c88e4d330',
+    '0xc3c5316ae6f1e522e65074b70608c1df01f93ae0',
+  ],
 }
