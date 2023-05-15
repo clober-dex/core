@@ -414,7 +414,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0xcB76Fa19887446CC041fDe163e1e4023f1F3ade5',
+      address: '0xb45c5A9273A7a77a3eA50a9BE33AdD7b0Bb2062A',
     },
     {
       name: 'DAI/cUSD-stable',
@@ -427,7 +427,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 60,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
-      address: '0xa1e0fa6e60606DF3518A59b1c71DAd8E888D95E8',
+      address: '0x122eb5B5135CC5824951c54c8C2dAF7dcfA06964',
     },
     {
       name: 'CLOB/cUSD-volatile',
@@ -440,7 +440,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 400,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(1001).mul(BigNumber.from(10).pow(15)),
-      address: '0x76a913f71282fD2EEe35c5812Db9E961a5a90829',
+      address: '0x004131C39a20899AF2A52c89cE0F90f03Af7B167',
     },
   ],
 }
@@ -464,6 +464,7 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].ARB,
   ],
   [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC],
+  [arbitrumGoerli.id]: [TOKEN[arbitrumGoerli.id].CUSD],
 }
 
 export const legacyMarketsToRegister: { [network: string]: string[] } = {
