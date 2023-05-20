@@ -10,8 +10,8 @@ import {
 
 export const MARKET_TYPE = {
   NONE: 0,
-  VOLATILE: 0,
-  STABLE: 1,
+  VOLATILE: 1,
+  STABLE: 2,
 }
 
 export const CLOBER_ADMIN: { [network: string]: string } = {
