@@ -117,6 +117,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
       d: BigNumber.from(5).mul(BigNumber.from(10).pow(15)),
+      address: '0xCa47984961261272039BF0BF13620ccF6D20EC5F',
     },
     {
       name: 'DAI/USDC',
@@ -129,6 +130,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 90,
       a: BigNumber.from(10).pow(14),
       d: BigNumber.from(10).pow(14),
+      address: '0xfb69b6a69852f8aE084Eb86B0291887ed9128382',
     },
   ],
   [zkSyncTestnet.id]: [
@@ -487,7 +489,10 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].EUROe,
     TOKEN[arbitrum.id].ARB,
   ],
-  [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC],
+  [polygonZkEvm.id]: [
+    TOKEN[polygonZkEvm.id].USDC,
+    TOKEN[polygonZkEvm.id].MATIC,
+  ],
 }
 
 export const legacyMarketsToRegister: { [network: string]: string[] } = {
