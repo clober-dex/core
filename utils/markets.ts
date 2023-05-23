@@ -227,6 +227,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x2914723599Dd0dB8cfBB26dac68Ff22CE4220ac1',
     },
     {
       name: 'oDAI/DAI-v1.1',
@@ -239,6 +240,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x3E429c03750434C5560Df6234119bEB16C6B4490',
     },
     {
       name: 'ojEUR/jEUR-v1.1',
@@ -251,6 +253,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x6dCA8C2C0ea1969e8DA61fCA9A4E327eC2c75a1C',
     },
     {
       name: 'oWBTC/WBTC-v1.1',
@@ -263,6 +266,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xA2f8Edbd51dC3Cf39005A7044982f8Fb6aA68A42',
     },
     {
       name: 'ogDAI/gDAI-v1.1',
@@ -275,6 +279,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x7753dd631cc0bF96DaFD58614d03B8258947B22e',
     },
     {
       name: 'oMaticX/MaticX-v1.1',
@@ -287,6 +292,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xf8049a5B6a562C462B79F7042B81892ea44397b3',
     },
     {
       name: 'oWETH/WETH-v1.1',
@@ -299,6 +305,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x5d7713D965E0d0ccBE781D96d3ce1696630ae120',
     },
     {
       name: 'oMAI/MAI-v1.1',
@@ -311,6 +318,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xA584673B5eBa62d0aA2969434FEa858009753C4f',
     },
     {
       name: 'ostMATIC/stMATIC-v1.1',
@@ -323,6 +331,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xbc16274b98C9F1a1ffAc270538C8344DE93D82Df',
     },
     {
       name: 'ovGHST/vGHST-v1.1',
@@ -335,6 +344,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0x5dD3359d3944F957de63F0ab03Ae564daFe97346',
     },
     {
       name: 'oMATIC/WMATIC-v1.1',
@@ -347,6 +357,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xbfEbf3dE4e90906cBc0F5bdf391E1eB3fC2f82Ae',
     },
     {
       name: 'oUSDC/USDC-v1.1',
@@ -359,6 +370,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xe3C765a39aDEbA59FA8bA2b1Cb1895cbC4bb5aCD',
     },
     {
       name: 'owstETH/wstETH-v1.1',
@@ -371,6 +383,7 @@ export const marketConfigs: MarketConfigs = {
       takeFee: 3000,
       a: BigNumber.from(10).pow(10),
       r: BigNumber.from(101).mul(BigNumber.from(10).pow(16)),
+      address: '0xb14Fd26a327A15964c5aC8b173803Ad24BB30d77',
     },
   ],
   [arbitrum.id]: [
