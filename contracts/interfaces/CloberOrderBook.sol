@@ -328,6 +328,12 @@ interface CloberOrderBook {
     function blockTradeLogs(uint16 index) external view returns (BlockTradeLog memory);
 
     /**
+     * @notice Returns the address of the price book.
+     * @return The address of the price book.
+     */
+    function priceBook() external view returns (address);
+
+    /**
      * @notice Converts a raw amount to its corresponding base amount using a given price index.
      * @param rawAmount The raw amount to be converted.
      * @param priceIndex The index of the price to be used for the conversion.
