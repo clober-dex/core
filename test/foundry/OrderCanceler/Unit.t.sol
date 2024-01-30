@@ -45,8 +45,7 @@ contract OrderCancelerUnitTest is Test {
         paramsList[0].tokenIds = tokenIds;
 
         vm.expectCall(
-            address(orderToken),
-            abi.encodeCall(CloberOrderNFT.cancel, (user, paramsList[0].tokenIds, receiver))
+            address(orderToken), abi.encodeCall(CloberOrderNFT.cancel, (user, paramsList[0].tokenIds, receiver))
         );
         vm.prank(user);
         canceler.cancelTo(paramsList, receiver);

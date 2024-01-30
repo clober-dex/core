@@ -31,10 +31,10 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     using OrderKeyUtils for OrderKey;
 
     uint256 private constant _CLAIM_BOUNTY_UNIT = 1 gwei;
-    uint256 private constant _PRICE_PRECISION = 10**18;
+    uint256 private constant _PRICE_PRECISION = 10 ** 18;
     uint256 private constant _FEE_PRECISION = 1000000; // 1 = 0.0001%
-    uint256 private constant _MAX_ORDER = 2**15; // 32768
-    uint256 private constant _MAX_ORDER_M = 2**15 - 1; // % 32768
+    uint256 private constant _MAX_ORDER = 2 ** 15; // 32768
+    uint256 private constant _MAX_ORDER_M = 2 ** 15 - 1; // % 32768
     uint24 private constant _PROTOCOL_FEE = 200000; // 20%
     bool private constant _BID = true;
     bool private constant _ASK = false;
@@ -111,7 +111,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     }
 
     function _getDecimalComplement(address token) internal view returns (uint256) {
-        return 10**(18 - IERC20Metadata(token).decimals());
+        return 10 ** (18 - IERC20Metadata(token).decimals());
     }
 
     function limitOrder(
@@ -147,9 +147,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
                 requestedAmount -= inputAmount;
             }
 
-            uint64 remainingRequestedRawAmount = isBid
-                ? quoteToRaw(requestedAmount, false)
-                : baseToRaw(requestedAmount, priceIndex, false);
+            uint64 remainingRequestedRawAmount =
+                isBid ? quoteToRaw(requestedAmount, false) : baseToRaw(requestedAmount, priceIndex, false);
             if (remainingRequestedRawAmount > 0) {
                 // requestedAmount was repurposed as requiredAmount to avoid "Stack too deep".
                 (requestedAmount, orderIndex) = _makeOrder(
@@ -176,12 +175,11 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         _callback(inputToken, outputToken, inputAmount, outputAmount, bountyRefundAmount, data);
     }
 
-    function getExpectedAmount(
-        uint16 limitPriceIndex,
-        uint64 rawAmount,
-        uint256 baseAmount,
-        uint8 options
-    ) external view returns (uint256 inputAmount, uint256 outputAmount) {
+    function getExpectedAmount(uint16 limitPriceIndex, uint64 rawAmount, uint256 baseAmount, uint8 options)
+        external
+        view
+        returns (uint256 inputAmount, uint256 outputAmount)
+    {
         inputAmount = 0;
         bool isTakingBidSide = (options & 1) == 0;
         bool expendInput = (options & 2) == 2;
@@ -207,12 +205,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
             if (limitPriceIndex < currentIndex) break;
             if (isTakingBidSide) currentIndex = ~currentIndex;
 
-            (uint256 _inputAmount, uint256 _outputAmount, ) = _expectTake(
-                isTakingBidSide,
-                requestedAmount,
-                currentIndex,
-                expendInput
-            );
+            (uint256 _inputAmount, uint256 _outputAmount,) =
+                _expectTake(isTakingBidSide, requestedAmount, currentIndex, expendInput);
             inputAmount += _inputAmount;
             outputAmount += _outputAmount;
 
@@ -289,12 +283,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         uint256 totalCanceledBounty;
         for (uint256 i = 0; i < orderKeys.length; ++i) {
             OrderKey calldata orderKey = orderKeys[i];
-            (
-                uint64 remainingAmount,
-                uint256 minusFee,
-                uint256 claimedTokenAmount,
-                uint32 refundedClaimBounty
-            ) = _cancel(receiver, orderKey);
+            (uint64 remainingAmount, uint256 minusFee, uint256 claimedTokenAmount, uint32 refundedClaimBounty) =
+                _cancel(receiver, orderKey);
 
             // overflow when length == 2**224 > 2 * size(priceIndex) * _MAX_ORDER, absolutely never happening
             unchecked {
@@ -306,8 +296,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
                 baseToTransfer += claimedTokenAmount;
             } else {
                 baseToTransfer +=
-                    (remainingAmount > 0 ? rawToBase(remainingAmount, orderKey.priceIndex, false) : 0) +
-                    minusFee;
+                    (remainingAmount > 0 ? rawToBase(remainingAmount, orderKey.priceIndex, false) : 0) + minusFee;
                 quoteToTransfer += claimedTokenAmount;
             }
         }
@@ -322,12 +311,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
 
     function _cancel(address receiver, OrderKey calldata orderKey)
         internal
-        returns (
-            uint64 remainingAmount,
-            uint256 minusFee,
-            uint256 claimedTokenAmount,
-            uint32 refundedClaimBounty
-        )
+        returns (uint64 remainingAmount, uint256 minusFee, uint256 claimedTokenAmount, uint32 refundedClaimBounty)
     {
         Queue storage queue = _getQueue(orderKey.isBid, orderKey.priceIndex);
         _checkOrderIndexValidity(orderKey.orderIndex, queue.index);
@@ -347,8 +331,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
 
         if (remainingAmount > 0) {
             queue.tree.update(
-                orderKey.orderIndex & _MAX_ORDER_M,
-                queue.tree.get(orderKey.orderIndex & _MAX_ORDER_M) - remainingAmount
+                orderKey.orderIndex & _MAX_ORDER_M, queue.tree.get(orderKey.orderIndex & _MAX_ORDER_M) - remainingAmount
             );
             emit CancelOrder(mOrder.owner, remainingAmount, orderKey.orderIndex, orderKey.priceIndex, orderKey.isBid);
             _burnToken(orderId);
@@ -372,12 +355,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
                 continue;
             }
 
-            (uint256 claimedTokenAmount, uint256 minusFee, uint64 claimedRawAmount) = _claim(
-                queue,
-                mOrder,
-                orderKey,
-                claimer
-            );
+            (uint256 claimedTokenAmount, uint256 minusFee, uint64 claimedRawAmount) =
+                _claim(queue, mOrder, orderKey, claimer);
             if (claimedRawAmount == 0) {
                 continue;
             }
@@ -390,9 +369,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
                     totalBounty += mOrder.claimBounty;
                 }
             }
-            (uint256 totalQuoteAmount, uint256 totalBaseAmount) = orderKey.isBid
-                ? (minusFee, claimedTokenAmount)
-                : (claimedTokenAmount, minusFee);
+            (uint256 totalQuoteAmount, uint256 totalBaseAmount) =
+                orderKey.isBid ? (minusFee, claimedTokenAmount) : (claimedTokenAmount, minusFee);
 
             _transferToken(_quoteToken, mOrder.owner, totalQuoteAmount);
             _transferToken(_baseToken, mOrder.owner, totalBaseAmount);
@@ -403,30 +381,19 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     function getClaimable(OrderKey calldata orderKey)
         external
         view
-        returns (
-            uint64 claimableRawAmount,
-            uint256 claimableAmount,
-            uint256 feeAmount,
-            uint256 rebateAmount
-        )
+        returns (uint64 claimableRawAmount, uint256 claimableAmount, uint256 feeAmount, uint256 rebateAmount)
     {
         Order memory mOrder = _orders[orderKey.encode()];
         if (mOrder.amount == 0) {
             return (0, 0, 0, 0);
         }
 
-        claimableRawAmount = _calculateClaimableRawAmount(
-            _getQueue(orderKey.isBid, orderKey.priceIndex),
-            mOrder.amount,
-            orderKey
-        );
+        claimableRawAmount =
+            _calculateClaimableRawAmount(_getQueue(orderKey.isBid, orderKey.priceIndex), mOrder.amount, orderKey);
 
         int256 makerFeeAmount;
-        (claimableAmount, makerFeeAmount, ) = _calculateClaimableAmountAndFees(
-            orderKey.isBid,
-            claimableRawAmount,
-            orderKey.priceIndex
-        );
+        (claimableAmount, makerFeeAmount,) =
+            _calculateClaimableAmountAndFees(orderKey.isBid, claimableRawAmount, orderKey.priceIndex);
         if (makerFeeAmount > 0) {
             feeAmount = uint256(makerFeeAmount);
         } else {
@@ -434,12 +401,10 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         }
     }
 
-    function flash(
-        address borrower,
-        uint256 quoteAmount,
-        uint256 baseAmount,
-        bytes calldata data
-    ) external nonReentrant {
+    function flash(address borrower, uint256 quoteAmount, uint256 baseAmount, bytes calldata data)
+        external
+        nonReentrant
+    {
         uint256 beforeQuoteAmount = _thisBalance(_quoteToken);
         uint256 beforeBaseAmount = _thisBalance(_baseToken);
         uint256 feePrecision = _FEE_PRECISION;
@@ -449,20 +414,13 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         _transferToken(_baseToken, borrower, baseAmount);
 
         CloberMarketFlashCallbackReceiver(msg.sender).cloberMarketFlashCallback(
-            address(_quoteToken),
-            address(_baseToken),
-            quoteAmount,
-            baseAmount,
-            quoteFeeAmount,
-            baseFeeAmount,
-            data
+            address(_quoteToken), address(_baseToken), quoteAmount, baseAmount, quoteFeeAmount, baseFeeAmount, data
         );
 
         uint256 afterQuoteAmount = _thisBalance(_quoteToken);
         uint256 afterBaseAmount = _thisBalance(_baseToken);
-        if (
-            afterQuoteAmount < beforeQuoteAmount + quoteFeeAmount || afterBaseAmount < beforeBaseAmount + baseFeeAmount
-        ) {
+        if (afterQuoteAmount < beforeQuoteAmount + quoteFeeAmount || afterBaseAmount < beforeBaseAmount + baseFeeAmount)
+        {
             revert Errors.CloberError(Errors.INSUFFICIENT_BALANCE);
         }
 
@@ -488,9 +446,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
 
     function getDepth(bool isBid, uint16 priceIndex) public view returns (uint64) {
         (uint16 groupIndex, uint8 elementIndex) = _splitClaimableIndex(priceIndex);
-        return
-            _getQueue(isBid, priceIndex).tree.total() -
-            _getClaimable(isBid)[groupIndex].get64Unsafe(elementIndex).toClean();
+        return _getQueue(isBid, priceIndex).tree.total()
+            - _getClaimable(isBid)[groupIndex].get64Unsafe(elementIndex).toClean();
     }
 
     function getFeeBalance() external view returns (uint128, uint128) {
@@ -584,18 +541,10 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         rangeRight = (l < r) ? queue.tree.query(l, r) : queue.tree.total() - queue.tree.query(r, l);
     }
 
-    function _calculateClaimableAmountAndFees(
-        bool isBidOrder,
-        uint64 claimedRawAmount,
-        uint16 priceIndex
-    )
+    function _calculateClaimableAmountAndFees(bool isBidOrder, uint64 claimedRawAmount, uint16 priceIndex)
         internal
         view
-        returns (
-            uint256 claimableAmount,
-            int256 makerFeeAmount,
-            uint256 takerFeeAmount
-        )
+        returns (uint256 claimableAmount, int256 makerFeeAmount, uint256 takerFeeAmount)
     {
         uint256 baseAmount = rawToBase(claimedRawAmount, priceIndex, false);
         uint256 quoteAmount = rawToQuote(claimedRawAmount);
@@ -635,28 +584,19 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         return Math.divide(takeAmount * takerFee, _FEE_PRECISION, roundingUp);
     }
 
-    function rawToBase(
-        uint64 rawAmount,
-        uint16 priceIndex,
-        bool roundingUp
-    ) public view returns (uint256) {
-        return
-            Math.divide(
-                (rawToQuote(rawAmount) * _PRICE_PRECISION) * _quotePrecisionComplement,
-                _basePrecisionComplement * indexToPrice(priceIndex),
-                roundingUp
-            );
+    function rawToBase(uint64 rawAmount, uint16 priceIndex, bool roundingUp) public view returns (uint256) {
+        return Math.divide(
+            (rawToQuote(rawAmount) * _PRICE_PRECISION) * _quotePrecisionComplement,
+            _basePrecisionComplement * indexToPrice(priceIndex),
+            roundingUp
+        );
     }
 
     function rawToQuote(uint64 rawAmount) public view returns (uint256) {
         return quoteUnit * rawAmount;
     }
 
-    function baseToRaw(
-        uint256 baseAmount,
-        uint16 priceIndex,
-        bool roundingUp
-    ) public view returns (uint64) {
+    function baseToRaw(uint256 baseAmount, uint16 priceIndex, bool roundingUp) public view returns (uint64) {
         uint256 rawAmount = Math.divide(
             (baseAmount * indexToPrice(priceIndex)) * _basePrecisionComplement,
             _PRICE_PRECISION * _quotePrecisionComplement * quoteUnit,
@@ -676,19 +616,10 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         return uint64(rawAmount);
     }
 
-    function _expectTake(
-        bool isTakingBidSide,
-        uint256 remainingAmount,
-        uint16 currentIndex,
-        bool expendInput
-    )
+    function _expectTake(bool isTakingBidSide, uint256 remainingAmount, uint16 currentIndex, bool expendInput)
         internal
         view
-        returns (
-            uint256,
-            uint256,
-            uint64
-        )
+        returns (uint256, uint256, uint64)
     {
         uint64 takenRawAmount;
         {
@@ -749,12 +680,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
             {
                 uint256 _inputAmount;
                 uint256 _outputAmount;
-                (_inputAmount, _outputAmount, takenRawAmount) = _expectTake(
-                    isTakingBidSide,
-                    requestedAmount,
-                    currentIndex,
-                    expendInput
-                );
+                (_inputAmount, _outputAmount, takenRawAmount) =
+                    _expectTake(isTakingBidSide, requestedAmount, currentIndex, expendInput);
                 if (takenRawAmount == 0) break;
                 inputAmount += _inputAmount;
                 outputAmount += _outputAmount;
@@ -784,11 +711,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         outputAmount -= _calculateTakerFeeAmount(outputAmount, true);
     }
 
-    function _logPrice(
-        bool isBid,
-        uint16 priceIndex,
-        uint64 volume
-    ) internal {
+    function _logPrice(bool isBid, uint16 priceIndex, uint64 volume) internal {
         BlockTradeLog memory recentLog = _blockTradeLogs[blockTradeLogIndex];
         if (recentLog.blockTime == 0) {
             _blockTradeLogs[blockTradeLogIndex] = BlockTradeLog({
@@ -871,21 +794,18 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         }
         queue.index = orderIndex + 1;
         queue.tree.update(orderIndex & _MAX_ORDER_M, rawAmount);
-        _orders[OrderKeyUtils.encode(isBid, priceIndex, orderIndex)] = Order({
-            claimBounty: claimBounty,
-            amount: rawAmount,
-            owner: user
-        });
+        _orders[OrderKeyUtils.encode(isBid, priceIndex, orderIndex)] =
+            Order({claimBounty: claimBounty, amount: rawAmount, owner: user});
 
         requiredAmount = isBid ? rawToQuote(rawAmount) : rawToBase(rawAmount, priceIndex, true);
         emit MakeOrder(msg.sender, user, rawAmount, claimBounty, orderIndex, priceIndex, options);
     }
 
-    function _calculateClaimableRawAmount(
-        Queue storage queue,
-        uint64 orderAmount,
-        OrderKey memory orderKey
-    ) private view returns (uint64 claimableRawAmount) {
+    function _calculateClaimableRawAmount(Queue storage queue, uint64 orderAmount, OrderKey memory orderKey)
+        private
+        view
+        returns (uint64 claimableRawAmount)
+    {
         if (orderKey.orderIndex + _MAX_ORDER < queue.index) {
             // replaced order
             return orderAmount;
@@ -903,18 +823,9 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     }
 
     // @dev Always check if `mOrder.amount == 0` before calling this function
-    function _claim(
-        Queue storage queue,
-        Order memory mOrder,
-        OrderKey memory orderKey,
-        address claimer
-    )
+    function _claim(Queue storage queue, Order memory mOrder, OrderKey memory orderKey, address claimer)
         private
-        returns (
-            uint256 transferAmount,
-            uint256 minusFee,
-            uint64 claimedRawAmount
-        )
+        returns (uint256 transferAmount, uint256 minusFee, uint64 claimedRawAmount)
     {
         uint256 claimBounty;
 
@@ -928,11 +839,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
 
         uint256 takerFeeAmount;
         int256 makerFeeAmount;
-        (transferAmount, makerFeeAmount, takerFeeAmount) = _calculateClaimableAmountAndFees(
-            orderKey.isBid,
-            claimedRawAmount,
-            orderKey.priceIndex
-        );
+        (transferAmount, makerFeeAmount, takerFeeAmount) =
+            _calculateClaimableAmountAndFees(orderKey.isBid, claimedRawAmount, orderKey.priceIndex);
 
         emit ClaimOrder(
             claimer,
@@ -981,11 +889,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
     ) internal {
         uint256 beforeInputBalance = _thisBalance(inputToken);
         CloberMarketSwapCallbackReceiver(msg.sender).cloberMarketSwapCallback{value: bountyRefundAmount}(
-            address(inputToken),
-            address(outputToken),
-            inputAmount,
-            outputAmount,
-            data
+            address(inputToken), address(outputToken), inputAmount, outputAmount, data
         );
 
         if (_thisBalance(inputToken) < beforeInputBalance + inputAmount) {
@@ -997,11 +901,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         return token.balanceOf(address(this));
     }
 
-    function _transferToken(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) internal {
+    function _transferToken(IERC20 token, address to, uint256 amount) internal {
         if (amount > 0) {
             token.safeTransfer(to, amount);
         }
@@ -1009,7 +909,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
 
     function _sendGWeiValue(address to, uint256 amountInGWei) internal {
         if (amountInGWei > 0) {
-            (bool success, ) = to.call{value: amountInGWei * _CLAIM_BOUNTY_UNIT}("");
+            (bool success,) = to.call{value: amountInGWei * _CLAIM_BOUNTY_UNIT}("");
             if (!success) {
                 revert Errors.CloberError(Errors.FAILED_TO_SEND_VALUE);
             }
@@ -1045,8 +945,8 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
             uint256 transferAmount,
             uint256 remainAmount
         ) = destination == treasury
-                ? (uncollectedHostFees, uncollectedProtocolFees, protocolFeeAmount, hostFeeAmount)
-                : (uncollectedProtocolFees, uncollectedHostFees, hostFeeAmount, protocolFeeAmount);
+            ? (uncollectedHostFees, uncollectedProtocolFees, protocolFeeAmount, hostFeeAmount)
+            : (uncollectedProtocolFees, uncollectedHostFees, hostFeeAmount, protocolFeeAmount);
         transferAmount += transferFees[token];
         transferFees[token] = 0;
         remainFees[token] += remainAmount;
@@ -1058,12 +958,7 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         return _factory.getMarketHost(address(this));
     }
 
-    function _mintToken(
-        address to,
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) internal {
+    function _mintToken(address to, bool isBid, uint16 priceIndex, uint256 orderIndex) internal {
         CloberOrderNFT(orderToken).onMint(to, OrderKeyUtils.encode(isBid, priceIndex, orderIndex));
     }
 
@@ -1072,7 +967,11 @@ contract OrderBook is CloberOrderBook, ReentrancyGuard, RevertOnDelegateCall {
         _orders[orderId].owner = address(0);
     }
 
-    function changeOrderOwner(OrderKey calldata orderKey, address newOwner) external nonReentrant revertOnDelegateCall {
+    function changeOrderOwner(OrderKey calldata orderKey, address newOwner)
+        external
+        nonReentrant
+        revertOnDelegateCall
+    {
         if (msg.sender != orderToken) {
             revert Errors.CloberError(Errors.ACCESS);
         }

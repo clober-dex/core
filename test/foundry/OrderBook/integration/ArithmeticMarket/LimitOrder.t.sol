@@ -17,6 +17,7 @@ import "../Constants.sol";
 
 contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, MockingFactoryTest {
     using OrderKeyUtils for OrderKey;
+
     event MakeOrder(
         address indexed sender,
         address indexed user,
@@ -96,7 +97,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -117,27 +118,20 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         return ids;
     }
 
-    function _checkMakeOrder(
-        bool isBid,
-        uint64 rawAmount,
-        uint16 priceIndex
-    ) private returns (uint256) {
+    function _checkMakeOrder(bool isBid, uint64 rawAmount, uint16 priceIndex) private returns (uint256) {
         return _checkMakeOrder(isBid, rawAmount, priceIndex, 0);
     }
 
-    function _checkMakeOrder(
-        bool isBid,
-        uint64 rawAmount,
-        uint16 priceIndex,
-        uint256 expectedOrderIndex
-    ) private returns (uint256) {
+    function _checkMakeOrder(bool isBid, uint64 rawAmount, uint16 priceIndex, uint256 expectedOrderIndex)
+        private
+        returns (uint256)
+    {
         Vars memory vars;
         vars.expectedAmountIn = isBid ? market.rawToQuote(rawAmount) : market.rawToBase(rawAmount, priceIndex, true);
         vm.expectCall(
             address(orderToken),
             abi.encodeCall(
-                CloberOrderNFT.onMint,
-                (Constants.USER_A, OrderKey(isBid, priceIndex, expectedOrderIndex).encode())
+                CloberOrderNFT.onMint, (Constants.USER_A, OrderKey(isBid, priceIndex, expectedOrderIndex).encode())
             )
         );
         vm.expectEmit(true, true, true, true);
@@ -171,9 +165,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         );
         assertGt(market.getDepth(isBid, priceIndex), 0, "ERROR_ORDER_AMOUNT");
         assertEq(
-            vars.beforePayerETHBalance - address(this).balance,
-            Constants.CLAIM_BOUNTY * 1 gwei,
-            "ERROR_CLAIM_BOUNTY"
+            vars.beforePayerETHBalance - address(this).balance, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY"
         );
         assertEq(
             orderToken.ownerOf(orderToken.encodeId(OrderKey(isBid, priceIndex, expectedOrderIndex))),
@@ -196,20 +188,16 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         return vars.orderIndex;
     }
 
-    function _calculateAmounts(
-        bool isTakingBid,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) private view returns (uint256 expectedAmountIn, uint256 expectedAmountOut) {
+    function _calculateAmounts(bool isTakingBid, uint16 priceIndex, uint64 rawAmount)
+        private
+        view
+        returns (uint256 expectedAmountIn, uint256 expectedAmountOut)
+    {
         expectedAmountIn = isTakingBid ? market.rawToBase(rawAmount, priceIndex, true) : market.rawToQuote(rawAmount);
         expectedAmountOut = isTakingBid ? market.rawToQuote(rawAmount) : market.rawToBase(rawAmount, priceIndex, false);
     }
 
-    function _checkTakeOrder(
-        bool isTakingBid,
-        uint64 rawAmount,
-        uint16 priceIndex
-    ) private returns (uint256) {
+    function _checkTakeOrder(bool isTakingBid, uint64 rawAmount, uint16 priceIndex) private returns (uint256) {
         Vars memory vars;
 
         (vars.expectedAmountIn, vars.expectedAmountOut) = _calculateAmounts(isTakingBid, priceIndex, rawAmount);
@@ -278,20 +266,16 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         Vars memory vars;
         for (uint256 i = 0; i < expectedTakeOrders.length; i++) {
             vars.rawAmount += expectedTakeOrders[i].rawAmount;
-            (uint256 expectedAmountIn, uint256 expectedAmountOut) = _calculateAmounts(
-                isTakingBid,
-                expectedTakeOrders[i].priceIndex,
-                expectedTakeOrders[i].rawAmount
-            );
+            (uint256 expectedAmountIn, uint256 expectedAmountOut) =
+                _calculateAmounts(isTakingBid, expectedTakeOrders[i].priceIndex, expectedTakeOrders[i].rawAmount);
             vars.expectedAmountIn += expectedAmountIn;
             vars.expectedAmountOut += expectedAmountOut;
         }
         vars.expectedTakerFee = Math.divide(vars.expectedAmountOut * Constants.TAKE_FEE, Constants.FEE_PRECISION, true);
         if (overflowAmount > 0) {
             vars.rawAmount += overflowAmount;
-            vars.expectedAmountIn += isTakingBid
-                ? market.rawToBase(overflowAmount, priceIndex, true)
-                : market.rawToQuote(overflowAmount);
+            vars.expectedAmountIn +=
+                isTakingBid ? market.rawToBase(overflowAmount, priceIndex, true) : market.rawToQuote(overflowAmount);
         }
         vars.beforePayerQuoteBalance = quoteToken.balanceOf(address(this));
         vars.beforePayerBaseBalance = baseToken.balanceOf(address(this));
@@ -485,12 +469,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         // make sure to show that post-only limit orders revert.
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.POST_ONLY));
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            type(uint16).max,
-            makeAmount,
-            0,
-            3,
-            new bytes(0)
+            Constants.USER_A, type(uint16).max, makeAmount, 0, 3, new bytes(0)
         );
 
         // Takes
@@ -529,12 +508,7 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         market.cancel(Constants.USER_A, _toArray(OrderKey({isBid: Constants.BID, priceIndex: 3, orderIndex: 0})));
         assertEq(market.bestPriceIndex(Constants.BID), 5);
         market.limitOrder(
-            Constants.USER_A,
-            1,
-            0,
-            market.rawToBase(1, 5, true) + market.rawToBase(1, 1, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 1, 0, market.rawToBase(1, 5, true) + market.rawToBase(1, 1, true), 0, new bytes(0)
         );
         assertEq(market.getDepth(Constants.BID, 1), 1, "ERROR_ORDER_AMOUNT");
         assertEq(market.bestPriceIndex(Constants.BID), 1);
@@ -544,44 +518,19 @@ contract LimitOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, Mo
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            1,
-            0,
-            market.rawToBase(2, 1, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 1, 0, market.rawToBase(2, 1, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            1,
-            0,
-            market.rawToBase(3, 1, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 1, 0, market.rawToBase(3, 1, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            3,
-            0,
-            market.rawToBase(2, 3, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 3, 0, market.rawToBase(2, 3, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            5,
-            0,
-            market.rawToBase(2, 5, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 5, 0, market.rawToBase(2, 5, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            7,
-            0,
-            market.rawToBase(2, 7, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 7, 0, market.rawToBase(2, 7, true), 0, new bytes(0)
         );
 
         assertEq(market.bestPriceIndex(Constants.ASK), 1);

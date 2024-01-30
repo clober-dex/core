@@ -25,7 +25,7 @@ contract MarketRouterUnitTest is Test {
     int24 constant MAKE_FEE = -1000;
     uint24 constant TAKE_FEE = 2000;
     address constant USER = address(0xabc);
-    uint256 INIT_AMOUNT = 10**18;
+    uint256 INIT_AMOUNT = 10 ** 18;
     uint32 CLAIM_BOUNTY = 1000;
     uint16 PRICE_INDEX = 20000;
 
@@ -68,40 +68,26 @@ contract MarketRouterUnitTest is Test {
         factory.registerQuoteToken(quoteToken);
         market1 = CloberOrderBook(
             factory.createStableMarket(
-                address(this),
-                quoteToken,
-                baseToken,
-                QUOTE_UNIT,
-                MAKE_FEE,
-                TAKE_FEE,
-                10**14,
-                10**14
+                address(this), quoteToken, baseToken, QUOTE_UNIT, MAKE_FEE, TAKE_FEE, 10 ** 14, 10 ** 14
             )
         );
         market2 = CloberOrderBook(
             factory.createVolatileMarket(
-                address(this),
-                quoteToken,
-                baseToken,
-                QUOTE_UNIT,
-                MAKE_FEE,
-                TAKE_FEE,
-                10**10,
-                1001 * 10**15
+                address(this), quoteToken, baseToken, QUOTE_UNIT, MAKE_FEE, TAKE_FEE, 10 ** 10, 1001 * 10 ** 15
             )
         );
         orderToken1 = CloberOrderNFT(market1.orderToken());
         orderToken2 = CloberOrderNFT(market2.orderToken());
         router = new MarketRouter(address(factory));
 
-        MockERC20(quoteToken).mint(USER, INIT_AMOUNT * 10**6);
-        vm.deal(USER, INIT_AMOUNT * 10**18);
+        MockERC20(quoteToken).mint(USER, INIT_AMOUNT * 10 ** 6);
+        vm.deal(USER, INIT_AMOUNT * 10 ** 18);
         vm.prank(USER);
-        MockWETH(baseToken).deposit{value: INIT_AMOUNT * 10**18}();
+        MockWETH(baseToken).deposit{value: INIT_AMOUNT * 10 ** 18}();
         vm.prank(USER);
-        IERC20(quoteToken).approve(address(router), INIT_AMOUNT * 10**6);
+        IERC20(quoteToken).approve(address(router), INIT_AMOUNT * 10 ** 6);
         vm.prank(USER);
-        IERC20(baseToken).approve(address(router), INIT_AMOUNT * 10**18);
+        IERC20(baseToken).approve(address(router), INIT_AMOUNT * 10 ** 18);
     }
 
     function _deployNewRouter() private returns (MarketRouter) {
@@ -118,9 +104,9 @@ contract MarketRouterUnitTest is Test {
 
         MarketRouter newRouter = new MarketRouter(address(newFactory));
         vm.prank(USER);
-        IERC20(quoteToken).approve(address(newRouter), INIT_AMOUNT * 10**6);
+        IERC20(quoteToken).approve(address(newRouter), INIT_AMOUNT * 10 ** 6);
         vm.prank(USER);
-        IERC20(baseToken).approve(address(newRouter), INIT_AMOUNT * 10**18);
+        IERC20(baseToken).approve(address(newRouter), INIT_AMOUNT * 10 ** 18);
         return newRouter;
     }
 
@@ -132,11 +118,7 @@ contract MarketRouterUnitTest is Test {
         vm.prank(address(market1));
         vm.deal(address(market1), uint256(CLAIM_BOUNTY) * 1 gwei);
         router.cloberMarketSwapCallback{value: uint256(CLAIM_BOUNTY) * 1 gwei}(
-            quoteToken,
-            baseToken,
-            requestedQuote,
-            10,
-            abi.encode(USER, !USE_NATIVE, 0)
+            quoteToken, baseToken, requestedQuote, 10, abi.encode(USER, !USE_NATIVE, 0)
         );
         uint256 userTokenDiff = beforeUserTokenBalance - IERC20(quoteToken).balanceOf(USER);
         uint256 marketTokenDiff = IERC20(quoteToken).balanceOf(address(market1)) - beforeMarketTokenBalance;
@@ -230,12 +212,11 @@ contract MarketRouterUnitTest is Test {
         router.cloberMarketSwapCallback(quoteToken, baseToken, 10, 10, abi.encode(USER, !USE_NATIVE, 0));
     }
 
-    function _buildLimitOrderParams(
-        address market,
-        uint64 rawAmount,
-        uint256 baseAmount,
-        bool postOnly
-    ) private view returns (CloberRouter.LimitOrderParams memory) {
+    function _buildLimitOrderParams(address market, uint64 rawAmount, uint256 baseAmount, bool postOnly)
+        private
+        view
+        returns (CloberRouter.LimitOrderParams memory)
+    {
         CloberRouter.LimitOrderParams memory params;
         params.market = address(market);
         params.deadline = uint64(block.timestamp + 100);
@@ -319,12 +300,11 @@ contract MarketRouterUnitTest is Test {
         router.limitAsk{value: uint256(CLAIM_BOUNTY) * 1 gwei}(params);
     }
 
-    function _buildMarketOrderParams(
-        address market,
-        uint64 rawAmount,
-        uint256 baseAmount,
-        bool expendInput
-    ) internal view returns (CloberRouter.MarketOrderParams memory) {
+    function _buildMarketOrderParams(address market, uint64 rawAmount, uint256 baseAmount, bool expendInput)
+        internal
+        view
+        returns (CloberRouter.MarketOrderParams memory)
+    {
         CloberRouter.MarketOrderParams memory params;
         params.market = address(market);
         params.deadline = uint64(block.timestamp + 100);
@@ -336,18 +316,9 @@ contract MarketRouterUnitTest is Test {
         return params;
     }
 
-    function _presetBeforeMarketOrder(
-        address market,
-        uint64 rawAmount,
-        uint256 baseAmount,
-        bool isBid
-    ) internal {
-        CloberRouter.LimitOrderParams memory limitParams = _buildLimitOrderParams(
-            address(market),
-            rawAmount,
-            baseAmount,
-            POST_ONLY
-        );
+    function _presetBeforeMarketOrder(address market, uint64 rawAmount, uint256 baseAmount, bool isBid) internal {
+        CloberRouter.LimitOrderParams memory limitParams =
+            _buildLimitOrderParams(address(market), rawAmount, baseAmount, POST_ONLY);
         vm.prank(USER);
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         if (isBid) {
@@ -363,12 +334,8 @@ contract MarketRouterUnitTest is Test {
         (uint64 rawAmount, uint256 baseAmount) = expendInput
             ? (uint64(bound(amount, 1, type(uint64).max)), 0)
             : (type(uint64).max, bound(amount, 1e18, 1e6 * 1e18));
-        CloberRouter.MarketOrderParams memory params = _buildMarketOrderParams(
-            address(market1),
-            rawAmount,
-            baseAmount,
-            expendInput
-        );
+        CloberRouter.MarketOrderParams memory params =
+            _buildMarketOrderParams(address(market1), rawAmount, baseAmount, expendInput);
         vm.expectCall(
             address(market1),
             abi.encodeCall(
@@ -408,12 +375,8 @@ contract MarketRouterUnitTest is Test {
                 uint64(bound(amount, 1, (type(uint64).max / feePrecision) * (feePrecision - castedTakeFee))),
                 type(uint256).max
             );
-        CloberRouter.MarketOrderParams memory params = _buildMarketOrderParams(
-            address(market1),
-            rawAmount,
-            baseAmount,
-            expendInput
-        );
+        CloberRouter.MarketOrderParams memory params =
+            _buildMarketOrderParams(address(market1), rawAmount, baseAmount, expendInput);
         vm.expectCall(
             address(market1),
             abi.encodeCall(
@@ -435,12 +398,8 @@ contract MarketRouterUnitTest is Test {
     function testMarketAskDeadline() public {
         _presetBeforeMarketOrder(address(market1), type(uint64).max - 1, 0, BID);
 
-        CloberRouter.MarketOrderParams memory params = _buildMarketOrderParams(
-            address(market1),
-            0,
-            1e6 * 1e18,
-            EXPEND_INPUT
-        );
+        CloberRouter.MarketOrderParams memory params =
+            _buildMarketOrderParams(address(market1), 0, 1e6 * 1e18, EXPEND_INPUT);
         params.deadline = uint64(block.timestamp - 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DEADLINE));
         vm.prank(USER);
@@ -449,12 +408,8 @@ contract MarketRouterUnitTest is Test {
 
     function _presetBeforeClaim(address market) internal returns (OrderKey memory) {
         // before claim
-        CloberRouter.LimitOrderParams memory limitParams = _buildLimitOrderParams(
-            address(market),
-            0,
-            1e7 * 1e18,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory limitParams =
+            _buildLimitOrderParams(address(market), 0, 1e7 * 1e18, POST_ONLY);
         vm.prank(USER);
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         uint256 orderIndex = router.limitAsk{value: uint256(CLAIM_BOUNTY) * 1 gwei}(limitParams);
@@ -493,12 +448,8 @@ contract MarketRouterUnitTest is Test {
         claimParamsList[0].orderKeys = new OrderKey[](1);
         claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
 
-        CloberRouter.LimitOrderParams memory limitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            10,
-            0,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory limitOrderParams =
+            _buildLimitOrderParams(address(market2), 10, 0, POST_ONLY);
 
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         vm.startPrank(USER);
@@ -532,12 +483,8 @@ contract MarketRouterUnitTest is Test {
         claimParamsList[0].orderKeys = new OrderKey[](1);
         claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
 
-        CloberRouter.LimitOrderParams memory limitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            10,
-            0,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory limitOrderParams =
+            _buildLimitOrderParams(address(market2), 10, 0, POST_ONLY);
         limitOrderParams.deadline = uint64(block.timestamp - 1);
 
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
@@ -552,12 +499,8 @@ contract MarketRouterUnitTest is Test {
         claimParamsList[0].orderKeys = new OrderKey[](1);
         claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
 
-        CloberRouter.LimitOrderParams memory limitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            0,
-            10 * 1e18,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory limitOrderParams =
+            _buildLimitOrderParams(address(market2), 0, 10 * 1e18, POST_ONLY);
 
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
         vm.startPrank(USER);
@@ -590,12 +533,8 @@ contract MarketRouterUnitTest is Test {
         claimParamsList[0].orderKeys = new OrderKey[](1);
         claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
 
-        CloberRouter.LimitOrderParams memory limitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            0,
-            10 * 1e18,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory limitOrderParams =
+            _buildLimitOrderParams(address(market2), 0, 10 * 1e18, POST_ONLY);
         limitOrderParams.deadline = uint64(block.timestamp - 1);
 
         vm.deal(USER, uint256(CLAIM_BOUNTY) * 1 gwei);
@@ -612,12 +551,8 @@ contract MarketRouterUnitTest is Test {
 
         _presetBeforeMarketOrder(address(market2), 0, 1e7 * 1e18, ASK);
 
-        CloberRouter.MarketOrderParams memory marketOrderParams = _buildMarketOrderParams(
-            address(market2),
-            1000,
-            0,
-            EXPEND_INPUT
-        );
+        CloberRouter.MarketOrderParams memory marketOrderParams =
+            _buildMarketOrderParams(address(market2), 1000, 0, EXPEND_INPUT);
         uint256 snapshot = vm.snapshot();
         vm.startPrank(USER);
         vm.expectCall(address(market1), abi.encodeCall(CloberOrderBook.claim, (USER, claimParamsList[0].orderKeys)));
@@ -649,12 +584,8 @@ contract MarketRouterUnitTest is Test {
 
         _presetBeforeMarketOrder(address(market2), 0, 1e7 * 1e18, ASK);
 
-        CloberRouter.MarketOrderParams memory marketOrderParams = _buildMarketOrderParams(
-            address(market2),
-            1000,
-            0,
-            EXPEND_INPUT
-        );
+        CloberRouter.MarketOrderParams memory marketOrderParams =
+            _buildMarketOrderParams(address(market2), 1000, 0, EXPEND_INPUT);
         marketOrderParams.deadline = uint64(block.timestamp - 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DEADLINE));
         vm.prank(USER);
@@ -669,12 +600,8 @@ contract MarketRouterUnitTest is Test {
 
         _presetBeforeMarketOrder(address(market2), type(uint64).max - 1, 0, BID);
 
-        CloberRouter.MarketOrderParams memory marketOrderParams = _buildMarketOrderParams(
-            address(market2),
-            0,
-            1e6 * 1e18,
-            EXPEND_INPUT
-        );
+        CloberRouter.MarketOrderParams memory marketOrderParams =
+            _buildMarketOrderParams(address(market2), 0, 1e6 * 1e18, EXPEND_INPUT);
         uint256 snapshot = vm.snapshot();
         vm.startPrank(USER);
         vm.expectCall(address(market1), abi.encodeCall(CloberOrderBook.claim, (USER, claimParamsList[0].orderKeys)));
@@ -706,12 +633,8 @@ contract MarketRouterUnitTest is Test {
 
         _presetBeforeMarketOrder(address(market2), type(uint64).max - 1, 0, BID);
 
-        CloberRouter.MarketOrderParams memory marketOrderParams = _buildMarketOrderParams(
-            address(market2),
-            0,
-            1e6 * 1e18,
-            EXPEND_INPUT
-        );
+        CloberRouter.MarketOrderParams memory marketOrderParams =
+            _buildMarketOrderParams(address(market2), 0, 1e6 * 1e18, EXPEND_INPUT);
         vm.prank(USER);
         marketOrderParams.deadline = uint64(block.timestamp - 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DEADLINE));
@@ -772,23 +695,14 @@ contract MarketRouterUnitTest is Test {
         claimParamsList[0].orderKeys = new OrderKey[](1);
         claimParamsList[0].orderKeys[0] = _presetBeforeClaim(address(market1));
 
-        CloberRouter.LimitOrderParams memory bidLimitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            10,
-            0,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory bidLimitOrderParams =
+            _buildLimitOrderParams(address(market2), 10, 0, POST_ONLY);
         bidLimitOrderParams.priceIndex--;
-        CloberRouter.LimitOrderParams memory askLimitOrderParams = _buildLimitOrderParams(
-            address(market2),
-            0,
-            10 * 1e18,
-            POST_ONLY
-        );
+        CloberRouter.LimitOrderParams memory askLimitOrderParams =
+            _buildLimitOrderParams(address(market2), 0, 10 * 1e18, POST_ONLY);
 
-        CloberRouter.GeneralLimitOrderParams[] memory limitOrderParamsList = new CloberRouter.GeneralLimitOrderParams[](
-            2
-        );
+        CloberRouter.GeneralLimitOrderParams[] memory limitOrderParamsList =
+            new CloberRouter.GeneralLimitOrderParams[](2);
         limitOrderParamsList[0].isBid = true;
         limitOrderParamsList[0].params = bidLimitOrderParams;
         limitOrderParamsList[1].isBid = false;

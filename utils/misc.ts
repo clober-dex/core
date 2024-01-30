@@ -16,10 +16,7 @@ export const liveLog = (str: string): void => {
   }
 }
 
-export const bn2StrWithPrecision = (
-  bn: BigNumber,
-  precision: number,
-): string => {
+export const bn2StrWithPrecision = (bn: BigNumber, precision: number): string => {
   const prec = BigNumber.from(10).pow(precision)
   const q = bn.div(prec)
   const r = bn.mod(prec)
@@ -45,16 +42,10 @@ export const strToBytes32 = (str: string): string => {
   return utils.formatBytes32String(str)
 }
 
-export const computeCreate1Address = (
-  origin: string,
-  nonce: BigNumber,
-): string => {
+export const computeCreate1Address = (origin: string, nonce: BigNumber): string => {
   let packedData: string
   if (nonce.eq(BigNumber.from('0x00'))) {
-    packedData = utils.solidityPack(
-      ['bytes1', 'bytes1', 'address', 'bytes1'],
-      ['0xd6', '0x94', origin, '0x80'],
-    )
+    packedData = utils.solidityPack(['bytes1', 'bytes1', 'address', 'bytes1'], ['0xd6', '0x94', origin, '0x80'])
   } else if (nonce.lte(BigNumber.from('0x7f'))) {
     packedData = utils.solidityPack(
       ['bytes1', 'bytes1', 'address', 'bytes1'],
@@ -110,10 +101,7 @@ export const computeCreate1Address = (
 export function randomBigNumber(): BigNumber
 export function randomBigNumber(max: BigNumberish): BigNumber
 export function randomBigNumber(min: BigNumberish, max: BigNumberish): BigNumber
-export function randomBigNumber(
-  min?: BigNumberish,
-  max?: BigNumberish,
-): BigNumber {
+export function randomBigNumber(min?: BigNumberish, max?: BigNumberish): BigNumber {
   if (!max) {
     max = min
     min = undefined
@@ -124,16 +112,10 @@ export function randomBigNumber(
   if (!max) {
     max = BigNumber.from(2).pow(256).sub(1)
   }
-  return BigNumber.from(utils.randomBytes(32))
-    .mod(BigNumber.from(max).sub(min))
-    .add(min)
+  return BigNumber.from(utils.randomBytes(32)).mod(BigNumber.from(max).sub(min)).add(min)
 }
 
-export const generateRandoms = (
-  min: number,
-  max: number,
-  numOfRandoms: number,
-): number[] => {
+export const generateRandoms = (min: number, max: number, numOfRandoms: number): number[] => {
   const getRandom = (x: number, y: number) => {
     return Math.floor(Math.random() * (y - x + 1) + x)
   }
@@ -163,9 +145,7 @@ export class UsefulMap<K, V> extends Map<K, V> {
     return value
   }
 
-  async forEachAsync(
-    callbackfn: (value: V, key: K, map: UsefulMap<K, V>) => Promise<void>,
-  ): Promise<void> {
+  async forEachAsync(callbackfn: (value: V, key: K, map: UsefulMap<K, V>) => Promise<void>): Promise<void> {
     for (const [key, value] of this.entries()) {
       await callbackfn(value, key, this)
     }

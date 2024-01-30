@@ -91,7 +91,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -106,17 +106,13 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         baseToken.approve(address(market), type(uint256).max);
     }
 
-    function _createMarket(
-        int24 makerFee,
-        uint24 takerFee,
-        uint128 r
-    ) private {
+    function _createMarket(int24 makerFee, uint24 takerFee, uint128 r) private {
         orderToken = new OrderNFT(address(this), address(this));
         market = new OrderBook(
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -137,11 +133,11 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         return ids;
     }
 
-    function _calculateAmounts(
-        bool isTakingBid,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) private view returns (uint256 expectedAmountIn, uint256 expectedAmountOut) {
+    function _calculateAmounts(bool isTakingBid, uint16 priceIndex, uint64 rawAmount)
+        private
+        view
+        returns (uint256 expectedAmountIn, uint256 expectedAmountOut)
+    {
         expectedAmountIn = isTakingBid ? market.rawToBase(rawAmount, priceIndex, true) : market.rawToQuote(rawAmount);
         expectedAmountOut = isTakingBid ? market.rawToQuote(rawAmount) : market.rawToBase(rawAmount, priceIndex, false);
     }
@@ -155,11 +151,8 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     ) private {
         Vars memory vars;
 
-        (vars.expectedAmountIn, vars.expectedAmountOut) = _calculateAmounts(
-            isTakingBid,
-            expectedTakeOrder.priceIndex,
-            expectedTakeOrder.rawAmount
-        );
+        (vars.expectedAmountIn, vars.expectedAmountOut) =
+            _calculateAmounts(isTakingBid, expectedTakeOrder.priceIndex, expectedTakeOrder.rawAmount);
         vars.expectedTakerFee = Math.divide(vars.expectedAmountOut * Constants.TAKE_FEE, Constants.FEE_PRECISION, true);
         vars.beforePayerQuoteBalance = quoteToken.balanceOf(address(this));
         vars.beforePayerBaseBalance = baseToken.balanceOf(address(this));
@@ -168,10 +161,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
 
         {
             (uint256 inputAmount, uint256 outputAmount) = market.getExpectedAmount(
-                limitPriceIndex,
-                isTakingBid ? 0 : rawAmount,
-                isTakingBid ? baseAmount : 0,
-                isTakingBid ? 2 : 3
+                limitPriceIndex, isTakingBid ? 0 : rawAmount, isTakingBid ? baseAmount : 0, isTakingBid ? 2 : 3
             );
             assertEq(inputAmount, vars.expectedAmountIn, "ERROR_BASE_BALANCE");
             assertEq(outputAmount, vars.expectedAmountOut - vars.expectedTakerFee, "ERROR_QUOTE_BALANCE");
@@ -235,11 +225,8 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     ) private {
         Vars memory vars;
         for (uint256 i = 0; i < expectedTakeOrders.length; i++) {
-            (uint256 expectedAmountIn, uint256 expectedAmountOut) = _calculateAmounts(
-                isTakingBid,
-                expectedTakeOrders[i].priceIndex,
-                expectedTakeOrders[i].rawAmount
-            );
+            (uint256 expectedAmountIn, uint256 expectedAmountOut) =
+                _calculateAmounts(isTakingBid, expectedTakeOrders[i].priceIndex, expectedTakeOrders[i].rawAmount);
             vars.expectedAmountIn += expectedAmountIn;
             vars.expectedAmountOut += expectedAmountOut;
         }
@@ -253,10 +240,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
             vars.snapshotId = vm.snapshot();
             {
                 (uint256 inputAmount, uint256 outputAmount) = market.getExpectedAmount(
-                    limitPriceIndex,
-                    isTakingBid ? 0 : rawAmount,
-                    isTakingBid ? baseAmount : 0,
-                    isTakingBid ? 2 : 3
+                    limitPriceIndex, isTakingBid ? 0 : rawAmount, isTakingBid ? baseAmount : 0, isTakingBid ? 2 : 3
                 );
                 assertEq(inputAmount, vars.expectedAmountIn, "ERROR_BASE_BALANCE");
                 assertEq(outputAmount, vars.expectedAmountOut - vars.expectedTakerFee, "ERROR_QUOTE_BALANCE");
@@ -528,28 +512,13 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            1,
-            0,
-            market.rawToBase(2, 1, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 1, 0, market.rawToBase(2, 1, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            3,
-            0,
-            market.rawToBase(2, 3, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 3, 0, market.rawToBase(2, 3, true), 0, new bytes(0)
         );
         market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            5,
-            0,
-            market.rawToBase(2, 5, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, 5, 0, market.rawToBase(2, 5, true), 0, new bytes(0)
         );
 
         assertEq(market.bestPriceIndex(Constants.ASK), 1);
@@ -573,22 +542,11 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         for (uint256 i = 0; i < vm.envOr("LARGE_ORDER_COUNT", Constants.LARGE_ORDER_COUNT); i++) {
             // Make
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                777,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 777, 0, 1, new bytes(0)
             );
 
             // Take
-            _checkTakeOrder(
-                Constants.BID,
-                0,
-                0,
-                market.rawToBase(777, 3, true),
-                Order({rawAmount: 777, priceIndex: 3})
-            );
+            _checkTakeOrder(Constants.BID, 0, 0, market.rawToBase(777, 3, true), Order({rawAmount: 777, priceIndex: 3}));
         }
     }
 
@@ -599,12 +557,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         for (uint256 i = 0; i < vm.envOr("LARGE_ORDER_COUNT", Constants.LARGE_ORDER_COUNT); i++) {
             // Make
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(777, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(777, priceIndex, true), 0, new bytes(0)
             );
 
             // Take
@@ -619,12 +572,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         for (uint256 i = 0; i < Constants.MAX_ORDER; i++) {
             // Make
             uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                777,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 777, 0, 1, new bytes(0)
             );
             assertEq(orderIndex, i, "ERROR_ORDER_INDEX");
         }
@@ -645,12 +593,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         for (uint256 i = 0; i < Constants.MAX_ORDER; i++) {
             // Make
             uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(777, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(777, priceIndex, true), 0, new bytes(0)
             );
             assertEq(orderIndex, i, "ERROR_ORDER_INDEX");
         }
@@ -675,12 +618,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                rawAmount,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, rawAmount, 0, 1, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             baseAmount += market.rawToBase(rawAmount, priceIndex, true);
@@ -699,12 +637,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(rawAmount, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(rawAmount, priceIndex, true), 0, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
@@ -723,12 +656,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                rawAmount,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, rawAmount, 0, 1, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             baseAmount += market.rawToBase(rawAmount, priceIndex, true);
@@ -747,12 +675,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](313);
         for (uint16 i = 0; i < 313; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(rawAmount, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(rawAmount, priceIndex, true), 0, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
@@ -761,7 +684,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     }
 
     function testVerticalBidOrderFlowR101() public {
-        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10 ** 16);
 
         // Takes
         uint16 priceIndex = 0;
@@ -771,12 +694,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](34);
         for (uint16 i = 0; i < 34; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                rawAmount,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, rawAmount, 0, 1, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             baseAmount += market.rawToBase(rawAmount, priceIndex, true);
@@ -795,12 +713,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](34);
         for (uint16 i = 0; i < 34; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(rawAmount, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(rawAmount, priceIndex, true), 0, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
@@ -819,12 +732,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](34);
         for (uint16 i = 0; i < 34; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                rawAmount,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, rawAmount, 0, 1, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             baseAmount += market.rawToBase(rawAmount, priceIndex, true);
@@ -843,12 +751,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
         Order[] memory expectedTakeOrders = new Order[](34);
         for (uint16 i = 0; i < 34; i++) {
             market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(rawAmount, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(rawAmount, priceIndex, true), 0, new bytes(0)
             );
             expectedTakeOrders[i] = Order({rawAmount: rawAmount, priceIndex: priceIndex});
             priceIndex += 128;
@@ -857,17 +760,12 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     }
 
     function testMarketBidWithInvalidPriceIndexWithR101() public {
-        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10 ** 16);
 
         uint64 rawAmount = 3;
         uint16 maxPriceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();
         market.limitOrder(
-            Constants.USER_A,
-            maxPriceIndex,
-            0,
-            market.rawToBase(rawAmount, maxPriceIndex, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, maxPriceIndex, 0, market.rawToBase(rawAmount, maxPriceIndex, true), 0, new bytes(0)
         );
 
         Order[] memory expectedTakeOrders = new Order[](1);
@@ -876,7 +774,7 @@ contract MarketOrderIntegrationTest is Test, CloberMarketSwapCallbackReceiver, M
     }
 
     function testMarketAskWithInvalidPriceIndexWithR101() public {
-        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10**16);
+        _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE, 101 * 10 ** 16);
 
         uint64 rawAmount = 3;
         uint16 maxPriceIndex = CloberPriceBook(market.priceBook()).maxPriceIndex();

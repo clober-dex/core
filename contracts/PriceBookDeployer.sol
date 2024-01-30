@@ -34,19 +34,15 @@ contract PriceBookDeployer is CloberPriceBookDeployer {
 
     function computeArithmeticPriceBookAddress(uint128 a, uint128 d) external view returns (address) {
         bytes32 salt = keccak256(abi.encodePacked(a, d));
-        return
-            Create2.computeAddress(
-                salt,
-                keccak256(abi.encodePacked(type(ArithmeticPriceBook).creationCode, abi.encode(a, d)))
-            );
+        return Create2.computeAddress(
+            salt, keccak256(abi.encodePacked(type(ArithmeticPriceBook).creationCode, abi.encode(a, d)))
+        );
     }
 
     function computeGeometricPriceBookAddress(uint128 a, uint128 r) external view returns (address) {
         bytes32 salt = keccak256(abi.encodePacked(a, r));
-        return
-            Create2.computeAddress(
-                salt,
-                keccak256(abi.encodePacked(type(GeometricPriceBook).creationCode, abi.encode(a, r)))
-            );
+        return Create2.computeAddress(
+            salt, keccak256(abi.encodePacked(type(GeometricPriceBook).creationCode, abi.encode(a, r)))
+        );
     }
 }

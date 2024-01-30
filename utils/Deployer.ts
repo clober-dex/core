@@ -33,17 +33,11 @@ export class Deployer {
 
   constructor(hre: HardhatRuntimeEnvironment) {
     this.hre = hre
-    this.dirPath = path.join(
-      __dirname,
-      '../deployments/',
-      this.hre.network.name,
-    )
+    this.dirPath = path.join(__dirname, '../deployments/', this.hre.network.name)
     this.filePath = path.join(this.dirPath, Deployer.DEPLOYMENTS_FILE_NAME)
     if (fs.existsSync(this.filePath)) {
       this.addresses = new UsefulMap<string, string>(
-        ...(Object.entries(
-          JSON.parse(fs.readFileSync(this.filePath, 'utf-8')),
-        ) as [string, string][]),
+        ...(Object.entries(JSON.parse(fs.readFileSync(this.filePath, 'utf-8'))) as [string, string][]),
       )
     } else {
       this.addresses = new UsefulMap<string, string>()
@@ -66,17 +60,10 @@ export class Deployer {
     if (!fs.existsSync(this.dirPath)) {
       fs.mkdirSync(this.dirPath)
     }
-    fs.writeFileSync(
-      this.filePath,
-      JSON.stringify(Object.fromEntries(this.addresses), null, 2),
-    )
+    fs.writeFileSync(this.filePath, JSON.stringify(Object.fromEntries(this.addresses), null, 2))
   }
 
-  async deploy(
-    contractName: string,
-    args: any[] = [],
-    options?: DeployOptions,
-  ): Promise<string> {
+  async deploy(contractName: string, args: any[] = [], options?: DeployOptions): Promise<string> {
     const factory = await this.hre.ethers.getContractFactory(contractName)
 
     // check if contract already has deployed
@@ -94,57 +81,35 @@ export class Deployer {
         liveLog(`Deploying ${contractName} with Proxy...`)
         // encode data before deploy for type check
         let initData: BytesLike = '0x'
-        if (
-          typeof options.upgradeable !== 'boolean' &&
-          options.upgradeable.init
-        ) {
+        if (typeof options.upgradeable !== 'boolean' && options.upgradeable.init) {
           initData = this._buildMethodCall(factory, options.upgradeable.init)
         }
 
         let implAddress: string
         // check if implementation has deployed before
         if (this.addresses.has(this._toImplementationKey(contractName))) {
-          implAddress = this.addresses.mustGet(
-            this._toImplementationKey(contractName),
-          )
-          liveLog(
-            `${contractName} Implementation Already Deployed with: ${implAddress}`,
-          )
+          implAddress = this.addresses.mustGet(this._toImplementationKey(contractName))
+          liveLog(`${contractName} Implementation Already Deployed with: ${implAddress}`)
         } else {
           // deploy implementation contract
           receipt = await waitForTx(this._deploy(deployer, factory, args))
           implAddress = receipt.contractAddress
-          liveLog(
-            `Deployed ${contractName} Implementation: ${implAddress} on tx ${receipt.transactionHash}`,
-          )
-          this.addresses.set(
-            this._toImplementationKey(contractName),
-            implAddress,
-          )
+          liveLog(`Deployed ${contractName} Implementation: ${implAddress} on tx ${receipt.transactionHash}`)
+          this.addresses.set(this._toImplementationKey(contractName), implAddress)
         }
 
         // deploy proxy contract
         const proxyAdmin = this.addresses.mustGet('DefaultProxyAdmin')
         liveLog(`Deploying Proxy...`)
-        const proxyFactory = await this.hre.ethers.getContractFactory(
-          'TransparentUpgradeableProxy',
-        )
-        receipt = await waitForTx(
-          this._deploy(deployer, proxyFactory, [
-            implAddress,
-            proxyAdmin,
-            initData,
-          ]),
-        )
+        const proxyFactory = await this.hre.ethers.getContractFactory('TransparentUpgradeableProxy')
+        receipt = await waitForTx(this._deploy(deployer, proxyFactory, [implAddress, proxyAdmin, initData]))
       } else {
         // deploy non-upgradeable
         liveLog(`Deploying ${contractName}...`)
         receipt = await waitForTx(this._deploy(deployer, factory, args))
       }
       const contractAddress = receipt.contractAddress
-      liveLog(
-        `Deployed ${contractName}: ${contractAddress} on tx ${receipt.transactionHash}\n`,
-      )
+      liveLog(`Deployed ${contractName}: ${contractAddress} on tx ${receipt.transactionHash}\n`)
       this.addresses.set(contractName, contractAddress)
       if (options && options.upgradeable) {
         // delete implementation address to mark as finished
@@ -173,11 +138,7 @@ export class Deployer {
     try {
       pastImplAddress = await proxyAdmin.getProxyImplementation(contractAddress)
     } catch (e) {
-      console.error(
-        chalk.red(
-          `Failed to load implementation of ${contractName}(${contractAddress})`,
-        ),
-      )
+      console.error(chalk.red(`Failed to load implementation of ${contractName}(${contractAddress})`))
       throw e
     }
     const deployer = await this._loadDeployer()
@@ -186,40 +147,24 @@ export class Deployer {
       // deploy implementation contract
       const receipt = await waitForTx(this._deploy(deployer, factory, args))
       newImplementation = receipt.contractAddress
-      liveLog(
-        `Deployed ${contractName} Implementation: ${newImplementation} on tx ${receipt.transactionHash}`,
-      )
+      liveLog(`Deployed ${contractName} Implementation: ${newImplementation} on tx ${receipt.transactionHash}`)
     }
     const receipt = await waitForTx(
       initData === '0x'
         ? proxyAdmin.upgrade(contractAddress, newImplementation)
-        : proxyAdmin.upgradeAndCall(
-            contractAddress,
-            newImplementation,
-            initData,
-          ),
+        : proxyAdmin.upgradeAndCall(contractAddress, newImplementation, initData),
     )
     liveLog(
       `Upgrade ${contractName}(${contractAddress}) from ${pastImplAddress} to ${newImplementation} on tx ${receipt.transactionHash}`,
     )
   }
 
-  private _buildMethodCall(
-    factory: ContractFactory,
-    methodInfo: MethodInfo,
-  ): string {
+  private _buildMethodCall(factory: ContractFactory, methodInfo: MethodInfo): string {
     try {
-      return factory.interface.encodeFunctionData(
-        methodInfo.methodName,
-        methodInfo.args,
-      )
+      return factory.interface.encodeFunctionData(methodInfo.methodName, methodInfo.args)
     } catch (e) {
       // print contract name caught error does not print right traces
-      console.error(
-        chalk.red(
-          `Encoding ${factory.constructor.name}'s initialize data failed`,
-        ),
-      )
+      console.error(chalk.red(`Encoding ${factory.constructor.name}'s initialize data failed`))
       console.error(`methodName: ${methodInfo.methodName}`)
       console.error(`args:`, methodInfo.args)
       throw e
@@ -234,12 +179,8 @@ export class Deployer {
     const rawTx = await factory.getDeployTransaction(...args)
     rawTx.nonce = await deployer.getTransactionCount('latest')
     const multiplier = BigNumber.from(Math.floor(Deployer.GAS_BUF * 100))
-    rawTx.gasPrice = (await this.hre.ethers.provider.getGasPrice())
-      .mul(multiplier)
-      .div(100)
-    rawTx.gasLimit = (await this.hre.ethers.provider.estimateGas(rawTx))
-      .mul(multiplier)
-      .div(100)
+    rawTx.gasPrice = (await this.hre.ethers.provider.getGasPrice()).mul(multiplier).div(100)
+    rawTx.gasLimit = (await this.hre.ethers.provider.estimateGas(rawTx)).mul(multiplier).div(100)
     return deployer.sendTransaction(rawTx)
   }
 

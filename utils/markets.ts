@@ -588,16 +588,8 @@ export const marketConfigs: MarketConfigs = {
 }
 
 export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
-  [mainnet.id]: [
-    TOKEN[mainnet.id].USDC,
-    TOKEN[mainnet.id].DAI,
-    TOKEN[mainnet.id].USDT,
-  ],
-  [polygon.id]: [
-    TOKEN[polygon.id].USDC,
-    TOKEN[polygon.id].DAI,
-    TOKEN[polygon.id].USDT,
-  ],
+  [mainnet.id]: [TOKEN[mainnet.id].USDC, TOKEN[mainnet.id].DAI, TOKEN[mainnet.id].USDT],
+  [polygon.id]: [TOKEN[polygon.id].USDC, TOKEN[polygon.id].DAI, TOKEN[polygon.id].USDT],
   [arbitrum.id]: [
     TOKEN[arbitrum.id].USDC,
     TOKEN[arbitrum.id].DAI,
@@ -605,10 +597,7 @@ export const initialRegisteredQuoteTokens: { [network: string]: string[] } = {
     TOKEN[arbitrum.id].EUROe,
     TOKEN[arbitrum.id].ARB,
   ],
-  [polygonZkEvm.id]: [
-    TOKEN[polygonZkEvm.id].USDC,
-    TOKEN[polygonZkEvm.id].MATIC,
-  ],
+  [polygonZkEvm.id]: [TOKEN[polygonZkEvm.id].USDC, TOKEN[polygonZkEvm.id].MATIC],
 }
 
 export const legacyMarketsToRegister: { [network: string]: string[] } = {

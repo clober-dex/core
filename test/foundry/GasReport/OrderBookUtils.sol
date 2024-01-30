@@ -21,7 +21,7 @@ contract OrderBookUtils is Test {
     uint24 public constant TAKE_FEE = 1000;
     int24 public constant MAKE_FEE = 600;
     uint24 public constant DAO_FEE = 150000; // 15%
-    uint256 public INIT_AMOUNT = 10**18;
+    uint256 public INIT_AMOUNT = 10 ** 18;
     uint256 public constant FEE_PRECISION = 1000000; // 1 = 0.0001%
     uint32 public constant CLAIM_BOUNTY = 100; // in gwei unit
     bool public constant BID = true;
@@ -29,8 +29,8 @@ contract OrderBookUtils is Test {
     bool public constant POST_ONLY = true;
     bool public constant EXPEND_INPUT = true;
     bool public constant EXPEND_OUTPUT = false;
-    uint128 public constant A = 10**10;
-    uint128 public constant R = 1001 * 10**15;
+    uint128 public constant A = 10 ** 10;
+    uint128 public constant R = 1001 * 10 ** 15;
 
     MarketFactory factory;
     OrderBook public market;
@@ -80,11 +80,11 @@ contract OrderBookUtils is Test {
     }
 
     function mintToken(address user) public {
-        uint256 amount = INIT_AMOUNT * 10**(MockERC20(quoteToken).decimals());
+        uint256 amount = INIT_AMOUNT * 10 ** (MockERC20(quoteToken).decimals());
         MockERC20(quoteToken).mint(user, amount);
-        amount = INIT_AMOUNT * 10**(MockERC20(baseToken).decimals());
+        amount = INIT_AMOUNT * 10 ** (MockERC20(baseToken).decimals());
         MockERC20(baseToken).mint(user, amount);
-        vm.deal(user, INIT_AMOUNT * 10**18);
+        vm.deal(user, INIT_AMOUNT * 10 ** 18);
     }
 
     function approveGasReporter(address user) public {
@@ -124,11 +124,9 @@ contract OrderBookUtils is Test {
         vm.stopPrank();
     }
 
-    function marketBidOrder(
-        address user,
-        uint256 quoteAmount,
-        function(address, uint64) external payable callback
-    ) public {
+    function marketBidOrder(address user, uint256 quoteAmount, function(address, uint64) external payable callback)
+        public
+    {
         uint64 rawAmount = GasReportUtils.quoteToRaw(quoteAmount, false);
         vm.startPrank(user);
         IERC20(quoteToken).transfer(address(gasReporter), GasReportUtils.rawToQuote(rawAmount));
@@ -136,11 +134,9 @@ contract OrderBookUtils is Test {
         vm.stopPrank();
     }
 
-    function marketAskOrder(
-        address user,
-        uint256 baseAmount,
-        function(address, uint256) external payable callback
-    ) public {
+    function marketAskOrder(address user, uint256 baseAmount, function(address, uint256) external payable callback)
+        public
+    {
         vm.startPrank(user);
         IERC20(baseToken).transfer(address(gasReporter), baseAmount);
         callback(user, baseAmount);

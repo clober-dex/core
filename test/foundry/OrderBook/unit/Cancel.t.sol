@@ -15,6 +15,7 @@ import "./Constants.sol";
 
 contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
     using OrderKeyUtils for OrderKey;
+
     event CancelOrder(address indexed user, uint64 rawAmount, uint256 orderIndex, uint16 priceIndex, bool isBid);
     event ClaimOrder(
         address indexed claimer,
@@ -79,7 +80,7 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -87,40 +88,34 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(orderBook), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(orderBook), type(uint256).max);
     }
 
-    function _createPostOnlyOrder(
-        bool isBid,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) private returns (uint256) {
+    function _createPostOnlyOrder(bool isBid, uint16 priceIndex, uint64 rawAmount) private returns (uint256) {
         if (isBid) {
-            return
-                orderBook.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}({
-                    user: Constants.MAKER,
-                    priceIndex: priceIndex,
-                    rawAmount: rawAmount,
-                    baseAmount: 0,
-                    options: 3,
-                    data: new bytes(0)
-                });
+            return orderBook.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}({
+                user: Constants.MAKER,
+                priceIndex: priceIndex,
+                rawAmount: rawAmount,
+                baseAmount: 0,
+                options: 3,
+                data: new bytes(0)
+            });
         } else {
-            return
-                orderBook.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}({
-                    user: Constants.MAKER,
-                    priceIndex: priceIndex,
-                    rawAmount: 0,
-                    baseAmount: orderBook.rawToBase(rawAmount, priceIndex, true),
-                    options: 2,
-                    data: new bytes(0)
-                });
+            return orderBook.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}({
+                user: Constants.MAKER,
+                priceIndex: priceIndex,
+                rawAmount: 0,
+                baseAmount: orderBook.rawToBase(rawAmount, priceIndex, true),
+                options: 2,
+                data: new bytes(0)
+            });
         }
     }
 
@@ -139,11 +134,8 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
         uint256 beforeETHBalance = Constants.MAKER.balance;
         uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        OrderKey memory orderKey = OrderKey({
-            isBid: Constants.BID,
-            priceIndex: Constants.PRICE_INDEX,
-            orderIndex: orderIndex
-        });
+        OrderKey memory orderKey =
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex});
         vm.expectCall(address(orderToken), abi.encodeCall(CloberOrderNFT.onBurn, (orderKey.encode())));
         vm.expectEmit(true, true, true, true);
         emit CancelOrder(Constants.MAKER, Constants.RAW_AMOUNT, orderIndex, Constants.PRICE_INDEX, Constants.BID);
@@ -151,9 +143,7 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         orderBook.cancel(Constants.MAKER, _toArray(orderKey));
         assertEq(quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance, amountOut, "ERROR_QUOTE_BALANCE");
         assertEq(
-            Constants.MAKER.balance - beforeETHBalance,
-            Constants.CLAIM_BOUNTY * 1 gwei,
-            "ERROR_CLAIM_BOUNTY_BALANCE"
+            Constants.MAKER.balance - beforeETHBalance, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE"
         );
         assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
         uint256 tokenId = orderToken.encodeId(orderKey);
@@ -170,11 +160,8 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
         uint256 beforeETHBalance = Constants.MAKER.balance;
         uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
-        OrderKey memory orderKey = OrderKey({
-            isBid: Constants.ASK,
-            priceIndex: Constants.PRICE_INDEX,
-            orderIndex: orderIndex
-        });
+        OrderKey memory orderKey =
+            OrderKey({isBid: Constants.ASK, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex});
         vm.expectCall(address(orderToken), abi.encodeCall(CloberOrderNFT.onBurn, (orderKey.encode())));
         vm.expectEmit(true, true, true, true);
         emit CancelOrder(Constants.MAKER, Constants.RAW_AMOUNT, orderIndex, Constants.PRICE_INDEX, Constants.ASK);
@@ -182,9 +169,7 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         orderBook.cancel(Constants.MAKER, _toArray(orderKey));
         assertEq(baseToken.balanceOf(Constants.MAKER) - beforeBaseBalance, amountOut, "ERROR_BASE_BALANCE");
         assertEq(
-            Constants.MAKER.balance - beforeETHBalance,
-            Constants.CLAIM_BOUNTY * 1 gwei,
-            "ERROR_CLAIM_BOUNTY_BALANCE"
+            Constants.MAKER.balance - beforeETHBalance, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE"
         );
         assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
         uint256 tokenId = orderToken.encodeId(orderKey);
@@ -201,11 +186,8 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
         uint256 beforeETHBalance = Constants.MAKER.balance;
         uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);
-        OrderKey memory orderKey = OrderKey({
-            isBid: Constants.BID,
-            priceIndex: Constants.PRICE_INDEX,
-            orderIndex: orderIndex
-        });
+        OrderKey memory orderKey =
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: orderIndex});
         vm.expectCall(address(orderToken), abi.encodeCall(CloberOrderNFT.onBurn, (orderKey.encode())));
         vm.expectEmit(true, true, true, true);
         emit CancelOrder(Constants.MAKER, Constants.RAW_AMOUNT, orderIndex, Constants.PRICE_INDEX, Constants.BID);
@@ -213,9 +195,7 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         orderBook.cancel(Constants.MAKER, _toArray(orderKey));
         assertEq(quoteToken.balanceOf(Constants.MAKER) - beforeQuoteBalance, amountOut, "ERROR_QUOTE_BALANCE");
         assertEq(
-            Constants.MAKER.balance - beforeETHBalance,
-            Constants.CLAIM_BOUNTY * 1 gwei,
-            "ERROR_CLAIM_BOUNTY_BALANCE"
+            Constants.MAKER.balance - beforeETHBalance, Constants.CLAIM_BOUNTY * 1 gwei, "ERROR_CLAIM_BOUNTY_BALANCE"
         );
         assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.MAKER), 1, "ERROR_NFT_BALANCE");
         uint256 tokenId = orderToken.encodeId(orderKey);
@@ -256,16 +236,14 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
 
         vm.prank(Constants.MAKER);
         orderBook.cancel(
-            Constants.MAKER,
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: 3, orderIndex: orderIndex3}))
+            Constants.MAKER, _toArray(OrderKey({isBid: Constants.BID, priceIndex: 3, orderIndex: orderIndex3}))
         );
 
         assertEq(orderBook.bestPriceIndex(Constants.BID), 5, "ERROR_BID_PRICE");
 
         vm.prank(Constants.MAKER);
         orderBook.cancel(
-            Constants.MAKER,
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: 5, orderIndex: orderIndex5}))
+            Constants.MAKER, _toArray(OrderKey({isBid: Constants.BID, priceIndex: 5, orderIndex: orderIndex5}))
         );
 
         assertEq(orderBook.bestPriceIndex(Constants.BID), 1, "ERROR_BID_PRICE");
@@ -344,8 +322,8 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 expectedClaimAmount = orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false);
         uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) /
-            Constants.FEE_PRECISION;
+        uint256 expectedTakerFee =
+            (orderBook.rawToQuote(Constants.RAW_AMOUNT) * Constants.TAKE_FEE) / Constants.FEE_PRECISION;
 
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
         uint256 beforeBaseBalance = baseToken.balanceOf(Constants.MAKER);
@@ -409,8 +387,9 @@ contract OrderBookCancelUnitTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 expectedClaimAmount = orderBook.rawToQuote(Constants.RAW_AMOUNT);
         uint256 expectedMakerFee = Math.divide(expectedClaimAmount * Constants.MAKE_FEE, Constants.FEE_PRECISION, true);
         // calculate taker fee that protocol gained
-        uint256 expectedTakerFee = (orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) *
-            Constants.TAKE_FEE) / Constants.FEE_PRECISION;
+        uint256 expectedTakerFee = (
+            orderBook.rawToBase(Constants.RAW_AMOUNT, Constants.PRICE_INDEX, false) * Constants.TAKE_FEE
+        ) / Constants.FEE_PRECISION;
 
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.MAKER);
         uint256 beforeQuoteBalance = quoteToken.balanceOf(Constants.MAKER);

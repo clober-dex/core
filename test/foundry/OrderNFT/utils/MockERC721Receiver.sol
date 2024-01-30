@@ -6,12 +6,11 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 contract MockERC721Receiver is IERC721Receiver {
-    function onERC721Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        bytes calldata _data
-    ) external pure returns (bytes4) {
+    function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data)
+        external
+        pure
+        returns (bytes4)
+    {
         _operator;
         _from;
         _tokenId;

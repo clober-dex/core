@@ -7,7 +7,7 @@ import "../interfaces/CloberPriceBook.sol";
 
 contract MockPriceBook is CloberPriceBook {
     uint16 private constant _MAX_INDEX = 36860; // approximately log_1.001(10**16)
-    uint128 private constant _PRICE_PRECISION = 10**18;
+    uint128 private constant _PRICE_PRECISION = 10 ** 18;
 
     function maxPriceIndex() public pure override returns (uint16) {
         return 0xfff0; // test for `INVALID_PRICE_INDEX`

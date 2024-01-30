@@ -72,11 +72,7 @@ library BoringERC20 {
     /// @param token The address of the ERC-20 token.
     /// @param to Transfer tokens to.
     /// @param amount The token amount.
-    function safeTransfer(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) internal {
+    function safeTransfer(IERC20 token, address to, uint256 amount) internal {
         (bool success, bytes memory data) = address(token).call(abi.encodeWithSelector(_SIG_TRANSFER, to, amount));
         require(success && (data.length == 0 || abi.decode(data, (bool))), "BoringERC20: Transfer failed");
     }
@@ -87,15 +83,9 @@ library BoringERC20 {
     /// @param from Transfer tokens from.
     /// @param to Transfer tokens to.
     /// @param amount The token amount.
-    function safeTransferFrom(
-        IERC20 token,
-        address from,
-        address to,
-        uint256 amount
-    ) internal {
-        (bool success, bytes memory data) = address(token).call(
-            abi.encodeWithSelector(_SIG_TRANSFER_FROM, from, to, amount)
-        );
+    function safeTransferFrom(IERC20 token, address from, address to, uint256 amount) internal {
+        (bool success, bytes memory data) =
+            address(token).call(abi.encodeWithSelector(_SIG_TRANSFER_FROM, from, to, amount));
         require(success && (data.length == 0 || abi.decode(data, (bool))), "BoringERC20: TransferFrom failed");
     }
 }

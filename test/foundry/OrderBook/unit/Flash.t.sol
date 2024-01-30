@@ -21,7 +21,7 @@ contract OrderBookFlashUnitTest is Test, CloberMarketFlashCallbackReceiver {
         uint256 earnedBase
     );
 
-    uint96 private constant _QUOTE_UNIT = 10**4; // unit is 1 USDC
+    uint96 private constant _QUOTE_UNIT = 10 ** 4; // unit is 1 USDC
     uint256 private constant _INIT_AMOUNT = 1000000000;
     address private constant _BORROWER = address(0x123123);
 

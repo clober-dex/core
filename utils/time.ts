@@ -33,9 +33,7 @@ export const latestNumber = async (): Promise<BigNumber> => {
   return BigNumber.from(block.number)
 }
 
-export const advanceTimeAndBlock = async (
-  time: number | BigNumber,
-): Promise<void> => {
+export const advanceTimeAndBlock = async (time: number | BigNumber): Promise<void> => {
   await advanceTime(time)
   await advanceBlock()
 }

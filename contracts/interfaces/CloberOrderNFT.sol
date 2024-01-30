@@ -78,9 +78,5 @@ interface CloberOrderNFT is IERC721, IERC721Metadata {
      * @param tokenIds The ids of the tokens to cancel.
      * @param receiver The address to send the underlying assets to.
      */
-    function cancel(
-        address from,
-        uint256[] calldata tokenIds,
-        address receiver
-    ) external;
+    function cancel(address from, uint256[] calldata tokenIds, address receiver) external;
 }

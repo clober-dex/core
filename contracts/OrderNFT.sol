@@ -37,11 +37,7 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         _canceler = canceler;
     }
 
-    function init(
-        string memory name_,
-        string memory symbol_,
-        address market_
-    ) external {
+    function init(string memory name_, string memory symbol_, address market_) external {
         if (market != address(0)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
@@ -82,10 +78,8 @@ contract OrderNFT is ERC165, CloberOrderNFT {
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
-        return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IERC721Metadata).interfaceId ||
-            super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC721Metadata).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     function balanceOf(address user) public view returns (uint256) {
@@ -137,11 +131,7 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         return _operatorApprovals[tokenOwner][operator];
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public {
+    function transferFrom(address from, address to, uint256 tokenId) public {
         if (!_isApprovedOrOwner(msg.sender, tokenId)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
@@ -149,32 +139,18 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         _transfer(from, to, tokenId);
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public {
         safeTransferFrom(from, to, tokenId, "");
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
         if (!_isApprovedOrOwner(msg.sender, tokenId)) {
             revert Errors.CloberError(Errors.ACCESS);
         }
         _safeTransfer(from, to, tokenId, data);
     }
 
-    function _safeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal {
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal {
         _transfer(from, to, tokenId);
         if (!_checkOnERC721Received(from, to, tokenId, data)) {
             revert Errors.CloberError(Errors.NOT_IMPLEMENTED_INTERFACE);
@@ -215,11 +191,7 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         emit Transfer(tokenOwner, address(0), tokenId);
     }
 
-    function cancel(
-        address from,
-        uint256[] calldata tokenIds,
-        address receiver
-    ) external {
+    function cancel(address from, uint256[] calldata tokenIds, address receiver) external {
         if (msg.sender != _canceler) {
             revert Errors.CloberError(Errors.ACCESS);
         }
@@ -233,11 +205,7 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         CloberOrderBook(market).cancel(receiver, orderKeys);
     }
 
-    function _transfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal {
+    function _transfer(address from, address to, uint256 tokenId) internal {
         if (ownerOf(tokenId) != from) {
             revert Errors.CloberError(Errors.ACCESS);
         }
@@ -255,21 +223,15 @@ contract OrderNFT is ERC165, CloberOrderNFT {
         emit Transfer(from, to, tokenId);
     }
 
-    function _approve(
-        address tokenOwner,
-        address to,
-        uint256 tokenId
-    ) internal {
+    function _approve(address tokenOwner, address to, uint256 tokenId) internal {
         _tokenApprovals[tokenId] = to;
         emit Approval(tokenOwner, to, tokenId);
     }
 
-    function _checkOnERC721Received(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) private returns (bool) {
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory data)
+        private
+        returns (bool)
+    {
         if (to.isContract()) {
             try IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) returns (bytes4 retval) {
                 return retval == IERC721Receiver.onERC721Received.selector;

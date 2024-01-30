@@ -39,7 +39,7 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
     modifier flushNative() {
         _;
         if (address(this).balance > 0) {
-            (bool success, ) = msg.sender.call{value: address(this).balance}("");
+            (bool success,) = msg.sender.call{value: address(this).balance}("");
             if (!success) {
                 revert Errors.CloberError(Errors.FAILED_TO_SEND_VALUE);
             }
@@ -50,13 +50,10 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         _factory = CloberMarketFactory(factory);
     }
 
-    function cloberMarketSwapCallback(
-        address inputToken,
-        address,
-        uint256 inputAmount,
-        uint256,
-        bytes calldata data
-    ) external payable {
+    function cloberMarketSwapCallback(address inputToken, address, uint256 inputAmount, uint256, bytes calldata data)
+        external
+        payable
+    {
         // check if caller is registered market
         if (!isRegisteredMarket(msg.sender) && _factory.getMarketHost(msg.sender) == address(0)) {
             revert Errors.CloberError(Errors.ACCESS);
@@ -67,9 +64,8 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         // transfer input tokens
         if (useNative) {
             uint256 nativeAmount = address(this).balance - nativeToRemain;
-            (inputAmount, nativeAmount) = nativeAmount > inputAmount
-                ? (0, inputAmount)
-                : (inputAmount - nativeAmount, nativeAmount);
+            (inputAmount, nativeAmount) =
+                nativeAmount > inputAmount ? (0, inputAmount) : (inputAmount - nativeAmount, nativeAmount);
 
             IWETH(inputToken).deposit{value: nativeAmount}();
             IWETH(inputToken).transfer(msg.sender, nativeAmount);
@@ -121,20 +117,18 @@ contract MarketRouter is CloberMarketSwapCallbackReceiver, CloberRouter {
         return _limitOrder(params, isBid, 0);
     }
 
-    function _limitOrder(
-        LimitOrderParams calldata params,
-        bool isBid,
-        uint256 nativeToRemain
-    ) internal returns (uint256) {
-        return
-            CloberOrderBook(params.market).limitOrder{value: uint256(params.claimBounty) * 1 gwei}(
-                params.user,
-                params.priceIndex,
-                params.rawAmount,
-                params.baseAmount,
-                (isBid ? 1 : 0) + (params.postOnly ? 2 : 0),
-                abi.encode(msg.sender, params.useNative, nativeToRemain)
-            );
+    function _limitOrder(LimitOrderParams calldata params, bool isBid, uint256 nativeToRemain)
+        internal
+        returns (uint256)
+    {
+        return CloberOrderBook(params.market).limitOrder{value: uint256(params.claimBounty) * 1 gwei}(
+            params.user,
+            params.priceIndex,
+            params.rawAmount,
+            params.baseAmount,
+            (isBid ? 1 : 0) + (params.postOnly ? 2 : 0),
+            abi.encode(msg.sender, params.useNative, nativeToRemain)
+        );
     }
 
     function marketBid(MarketOrderParams calldata params) external payable checkDeadline(params.deadline) flushNative {

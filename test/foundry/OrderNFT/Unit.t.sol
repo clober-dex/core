@@ -13,6 +13,7 @@ import "./utils/MockERC721Receiver.sol";
 
 contract OrderNFTUnitTest is Test {
     using OrderKeyUtils for OrderKey;
+
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
     event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
@@ -485,11 +486,7 @@ contract OrderNFTUnitTest is Test {
         orderToken.cancel(user, tokenIds, receiver);
     }
 
-    function testEncodeAndDecode(
-        bool isBid,
-        uint16 priceIndex,
-        uint232 orderIndex
-    ) public {
+    function testEncodeAndDecode(bool isBid, uint16 priceIndex, uint232 orderIndex) public {
         OrderKey memory orderKey = OrderKey(isBid, priceIndex, orderIndex);
         uint256 id = orderToken.encodeId(orderKey);
         OrderKey memory decodedOrderKey = orderToken.decodeId(id);
@@ -514,12 +511,10 @@ contract OrderNFTUnitTest is Test {
         orderToken.decodeId(tokenId);
     }
 
-    function _mint(
-        address to,
-        bool isBid,
-        uint16 priceIndex,
-        uint232 orderIndex
-    ) internal returns (OrderKey memory orderKey) {
+    function _mint(address to, bool isBid, uint16 priceIndex, uint232 orderIndex)
+        internal
+        returns (OrderKey memory orderKey)
+    {
         orderKey = OrderKey(isBid, priceIndex, orderIndex);
         uint256 tokenId = orderToken.encodeId(orderKey);
         orderToken.onMint(to, tokenId);

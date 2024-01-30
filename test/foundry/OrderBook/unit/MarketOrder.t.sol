@@ -66,11 +66,11 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(orderBook), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(orderBook), type(uint256).max);
     }
@@ -147,7 +147,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
                     amountOut: amountOut,
                     refundBounty: 0
                 })
-            )
+                )
         });
         assertEq(baseToken.balanceOf(Constants.TAKER) - beforeTakerBaseBalance, amountOut, "ERROR_BASE_BALANCE");
         assertEq(orderBook.getDepth(Constants.ASK, Constants.PRICE_INDEX), 0, "ERROR_ORDER_AMOUNT");
@@ -213,10 +213,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         uint256 beforeTakerBaseBalance = baseToken.balanceOf(Constants.TAKER);
         {
             (uint256 inputAmount, uint256 outputAmount) = orderBook.getExpectedAmount(
-                Constants.PRICE_INDEX + 1,
-                0,
-                100,
-                _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT)
+                Constants.PRICE_INDEX + 1, 0, 100, _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT)
             );
             assertEq(inputAmount, 0, "ERROR_BASE_BALANCE");
             assertEq(outputAmount, 0, "ERROR_QUOTE_BALANCE");
@@ -235,7 +232,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
                     amountOut: 0,
                     refundBounty: 0
                 })
-            )
+                )
         });
         assertEq(baseToken.balanceOf(Constants.TAKER) - beforeTakerBaseBalance, 0, "ERROR_BASE_BALANCE");
         assertEq(orderBook.getDepth(Constants.ASK, Constants.PRICE_INDEX), 0, "ERROR_ORDER_AMOUNT");
@@ -246,12 +243,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
         orderBook.marketOrder(
-            address(this),
-            0,
-            0,
-            0,
-            _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT),
-            new bytes(0)
+            address(this), 0, 0, 0, _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT), new bytes(0)
         );
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
@@ -268,12 +260,12 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
     function testOverflowInBaseToRawOnTake() public {
         _createOrderBook(0, 0);
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), type(uint128).max * _quotePrecision);
         quoteToken.approve(address(this), type(uint256).max);
         orderBook.limitOrder(address(this), Constants.PRICE_INDEX, type(uint64).max - 1, 0, 1, new bytes(0));
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), type(uint128).max * _basePrecision);
         uint256 balance = baseToken.balanceOf(address(this));
         uint8 options = _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT);
@@ -295,7 +287,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), type(uint128).max * _quotePrecision);
         quoteToken.approve(address(this), type(uint256).max);
         orderBook.limitOrder(address(this), Constants.PRICE_INDEX, type(uint64).max - 1, 0, 1, new bytes(0));
@@ -390,10 +382,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
         _createPostOnlyOrder(Constants.ASK);
 
         (uint256 inputAmount, uint256 outputAmount) = orderBook.getExpectedAmount(
-            Constants.LIMIT_BID_PRICE,
-            0,
-            0,
-            _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT)
+            Constants.LIMIT_BID_PRICE, 0, 0, _buildMarketOrderOptions(Constants.BID, Constants.EXPEND_INPUT)
         );
         assertEq(inputAmount, 0, "ERROR_AMOUNT_IN");
         assertEq(outputAmount, 0, "ERROR_AMOUNT_OUT");
@@ -408,10 +397,7 @@ contract OrderBookMarketOrderUnitTest is Test, CloberMarketSwapCallbackReceiver 
 
         // this iterates over all price indices, instead of returning early as soon as `takenRawAmount == 0`
         (uint256 inputAmount, uint256 outputAmount) = orderBook.getExpectedAmount{gas: 100_000}(
-            1,
-            0,
-            1,
-            _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT)
+            1, 0, 1, _buildMarketOrderOptions(Constants.ASK, Constants.EXPEND_INPUT)
         );
         assertEq(inputAmount, 0, "ERROR_AMOUNT_IN");
         assertEq(outputAmount, 0, "ERROR_AMOUNT_OUT");

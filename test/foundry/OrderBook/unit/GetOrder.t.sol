@@ -13,11 +13,11 @@ import "../../../../contracts/OrderBook.sol";
 import "./Constants.sol";
 
 contract OrderBookGetOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
-    uint96 private constant _QUOTE_UNIT = 10**4; // unit is 1 USDC
+    uint96 private constant _QUOTE_UNIT = 10 ** 4; // unit is 1 USDC
     uint256 private constant _INIT_AMOUNT = 1000000000;
     address private constant _MAKER = address(0x12312);
     address private constant _MAKER2 = address(0x1231223);
-    uint256 private constant _MAX_ORDER = 2**15; // 32768
+    uint256 private constant _MAX_ORDER = 2 ** 15; // 32768
     uint16 private constant _PRICE_INDEX = 100;
     uint16 private constant _RAW_AMOUNT = 1000;
 
@@ -28,13 +28,10 @@ contract OrderBookGetOrderUnitTest is Test, CloberMarketSwapCallbackReceiver {
 
     uint256 orderIndex;
 
-    function cloberMarketSwapCallback(
-        address tokenIn,
-        address,
-        uint256 amountIn,
-        uint256,
-        bytes calldata
-    ) external payable {
+    function cloberMarketSwapCallback(address tokenIn, address, uint256 amountIn, uint256, bytes calldata)
+        external
+        payable
+    {
         IERC20(tokenIn).transfer(msg.sender, amountIn);
     }
 

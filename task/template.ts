@@ -7,11 +7,7 @@ import { Deployer } from '../utils/Deployer'
 export const deployerTask = (
   name: string,
   description: string,
-  action: (
-    taskArgs: any,
-    hre: HardhatRuntimeEnvironment,
-    deployer: Deployer,
-  ) => Promise<any>,
+  action: (taskArgs: any, hre: HardhatRuntimeEnvironment, deployer: Deployer) => Promise<any>,
 ): ConfigurableTaskDefinition => {
   return task(name, description).setAction(async (taskArgs, hre) => {
     await hre.run('compile')

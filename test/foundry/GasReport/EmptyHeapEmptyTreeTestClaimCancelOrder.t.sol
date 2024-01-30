@@ -85,12 +85,7 @@ contract EmptyHeapEmptyTreeTestClaimCancelOrderGasReport is Test {
 
         vm.revertTo(snapshotId);
         snapshotId = vm.snapshot();
-        orderBookUtils.claimOrder(
-            false,
-            PRICE_INDEX_ASK,
-            partiallyFilledAskOrderId,
-            gasReporter.EHET_PartiallyClaimAsk
-        );
+        orderBookUtils.claimOrder(false, PRICE_INDEX_ASK, partiallyFilledAskOrderId, gasReporter.EHET_PartiallyClaimAsk);
 
         vm.revertTo(snapshotId);
         snapshotId = vm.snapshot();
@@ -103,21 +98,13 @@ contract EmptyHeapEmptyTreeTestClaimCancelOrderGasReport is Test {
         vm.revertTo(snapshotId);
         snapshotId = vm.snapshot();
         orderBookUtils.cancelOrder(
-            MAKER,
-            true,
-            PRICE_INDEX_BID,
-            partiallyFilledBidOrderId,
-            gasReporter.EHET_PartiallyCancelBid
+            MAKER, true, PRICE_INDEX_BID, partiallyFilledBidOrderId, gasReporter.EHET_PartiallyCancelBid
         );
 
         vm.revertTo(snapshotId);
         snapshotId = vm.snapshot();
         orderBookUtils.cancelOrder(
-            MAKER,
-            false,
-            PRICE_INDEX_ASK,
-            partiallyFilledAskOrderId,
-            gasReporter.EHET_PartiallyCancelAsk
+            MAKER, false, PRICE_INDEX_ASK, partiallyFilledAskOrderId, gasReporter.EHET_PartiallyCancelAsk
         );
     }
 }

@@ -15,7 +15,7 @@ import "../utils/MockReentrancyGuard.sol";
 import "./Constants.sol";
 
 contract OrderBookCallTypeUnitTest is Test {
-    uint96 private constant _QUOTE_UNIT = 10**4; // unit is 1 USDC
+    uint96 private constant _QUOTE_UNIT = 10 ** 4; // unit is 1 USDC
 
     address proxy;
 

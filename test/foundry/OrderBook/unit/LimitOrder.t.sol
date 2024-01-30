@@ -16,6 +16,7 @@ import "./Constants.sol";
 
 contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, MockingFactoryTest {
     using OrderKeyUtils for OrderKey;
+
     event MakeOrder(
         address indexed payer,
         address indexed user,
@@ -78,7 +79,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -86,11 +87,11 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(orderBook), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(orderBook), type(uint256).max);
     }
@@ -138,8 +139,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
         vm.expectCall(
             address(orderToken),
             abi.encodeCall(
-                CloberOrderNFT.onMint,
-                (Constants.MAKER, OrderKey(Constants.BID, Constants.PRICE_INDEX, 0).encode())
+                CloberOrderNFT.onMint, (Constants.MAKER, OrderKey(Constants.BID, Constants.PRICE_INDEX, 0).encode())
             )
         );
         vm.expectEmit(true, true, true, true);
@@ -168,7 +168,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
                     amountOut: 0,
                     refundBounty: 0
                 })
-            )
+                )
         });
         assertEq(orderIndex, 0);
         assertFalse(orderBook.isEmpty(Constants.BID), "ERROR_EMPTY");
@@ -180,9 +180,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             "ERROR_CLAIM_BOUNTY"
         );
         assertEq(
-            vars.beforePayerQuoteBalance - quoteToken.balanceOf(address(this)),
-            vars.inputAmount,
-            "ERROR_QUOTE_BALANCE"
+            vars.beforePayerQuoteBalance - quoteToken.balanceOf(address(this)), vars.inputAmount, "ERROR_QUOTE_BALANCE"
         );
         assertEq(
             orderToken.ownerOf(orderToken.encodeId(OrderKey(Constants.BID, Constants.PRICE_INDEX, 0))),
@@ -217,7 +215,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
                     amountOut: vars.outputAmount,
                     refundBounty: 0
                 })
-            )
+                )
         });
         assertEq(orderIndex, type(uint256).max);
         assertEq(orderBook.getDepth(Constants.BID, Constants.PRICE_INDEX), 0, "ERROR_ORDER_AMOUNT");
@@ -227,9 +225,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             "ERROR_QUOTE_BALANCE"
         );
         assertEq(
-            vars.beforePayerBaseBalance - baseToken.balanceOf(address(this)),
-            vars.inputAmount,
-            "ERROR_BASE_BALANCE"
+            vars.beforePayerBaseBalance - baseToken.balanceOf(address(this)), vars.inputAmount, "ERROR_BASE_BALANCE"
         );
     }
 
@@ -260,7 +256,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
     function testOverflowInBaseToRawOnMake() public {
         _createOrderBook(0, 0);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), type(uint128).max * _basePrecision);
         uint256 balance = baseToken.balanceOf(address(this));
         uint8 options = _buildLimitOrderOptions(Constants.ASK, !Constants.POST_ONLY);
@@ -271,7 +267,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
     function testOverflowInBaseToRawOnTake() public {
         _createOrderBook(0, 0);
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), type(uint128).max * _quotePrecision);
         quoteToken.approve(address(this), type(uint256).max);
         orderBook.limitOrder(
@@ -283,7 +279,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             new bytes(0)
         );
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), type(uint128).max * _basePrecision);
         uint256 balance = baseToken.balanceOf(address(this));
         uint8 options = _buildLimitOrderOptions(Constants.ASK, !Constants.POST_ONLY);
@@ -372,8 +368,7 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
 
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
         orderBook.changeOrderOwner(
-            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: 0}),
-            address(this)
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: 0}), address(this)
         );
     }
 
@@ -383,17 +378,14 @@ contract OrderBookLimitOrderUnitTest is Test, CloberMarketSwapCallbackReceiver, 
         _createPostOnlyOrder(Constants.BID);
 
         assertEq(
-            orderToken.ownerOf(orderToken.encodeId(OrderKey(Constants.BID, Constants.PRICE_INDEX, 0))),
-            Constants.MAKER
+            orderToken.ownerOf(orderToken.encodeId(OrderKey(Constants.BID, Constants.PRICE_INDEX, 0))), Constants.MAKER
         );
         vm.prank(address(orderToken));
         orderBook.changeOrderOwner(
-            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: 0}),
-            address(this)
+            OrderKey({isBid: Constants.BID, priceIndex: Constants.PRICE_INDEX, orderIndex: 0}), address(this)
         );
         assertEq(
-            orderToken.ownerOf(orderToken.encodeId(OrderKey(Constants.BID, Constants.PRICE_INDEX, 0))),
-            address(this)
+            orderToken.ownerOf(orderToken.encodeId(OrderKey(Constants.BID, Constants.PRICE_INDEX, 0))), address(this)
         );
     }
 

@@ -8,8 +8,8 @@ import "../../../../contracts/GeometricPriceBook.sol";
 
 contract GeometricPriceBookIntegrationTest is Test {
     function testCoefficients(uint128 a, uint128 r) public {
-        vm.assume(a < 3 * 10**38 && r < 3 * 10**38);
-        if ((uint256(r) * a) / 10**18 <= a) {
+        vm.assume(a < 3 * 10 ** 38 && r < 3 * 10 ** 38);
+        if ((uint256(r) * a) / 10 ** 18 <= a) {
             vm.expectRevert();
             new GeometricPriceBook(a, r);
         } else {
@@ -28,8 +28,8 @@ contract GeometricPriceBookIntegrationTest is Test {
     }
 
     function testCoefficients() public {
-        _testCoefficients(1000000, 100001 * 10**13);
-        _testCoefficients(1, 2 * 10**18);
-        _testCoefficients(10**5, 10001 * 10**14);
+        _testCoefficients(1000000, 100001 * 10 ** 13);
+        _testCoefficients(1, 2 * 10 ** 18);
+        _testCoefficients(10 ** 5, 10001 * 10 ** 14);
     }
 }
