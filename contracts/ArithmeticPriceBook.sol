@@ -29,8 +29,12 @@ contract ArithmeticPriceBook is CloberPriceBook {
         return _a + _d * priceIndex;
     }
 
-    function priceToIndex(uint256 price, bool roundingUp) external view returns (uint16 index, uint256 correctedPrice) {
-        if (price < _a || price >= _a + _d * (2**16)) {
+    function priceToIndex(uint256 price, bool roundingUp)
+        external
+        view
+        returns (uint16 index, uint256 correctedPrice)
+    {
+        if (price < _a || price >= _a + _d * (2 ** 16)) {
             revert Errors.CloberError(Errors.INVALID_PRICE);
         }
         index = uint16((price - _a) / _d);

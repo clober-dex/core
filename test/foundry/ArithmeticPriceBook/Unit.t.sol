@@ -8,8 +8,8 @@ import "forge-std/Test.sol";
 import "../../../contracts/ArithmeticPriceBook.sol";
 
 contract ArithmeticPriceBookUnitTest is Test {
-    uint128 public constant A = 10**14;
-    uint128 public constant D = 10**14;
+    uint128 public constant A = 10 ** 14;
+    uint128 public constant D = 10 ** 14;
 
     ArithmeticPriceBook priceBook;
 
@@ -23,11 +23,7 @@ contract ArithmeticPriceBookUnitTest is Test {
         assertEq(priceBook.indexToPrice(type(uint16).max), A + type(uint16).max * D);
     }
 
-    function _testPriceToIndex(
-        uint256 price,
-        bool roundingUp,
-        uint16 expectedIndex
-    ) private {
+    function _testPriceToIndex(uint256 price, bool roundingUp, uint16 expectedIndex) private {
         (uint16 priceIndex, uint256 correctedPrice) = priceBook.priceToIndex(price, roundingUp);
         assertEq(priceIndex, expectedIndex);
         assertEq(correctedPrice, priceBook.indexToPrice(expectedIndex));
@@ -52,11 +48,11 @@ contract ArithmeticPriceBookUnitTest is Test {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
         priceBook.priceToIndex(A - 1, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(A + (2**16) * D, true);
+        priceBook.priceToIndex(A + (2 ** 16) * D, true);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(A + (2**16) * D, false);
+        priceBook.priceToIndex(A + (2 ** 16) * D, false);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_PRICE));
-        priceBook.priceToIndex(A + (2**16) * D - 1, true);
+        priceBook.priceToIndex(A + (2 ** 16) * D - 1, true);
     }
 
     function testPriceUpperBound() public {

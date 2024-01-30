@@ -16,9 +16,8 @@ contract OrderNFTDeployer is CloberOrderNFTDeployer {
     constructor(address factory_, address canceler_) {
         _factory = factory_;
         _canceler = canceler_;
-        _orderTokenBytecodeHash = keccak256(
-            abi.encodePacked(type(OrderNFT).creationCode, abi.encode(factory_, canceler_))
-        );
+        _orderTokenBytecodeHash =
+            keccak256(abi.encodePacked(type(OrderNFT).creationCode, abi.encode(factory_, canceler_)));
     }
 
     function deploy(bytes32 salt) external returns (address) {

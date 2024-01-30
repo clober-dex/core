@@ -4,11 +4,7 @@
 pragma solidity ^0.8.0;
 
 contract MockOrderNFT {
-    function cancel(
-        address from,
-        uint256[] calldata tokenIds,
-        address canceledAssetReceiver
-    ) external pure {
+    function cancel(address from, uint256[] calldata tokenIds, address canceledAssetReceiver) external pure {
         from;
         tokenIds;
         canceledAssetReceiver;

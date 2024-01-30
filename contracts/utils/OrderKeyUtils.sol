@@ -11,11 +11,7 @@ library OrderKeyUtils {
         return encode(orderKey.isBid, orderKey.priceIndex, orderKey.orderIndex);
     }
 
-    function encode(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) internal pure returns (uint256 id) {
+    function encode(bool isBid, uint16 priceIndex, uint256 orderIndex) internal pure returns (uint256 id) {
         if (orderIndex > type(uint232).max) {
             revert Errors.CloberError(Errors.INVALID_ID);
         }

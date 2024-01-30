@@ -11,7 +11,7 @@ library Constants {
     uint24 public constant MAKE_FEE = 400;
     uint24 public constant DAO_FEE = 200000; // 20%
     uint256 public constant FEE_PRECISION = 1000000; // 1 = 0.0001%
-    uint256 public constant PRICE_PRECISION = 10**18;
+    uint256 public constant PRICE_PRECISION = 10 ** 18;
     uint256 public constant CLAIM_BOUNTY = 100; // in gwei unit
     uint64 public constant RAW_AMOUNT = 10;
     uint16 public constant PRICE_INDEX = 3;

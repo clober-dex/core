@@ -30,5 +30,8 @@ interface CloberPriceBook {
      * @return index The price book index.
      * @return correctedPrice The actual price for the price book index.
      */
-    function priceToIndex(uint256 price, bool roundingUp) external view returns (uint16 index, uint256 correctedPrice);
+    function priceToIndex(uint256 price, bool roundingUp)
+        external
+        view
+        returns (uint16 index, uint256 correctedPrice);
 }

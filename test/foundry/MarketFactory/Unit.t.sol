@@ -79,8 +79,8 @@ contract MarketFactoryUnitTest is Test {
     }
 
     function testCreateVolatileMarket() public {
-        uint128 a = 10**10;
-        uint128 r = 1001 * 10**15;
+        uint128 a = 10 ** 10;
+        uint128 r = 1001 * 10 ** 15;
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
@@ -128,8 +128,8 @@ contract MarketFactoryUnitTest is Test {
         CloberMarketFactory.MarketInfo memory marketInfo = factory.getMarketInfo(address(market));
         assertEq(marketInfo.host, address(this), "MARKET_INFO_HOST");
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.VOLATILE), "MARKET_INFO_TYPE");
-        assertEq(marketInfo.a, 10**10, "MARKET_INFO_A");
-        assertEq(marketInfo.factor, 1001 * 10**15, "MARKET_INFO_FACTOR");
+        assertEq(marketInfo.a, 10 ** 10, "MARKET_INFO_A");
+        assertEq(marketInfo.factor, 1001 * 10 ** 15, "MARKET_INFO_FACTOR");
         assert(factory.deployedGeometricPriceBook(a, r) != address(0));
         assert(factory.deployedGeometricPriceBook(a, r) == priceBookDeployer.computeGeometricPriceBookAddress(a, r));
         assertEq(factory.deployedGeometricPriceBook(a, r + 1), address(0));
@@ -138,14 +138,7 @@ contract MarketFactoryUnitTest is Test {
     function testCreateVolatileMarketViaDelegateCall() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DELEGATE_CALL));
         CloberMarketFactory(proxy).createVolatileMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
     }
 
@@ -153,25 +146,11 @@ contract MarketFactoryUnitTest is Test {
         // invalid makerFee
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            int24(MAX_FEE + 1),
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(this), quoteToken, baseToken, QUOTE_UNIT, int24(MAX_FEE + 1), TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MIN_FEE - 1,
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MIN_FEE - 1, TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
@@ -181,23 +160,18 @@ contract MarketFactoryUnitTest is Test {
             QUOTE_UNIT,
             -int24(TAKER_FEE + 1),
             TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            10 ** 10,
+            1001 * 10 ** 15
         );
         // invalid takerFee
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            MAX_FEE + 1,
-            10**10,
-            1001 * 10**15
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, MAX_FEE + 1, 10 ** 10, 1001 * 10 ** 15
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
-        factory.createVolatileMarket(address(0x123), quoteToken, baseToken, QUOTE_UNIT, -20, 19, 10**10, 1001 * 10**15);
+        factory.createVolatileMarket(
+            address(0x123), quoteToken, baseToken, QUOTE_UNIT, -20, 19, 10 ** 10, 1001 * 10 ** 15
+        );
     }
 
     function testCreateVolatileMarketTooLessNetFee() public {
@@ -209,8 +183,8 @@ contract MarketFactoryUnitTest is Test {
             QUOTE_UNIT,
             -int24(_VOLATILE_MIN_NET_FEE),
             _VOLATILE_MIN_NET_FEE,
-            10**10,
-            1001 * 10**15
+            10 ** 10,
+            1001 * 10 ** 15
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
@@ -220,19 +194,12 @@ contract MarketFactoryUnitTest is Test {
             QUOTE_UNIT,
             int24(_VOLATILE_MIN_NET_FEE - 1),
             0,
-            10**10,
-            1001 * 10**15
+            10 ** 10,
+            1001 * 10 ** 15
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createVolatileMarket(
-            address(0x123),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            0,
-            _VOLATILE_MIN_NET_FEE - 1,
-            10**10,
-            1001 * 10**15
+            address(0x123), quoteToken, baseToken, QUOTE_UNIT, 0, _VOLATILE_MIN_NET_FEE - 1, 10 ** 10, 1001 * 10 ** 15
         );
     }
 
@@ -240,7 +207,7 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        address expectedPriceBookAddress = priceBookDeployer.computeGeometricPriceBookAddress(10**10, 1001 * 10**15);
+        address expectedPriceBookAddress = priceBookDeployer.computeGeometricPriceBookAddress(10 ** 10, 1001 * 10 ** 15);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -250,14 +217,7 @@ contract MarketFactoryUnitTest is Test {
         );
         CloberOrderBook market = CloberOrderBook(
             factory.createVolatileMarket(
-                address(this),
-                quoteToken,
-                baseToken,
-                QUOTE_UNIT,
-                10,
-                10,
-                10**10,
-                1001 * 10**15
+                address(this), quoteToken, baseToken, QUOTE_UNIT, 10, 10, 10 ** 10, 1001 * 10 ** 15
             )
         );
         assertEq(market.quoteToken(), quoteToken, "MARKET_QUOTE_TOKEN");
@@ -270,41 +230,27 @@ contract MarketFactoryUnitTest is Test {
         CloberMarketFactory.MarketInfo memory marketInfo = factory.getMarketInfo(address(market));
         assertEq(marketInfo.host, address(this), "MARKET_INFO_HOST");
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.VOLATILE), "MARKET_INFO_TYPE");
-        assertEq(marketInfo.a, 10**10, "MARKET_INFO_A");
-        assertEq(marketInfo.factor, 1001 * 10**15, "MARKET_INFO_FACTOR");
+        assertEq(marketInfo.a, 10 ** 10, "MARKET_INFO_A");
+        assertEq(marketInfo.factor, 1001 * 10 ** 15, "MARKET_INFO_FACTOR");
     }
 
     function testCreateVolatileMarketWhenHostIsZeroAddress() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
         factory.createVolatileMarket(
-            address(0),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(0), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
     }
 
     function testCreateVolatileMarketWithUnregisteredQuoteToken() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_QUOTE_TOKEN));
         factory.createVolatileMarket(
-            address(this),
-            address(0x123),
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(this), address(0x123), baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
     }
 
     function testCreateStableMarket() public {
-        uint128 a = 10**14;
-        uint128 d = 10**14;
+        uint128 a = 10 ** 14;
+        uint128 d = 10 ** 14;
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
@@ -352,8 +298,8 @@ contract MarketFactoryUnitTest is Test {
         CloberMarketFactory.MarketInfo memory marketInfo = factory.getMarketInfo(address(market));
         assertEq(marketInfo.host, address(this), "MARKET_INFO_HOST");
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.STABLE), "MARKET_INFO_TYPE");
-        assertEq(marketInfo.a, 10**14, "MARKET_INFO_A");
-        assertEq(marketInfo.factor, 10**14, "MARKET_INFO_FACTOR");
+        assertEq(marketInfo.a, 10 ** 14, "MARKET_INFO_A");
+        assertEq(marketInfo.factor, 10 ** 14, "MARKET_INFO_FACTOR");
         assert(factory.deployedArithmeticPriceBook(a, d) != address(0));
         assert(factory.deployedArithmeticPriceBook(a, d) == priceBookDeployer.computeArithmeticPriceBookAddress(a, d));
         assertEq(factory.deployedArithmeticPriceBook(a, d + 1), address(0));
@@ -362,14 +308,7 @@ contract MarketFactoryUnitTest is Test {
     function testCreateStableMarketViaDelegateCall() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.DELEGATE_CALL));
         CloberMarketFactory(proxy).createStableMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**14,
-            10**14
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 14, 10 ** 14
         );
     }
 
@@ -377,51 +316,23 @@ contract MarketFactoryUnitTest is Test {
         // invalid makerFee
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            int24(MAX_FEE + 1),
-            TAKER_FEE,
-            10**14,
-            10**14
+            address(this), quoteToken, baseToken, QUOTE_UNIT, int24(MAX_FEE + 1), TAKER_FEE, 10 ** 14, 10 ** 14
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MIN_FEE - 1,
-            TAKER_FEE,
-            10**14,
-            10**14
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MIN_FEE - 1, TAKER_FEE, 10 ** 14, 10 ** 14
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            -int24(TAKER_FEE + 1),
-            TAKER_FEE,
-            10**14,
-            10**14
+            address(this), quoteToken, baseToken, QUOTE_UNIT, -int24(TAKER_FEE + 1), TAKER_FEE, 10 ** 14, 10 ** 14
         );
         // invalid takerFee
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            MAX_FEE + 1,
-            10**14,
-            10**14
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, MAX_FEE + 1, 10 ** 14, 10 ** 14
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
-        factory.createStableMarket(address(0x123), quoteToken, baseToken, QUOTE_UNIT, -20, 19, 10**14, 10**14);
+        factory.createStableMarket(address(0x123), quoteToken, baseToken, QUOTE_UNIT, -20, 19, 10 ** 14, 10 ** 14);
     }
 
     function testCreateStableMarketTooLessNetFee() public {
@@ -433,30 +344,16 @@ contract MarketFactoryUnitTest is Test {
             QUOTE_UNIT,
             -int24(_STABLE_MIN_NET_FEE),
             _STABLE_MIN_NET_FEE,
-            10**14,
-            10**14
+            10 ** 14,
+            10 ** 14
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(0x123),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            int24(_STABLE_MIN_NET_FEE - 1),
-            0,
-            10**14,
-            10**14
+            address(0x123), quoteToken, baseToken, QUOTE_UNIT, int24(_STABLE_MIN_NET_FEE - 1), 0, 10 ** 14, 10 ** 14
         );
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_FEE));
         factory.createStableMarket(
-            address(0x123),
-            quoteToken,
-            baseToken,
-            QUOTE_UNIT,
-            0,
-            _STABLE_MIN_NET_FEE - 1,
-            10**14,
-            10**14
+            address(0x123), quoteToken, baseToken, QUOTE_UNIT, 0, _STABLE_MIN_NET_FEE - 1, 10 ** 14, 10 ** 14
         );
     }
 
@@ -464,7 +361,7 @@ contract MarketFactoryUnitTest is Test {
         uint256 currentNonce = factory.nonce();
         bytes32 salt = keccak256(abi.encode(block.chainid, currentNonce));
         address expectedOrderTokenAddress = orderTokenDeployer.computeTokenAddress(salt);
-        address expectedPriceBookAddress = priceBookDeployer.computeArithmeticPriceBookAddress(10**14, 10**14);
+        address expectedPriceBookAddress = priceBookDeployer.computeArithmeticPriceBookAddress(10 ** 14, 10 ** 14);
         vm.expectCall(
             address(marketDeployer),
             abi.encodeCall(
@@ -473,7 +370,7 @@ contract MarketFactoryUnitTest is Test {
             )
         );
         CloberOrderBook market = CloberOrderBook(
-            factory.createStableMarket(address(this), quoteToken, baseToken, QUOTE_UNIT, 10, 10, 10**14, 10**14)
+            factory.createStableMarket(address(this), quoteToken, baseToken, QUOTE_UNIT, 10, 10, 10 ** 14, 10 ** 14)
         );
         assertEq(market.quoteToken(), quoteToken, "MARKET_QUOTE_TOKEN");
         assertEq(market.baseToken(), baseToken, "MARKET_BASE_TOKEN");
@@ -485,26 +382,21 @@ contract MarketFactoryUnitTest is Test {
         CloberMarketFactory.MarketInfo memory marketInfo = factory.getMarketInfo(address(market));
         assertEq(marketInfo.host, address(this), "MARKET_INFO_HOST");
         assertEq(uint256(marketInfo.marketType), uint256(CloberMarketFactory.MarketType.STABLE), "MARKET_INFO_TYPE");
-        assertEq(marketInfo.a, 10**14, "MARKET_INFO_A");
-        assertEq(marketInfo.factor, 10**14, "MARKET_INFO_FACTOR");
+        assertEq(marketInfo.a, 10 ** 14, "MARKET_INFO_A");
+        assertEq(marketInfo.factor, 10 ** 14, "MARKET_INFO_FACTOR");
     }
 
     function testCreateStableMarketWhenHostIsZeroAddress() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
-        factory.createStableMarket(address(0), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10**14, 10**14);
+        factory.createStableMarket(
+            address(0), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 14, 10 ** 14
+        );
     }
 
     function testCreateStableMarketWithUnregisteredQuoteToken() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.INVALID_QUOTE_TOKEN));
         factory.createStableMarket(
-            address(0),
-            address(0x123),
-            baseToken,
-            QUOTE_UNIT,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**14,
-            10**14
+            address(0), address(0x123), baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 14, 10 ** 14
         );
     }
 
@@ -565,17 +457,9 @@ contract MarketFactoryUnitTest is Test {
     }
 
     function _createMarket() internal returns (address) {
-        return
-            factory.createStableMarket(
-                address(this),
-                quoteToken,
-                baseToken,
-                QUOTE_UNIT,
-                MAKER_FEE,
-                TAKER_FEE,
-                10**14,
-                10**14
-            );
+        return factory.createStableMarket(
+            address(this), quoteToken, baseToken, QUOTE_UNIT, MAKER_FEE, TAKER_FEE, 10 ** 14, 10 ** 14
+        );
     }
 
     function testPrepareHandOverHost() public {
@@ -663,30 +547,23 @@ contract MarketFactoryUnitTest is Test {
 
     function testZeroQuoteUnit() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
-        factory.createStableMarket(address(this), quoteToken, baseToken, 0, MAKER_FEE, TAKER_FEE, 10**14, 10**14);
+        factory.createStableMarket(address(this), quoteToken, baseToken, 0, MAKER_FEE, TAKER_FEE, 10 ** 14, 10 ** 14);
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.EMPTY_INPUT));
         factory.createVolatileMarket(
-            address(this),
-            quoteToken,
-            baseToken,
-            0,
-            MAKER_FEE,
-            TAKER_FEE,
-            10**10,
-            1001 * 10**15
+            address(this), quoteToken, baseToken, 0, MAKER_FEE, TAKER_FEE, 10 ** 10, 1001 * 10 ** 15
         );
     }
 
     function testDeployArithmeticPriceBookAccess() public {
         vm.prank(address(0x123));
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        priceBookDeployer.deployArithmeticPriceBook(10**14, 10**14);
+        priceBookDeployer.deployArithmeticPriceBook(10 ** 14, 10 ** 14);
     }
 
     function testDeployGeometricPriceBookAccess() public {
         vm.prank(address(0x123));
         vm.expectRevert(abi.encodeWithSelector(Errors.CloberError.selector, Errors.ACCESS));
-        priceBookDeployer.deployGeometricPriceBook(10**10, 1001 * 10**15);
+        priceBookDeployer.deployGeometricPriceBook(10 ** 10, 1001 * 10 ** 15);
     }
 
     function testDeployOrderTokenAccess() public {

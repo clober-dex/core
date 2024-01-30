@@ -8,22 +8,14 @@ import "forge-std/Test.sol";
 import "../../../contracts/utils/Math.sol";
 
 contract MathLibraryUnitTest is Test {
-    function divide(
-        uint256 a,
-        uint256 b,
-        bool roundingUp
-    ) internal pure returns (uint256 ret) {
+    function divide(uint256 a, uint256 b, bool roundingUp) internal pure returns (uint256 ret) {
         ret = a / b;
         if (roundingUp && a % b > 0) {
             ++ret;
         }
     }
 
-    function testDivide(
-        uint256 a,
-        uint256 b,
-        bool roundingUp
-    ) public {
+    function testDivide(uint256 a, uint256 b, bool roundingUp) public {
         vm.assume(0 < b);
 
         assertEq(Math.divide(a, b, roundingUp), divide(a, b, roundingUp), "DIVIDE_WITH_ROUNDING");

@@ -17,7 +17,7 @@ import "./Constants.sol";
 contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, CloberMarketFlashCallbackReceiver {
     address constant FEE_RECEIVER = address(0xfee);
 
-    uint96 internal constant _QUOTE_UNIT = 10**4; // unit is 1 USDC
+    uint96 internal constant _QUOTE_UNIT = 10 ** 4; // unit is 1 USDC
     uint256 internal constant _INIT_AMOUNT = 1000000000;
 
     MockQuoteToken quoteToken;
@@ -45,7 +45,7 @@ contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, 
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
             address(this),
@@ -54,11 +54,11 @@ contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, 
         orderToken.init("", "", address(market));
 
         // mint & approve
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(market), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(market), type(uint256).max);
     }
@@ -126,27 +126,33 @@ contract OrderBookReentrancyUnitTest is Test, CloberMarketSwapCallbackReceiver, 
 
     receive() external payable {
         if (receiveStatus == 1) {
-            try market.limitOrder(address(this), 10, 0, 1000, 0, new bytes(0)) {} catch (bytes memory reason) {
+            try market.limitOrder(address(this), 10, 0, 1000, 0, new bytes(0)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         } else if (receiveStatus == 2) {
-            try market.marketOrder(address(this), 0, 0, 0, 0, new bytes(0)) {} catch (bytes memory reason) {
+            try market.marketOrder(address(this), 0, 0, 0, 0, new bytes(0)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         } else if (receiveStatus == 3) {
-            try market.claim(address(this), new OrderKey[](0)) {} catch (bytes memory reason) {
+            try market.claim(address(this), new OrderKey[](0)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         } else if (receiveStatus == 4) {
-            try market.cancel(address(this), new OrderKey[](0)) {} catch (bytes memory reason) {
+            try market.cancel(address(this), new OrderKey[](0)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         } else if (receiveStatus == 5) {
-            try market.flash(address(this), 0, 0, new bytes(0)) {} catch (bytes memory reason) {
+            try market.flash(address(this), 0, 0, new bytes(0)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         } else if (receiveStatus == 6) {
-            try market.collectFees(address(quoteToken), address(this)) {} catch (bytes memory reason) {
+            try market.collectFees(address(quoteToken), address(this)) {}
+            catch (bytes memory reason) {
                 receiveErr = reason;
             }
         }

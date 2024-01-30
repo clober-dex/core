@@ -59,11 +59,7 @@ const getMainnetPrivateKey = () => {
     if (arg === '--network') {
       network = parseInt(process.argv[parseInt(i) + 1])
       if (network.toString() in chainIdMap && ok !== 'Y') {
-        ok = readlineSync.question(
-          `You are trying to use ${
-            chainIdMap[network.toString()]
-          } network [Y/n] : `,
-        )
+        ok = readlineSync.question(`You are trying to use ${chainIdMap[network.toString()]} network [Y/n] : `)
         if (ok !== 'Y') {
           throw new Error('Network not allowed')
         }
@@ -71,12 +67,7 @@ const getMainnetPrivateKey = () => {
     }
   }
 
-  const prodNetworks = new Set<number>([
-    mainnet.id,
-    polygon.id,
-    arbitrum.id,
-    polygonZkEvm.id,
-  ])
+  const prodNetworks = new Set<number>([mainnet.id, polygon.id, arbitrum.id, polygonZkEvm.id])
   if (network && prodNetworks.has(network)) {
     if (privateKey) {
       return privateKey
@@ -89,11 +80,9 @@ const getMainnetPrivateKey = () => {
     })
     if (PASSWORD !== '') {
       const keyObject = JSON.parse(fs.readFileSync(KEYSTORE).toString())
-      privateKey =
-        '0x' + keythereum.recover(PASSWORD, keyObject).toString('hex')
+      privateKey = '0x' + keythereum.recover(PASSWORD, keyObject).toString('hex')
     } else {
-      privateKey =
-        '0x0000000000000000000000000000000000000000000000000000000000000001'
+      privateKey = '0x0000000000000000000000000000000000000000000000000000000000000001'
     }
     return privateKey
   }
@@ -195,10 +184,7 @@ const config: HardhatConfig = {
     [arbitrumGoerli.id]: {
       url: arbitrumGoerli.rpcUrls.default.http[0],
       chainId: arbitrumGoerli.id,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
+      accounts: process.env.DEV_PRIVATE_KEY !== undefined ? [process.env.DEV_PRIVATE_KEY] : [],
       gas: 'auto',
       gasPrice: 'auto',
       gasMultiplier: 1,
@@ -212,10 +198,7 @@ const config: HardhatConfig = {
     [polygonZkEvmTestnet.id]: {
       url: polygonZkEvmTestnet.rpcUrls.default.http[0],
       chainId: polygonZkEvmTestnet.id,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
+      accounts: process.env.DEV_PRIVATE_KEY !== undefined ? [process.env.DEV_PRIVATE_KEY] : [],
       gas: 10000000,
       gasPrice: 100000000000,
       gasMultiplier: 1.5,
@@ -229,10 +212,7 @@ const config: HardhatConfig = {
     [skaleEuropaTestnet.id]: {
       url: skaleEuropaTestnet.rpcUrls.default.http[0],
       chainId: skaleEuropaTestnet.id,
-      accounts:
-        process.env.DEV_PRIVATE_KEY !== undefined
-          ? [process.env.DEV_PRIVATE_KEY]
-          : [],
+      accounts: process.env.DEV_PRIVATE_KEY !== undefined ? [process.env.DEV_PRIVATE_KEY] : [],
       gas: 10000000,
       gasPrice: 100000000000,
       gasMultiplier: 1,
@@ -262,8 +242,7 @@ const config: HardhatConfig = {
         },
       },
       accounts: {
-        mnemonic:
-          'loop curious foster tank depart vintage regret net frozen version expire vacant there zebra world',
+        mnemonic: 'loop curious foster tank depart vintage regret net frozen version expire vacant there zebra world',
         initialIndex: 0,
         count: 10,
         path: "m/44'/60'/0'/0",

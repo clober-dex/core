@@ -18,8 +18,8 @@ import "../../OrderBook.sol";
 contract GasReporter {
     using SafeERC20 for IERC20;
 
-    uint256 private constant _PRICE_PRECISION = 10**18;
-    uint256 private constant _QUOTE_PRECISION_COMPLEMENT = 10**12; // 10**(18 - d)
+    uint256 private constant _PRICE_PRECISION = 10 ** 18;
+    uint256 private constant _QUOTE_PRECISION_COMPLEMENT = 10 ** 12; // 10**(18 - d)
     uint256 private constant _BASE_PRECISION_COMPLEMENT = 1; // 10**(18 - d)
     uint256 private constant _QUOTE_UNIT = 10000;
 
@@ -28,60 +28,51 @@ contract GasReporter {
     CloberMarketFactory private immutable _factory;
     OrderCanceler private immutable _orderCanceler;
 
-    constructor(
-        address marketRouter,
-        address orderCanceler,
-        address market,
-        address factory
-    ) {
+    constructor(address marketRouter, address orderCanceler, address market, address factory) {
         _marketRouter = CloberRouter(marketRouter);
         _market = OrderBook(market);
         _orderCanceler = OrderCanceler(orderCanceler);
         _factory = CloberMarketFactory(factory);
     }
 
-    function limitBidOrder(
-        address user,
-        uint16 priceIndex,
-        uint64 rawAmount,
-        bool postOnly
-    ) public payable returns (uint256) {
-        return
-            _marketRouter.limitBid{value: msg.value}(
-                CloberRouter.LimitOrderParams({
-                    market: address(_market),
-                    deadline: uint64(block.timestamp + 100),
-                    claimBounty: uint32(msg.value / 1 gwei),
-                    user: user,
-                    priceIndex: priceIndex,
-                    rawAmount: rawAmount,
-                    baseAmount: 0,
-                    postOnly: postOnly,
-                    useNative: false
-                })
-            );
+    function limitBidOrder(address user, uint16 priceIndex, uint64 rawAmount, bool postOnly)
+        public
+        payable
+        returns (uint256)
+    {
+        return _marketRouter.limitBid{value: msg.value}(
+            CloberRouter.LimitOrderParams({
+                market: address(_market),
+                deadline: uint64(block.timestamp + 100),
+                claimBounty: uint32(msg.value / 1 gwei),
+                user: user,
+                priceIndex: priceIndex,
+                rawAmount: rawAmount,
+                baseAmount: 0,
+                postOnly: postOnly,
+                useNative: false
+            })
+        );
     }
 
-    function limitAskOrder(
-        address user,
-        uint16 priceIndex,
-        uint256 baseAmount,
-        bool postOnly
-    ) public payable returns (uint256) {
-        return
-            _marketRouter.limitAsk{value: msg.value}(
-                CloberRouter.LimitOrderParams({
-                    market: address(_market),
-                    deadline: uint64(block.timestamp + 100),
-                    claimBounty: uint32(msg.value / 1 gwei),
-                    user: user,
-                    priceIndex: priceIndex,
-                    rawAmount: 0,
-                    baseAmount: baseAmount,
-                    postOnly: postOnly,
-                    useNative: false
-                })
-            );
+    function limitAskOrder(address user, uint16 priceIndex, uint256 baseAmount, bool postOnly)
+        public
+        payable
+        returns (uint256)
+    {
+        return _marketRouter.limitAsk{value: msg.value}(
+            CloberRouter.LimitOrderParams({
+                market: address(_market),
+                deadline: uint64(block.timestamp + 100),
+                claimBounty: uint32(msg.value / 1 gwei),
+                user: user,
+                priceIndex: priceIndex,
+                rawAmount: 0,
+                baseAmount: baseAmount,
+                postOnly: postOnly,
+                useNative: false
+            })
+        );
     }
 
     function marketBidOrder(address user, uint64 rawAmount) public {
@@ -114,11 +105,7 @@ contract GasReporter {
         );
     }
 
-    function claimOrder(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) public {
+    function claimOrder(bool isBid, uint16 priceIndex, uint256 orderIndex) public {
         CloberRouter.ClaimOrderParams[] memory paramsList = new CloberRouter.ClaimOrderParams[](1);
         paramsList[0].market = address(_market);
         paramsList[0].orderKeys = new OrderKey[](1);
@@ -137,19 +124,11 @@ contract GasReporter {
     }
 
     // EmptyHeapEmptyTree
-    function EHET_LimitBid(
-        address user,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) external payable returns (uint256) {
+    function EHET_LimitBid(address user, uint16 priceIndex, uint64 rawAmount) external payable returns (uint256) {
         return limitBidOrder(user, priceIndex, rawAmount, false);
     }
 
-    function EHET_LimitAsk(
-        address user,
-        uint16 priceIndex,
-        uint256 baseAmount
-    ) external payable returns (uint256) {
+    function EHET_LimitAsk(address user, uint16 priceIndex, uint256 baseAmount) external payable returns (uint256) {
         return limitAskOrder(user, priceIndex, baseAmount, false);
     }
 
@@ -169,35 +148,19 @@ contract GasReporter {
         marketAskOrder(user, baseAmount);
     }
 
-    function EHET_FullyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHET_FullyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHET_FullyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHET_FullyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHET_PartiallyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHET_PartiallyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHET_PartiallyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHET_PartiallyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
@@ -226,19 +189,11 @@ contract GasReporter {
     }
 
     // EmptyHeapDirtyTree
-    function EHDT_LimitBid(
-        address user,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) external payable returns (uint256) {
+    function EHDT_LimitBid(address user, uint16 priceIndex, uint64 rawAmount) external payable returns (uint256) {
         return limitBidOrder(user, priceIndex, rawAmount, false);
     }
 
-    function EHDT_LimitAsk(
-        address user,
-        uint16 priceIndex,
-        uint256 baseAmount
-    ) external payable returns (uint256) {
+    function EHDT_LimitAsk(address user, uint16 priceIndex, uint256 baseAmount) external payable returns (uint256) {
         return limitAskOrder(user, priceIndex, baseAmount, false);
     }
 
@@ -258,35 +213,19 @@ contract GasReporter {
         marketAskOrder(user, baseAmount);
     }
 
-    function EHDT_FullyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHDT_FullyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHDT_FullyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHDT_FullyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHDT_PartiallyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHDT_PartiallyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function EHDT_PartiallyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function EHDT_PartiallyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
@@ -315,19 +254,11 @@ contract GasReporter {
     }
 
     // FilledHeapEmptyTree
-    function FHET_LimitBid(
-        address user,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) external payable returns (uint256) {
+    function FHET_LimitBid(address user, uint16 priceIndex, uint64 rawAmount) external payable returns (uint256) {
         return limitBidOrder(user, priceIndex, rawAmount, false);
     }
 
-    function FHET_LimitAsk(
-        address user,
-        uint16 priceIndex,
-        uint256 baseAmount
-    ) external payable returns (uint256) {
+    function FHET_LimitAsk(address user, uint16 priceIndex, uint256 baseAmount) external payable returns (uint256) {
         return limitAskOrder(user, priceIndex, baseAmount, false);
     }
 
@@ -347,35 +278,19 @@ contract GasReporter {
         marketAskOrder(user, baseAmount);
     }
 
-    function FHET_FullyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHET_FullyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHET_FullyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHET_FullyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHET_PartiallyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHET_PartiallyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHET_PartiallyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHET_PartiallyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
@@ -404,19 +319,11 @@ contract GasReporter {
     }
 
     // FilledHeapFilledTree
-    function FHFT_LimitBid(
-        address user,
-        uint16 priceIndex,
-        uint64 rawAmount
-    ) external payable returns (uint256) {
+    function FHFT_LimitBid(address user, uint16 priceIndex, uint64 rawAmount) external payable returns (uint256) {
         return limitBidOrder(user, priceIndex, rawAmount, false);
     }
 
-    function FHFT_LimitAsk(
-        address user,
-        uint16 priceIndex,
-        uint256 baseAmount
-    ) external payable returns (uint256) {
+    function FHFT_LimitAsk(address user, uint16 priceIndex, uint256 baseAmount) external payable returns (uint256) {
         return limitAskOrder(user, priceIndex, baseAmount, false);
     }
 
@@ -436,35 +343,19 @@ contract GasReporter {
         marketAskOrder(user, baseAmount);
     }
 
-    function FHFT_FullyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHFT_FullyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHFT_FullyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHFT_FullyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHFT_PartiallyClaimBid(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHFT_PartiallyClaimBid(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
-    function FHFT_PartiallyClaimAsk(
-        bool isBid,
-        uint16 priceIndex,
-        uint256 orderIndex
-    ) external payable {
+    function FHFT_PartiallyClaimAsk(bool isBid, uint16 priceIndex, uint256 orderIndex) external payable {
         claimOrder(isBid, priceIndex, orderIndex);
     }
 
