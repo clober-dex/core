@@ -26,6 +26,7 @@ import {
   polygon,
   polygonZkEvm,
   polygonZkEvmTestnet,
+  skaleEuropaTestnet,
 } from '@wagmi/chains'
 
 const SKIP_LOAD = process.env.SKIP_LOAD === 'true'
@@ -218,6 +219,23 @@ const config: HardhatConfig = {
       gas: 10000000,
       gasPrice: 100000000000,
       gasMultiplier: 1.5,
+      timeout: 3000000,
+      httpHeaders: {},
+      live: true,
+      saveDeployments: true,
+      tags: ['testnet', 'dev'],
+      companionNetworks: {},
+    },
+    [skaleEuropaTestnet.id]: {
+      url: skaleEuropaTestnet.rpcUrls.default.http[0],
+      chainId: skaleEuropaTestnet.id,
+      accounts:
+        process.env.DEV_PRIVATE_KEY !== undefined
+          ? [process.env.DEV_PRIVATE_KEY]
+          : [],
+      gas: 10000000,
+      gasPrice: 100000000000,
+      gasMultiplier: 1,
       timeout: 3000000,
       httpHeaders: {},
       live: true,
