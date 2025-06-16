@@ -56,10 +56,10 @@ contract EmptyHeapDirtyTreeTestLimitOrderGasReport is Test {
     function testGasReport() public {
         uint256 snapshotId = vm.snapshot();
         snapshotId = vm.snapshot();
-        orderBookUtils.limitBidOrder(MAKER, PRICE_INDEX_BID, 30 * 10**18, gasReporter.EHDT_LimitBid);
+        orderBookUtils.limitBidOrder(MAKER, PRICE_INDEX_BID, 30 * 10 ** 18, gasReporter.EHDT_LimitBid);
 
         vm.revertTo(snapshotId);
         snapshotId = vm.snapshot();
-        orderBookUtils.limitAskOrder(MAKER, PRICE_INDEX_ASK, 30 * 10**18, gasReporter.EHDT_LimitAsk);
+        orderBookUtils.limitAskOrder(MAKER, PRICE_INDEX_ASK, 30 * 10 ** 18, gasReporter.EHDT_LimitAsk);
     }
 }

@@ -28,14 +28,7 @@ contract MarketDeployer is CloberMarketDeployer {
         }
         market = address(
             new OrderBook{salt: salt}(
-                orderToken,
-                quoteToken,
-                baseToken,
-                quoteUnit,
-                makerFee,
-                takerFee,
-                _factory,
-                priceBook
+                orderToken, quoteToken, baseToken, quoteUnit, makerFee, takerFee, _factory, priceBook
             )
         );
         emit Deploy(market);

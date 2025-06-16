@@ -15,6 +15,7 @@ import "../Constants.sol";
 
 contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
     using OrderKeyUtils for OrderKey;
+
     event CancelOrder(address indexed user, uint64 rawAmount, uint256 orderIndex, uint16 priceIndex, bool isBid);
 
     struct Return {
@@ -64,7 +65,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             makerFee,
             takerFee,
             address(this),
@@ -90,12 +91,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            100,
-            0,
-            1,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 100, 0, 1, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0));
 
@@ -113,14 +109,11 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         );
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(quoteToken.balanceOf(Constants.USER_A) - beforeMakerQuoteBalance, minusFee, "ERROR_QUOTE_BALANCE");
         assertEq(
-            baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance,
-            expectedClaimedAmount,
-            "ERROR_BASE_BALANCE"
+            baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance, expectedClaimedAmount, "ERROR_BASE_BALANCE"
         );
         assertEq(
             address(Constants.USER_A).balance - beforeETHBalance,
@@ -135,12 +128,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            0,
-            market.rawToBase(100, priceIndex, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 100, 0, 1, new bytes(0));
 
@@ -158,8 +146,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         );
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance, minusFee, "ERROR_BASE_BALANCE");
         assertEq(
@@ -180,12 +167,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            100,
-            0,
-            1,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 100, 0, 1, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 0, market.rawToBase(50, priceIndex, true), 0, new bytes(0));
 
@@ -205,8 +187,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 minusFee = (expectedTakeAmount * Constants.MAKE_FEE) / Constants.FEE_PRECISION;
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(
             quoteToken.balanceOf(Constants.USER_A) - beforeMakerQuoteBalance,
@@ -214,9 +195,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
             "ERROR_QUOTE_BALANCE"
         );
         assertEq(
-            baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance,
-            expectedClaimedAmount,
-            "ERROR_BASE_BALANCE"
+            baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance, expectedClaimedAmount, "ERROR_BASE_BALANCE"
         );
         assertEq(
             address(Constants.USER_A).balance - beforeETHBalance,
@@ -231,12 +210,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            0,
-            market.rawToBase(100, priceIndex, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 50, 0, 1, new bytes(0));
 
@@ -256,8 +230,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         uint256 minusFee = (expectedTakeAmount * Constants.MAKE_FEE) / Constants.FEE_PRECISION;
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(
             baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance,
@@ -282,12 +255,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            100,
-            0,
-            1,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 100, 0, 1, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0));
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.USER_A);
@@ -296,8 +264,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
             abi.encodeCall(CloberOrderNFT.onBurn, (OrderKey(Constants.BID, priceIndex, orderIndex).encode()))
         );
         market.claim(
-            address(this),
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
+            address(this), _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.USER_A), 1, "ERROR_NFT_BALANCE");
 
@@ -307,8 +274,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.BID, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(quoteToken.balanceOf(Constants.USER_A) - beforeMakerQuoteBalance, 0, "ERROR_QUOTE_BALANCE");
         assertEq(baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance, 0, "ERROR_BASE_BALANCE");
@@ -320,12 +286,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         uint16 priceIndex = 3;
         uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-            Constants.USER_A,
-            priceIndex,
-            0,
-            market.rawToBase(100, priceIndex, true),
-            0,
-            new bytes(0)
+            Constants.USER_A, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0)
         );
         market.limitOrder(Constants.USER_B, priceIndex, 100, 0, 1, new bytes(0));
         uint256 beforeNFTBalance = orderToken.balanceOf(Constants.USER_A);
@@ -334,8 +295,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
             abi.encodeCall(CloberOrderNFT.onBurn, (OrderKey(Constants.ASK, priceIndex, orderIndex).encode()))
         );
         market.claim(
-            address(this),
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
+            address(this), _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(beforeNFTBalance - orderToken.balanceOf(Constants.USER_A), 1, "ERROR_NFT_BALANCE");
 
@@ -345,8 +305,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
 
         vm.prank(Constants.USER_A);
         market.cancel(
-            Constants.USER_A,
-            _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
+            Constants.USER_A, _toArray(OrderKey({isBid: Constants.ASK, priceIndex: priceIndex, orderIndex: orderIndex}))
         );
         assertEq(quoteToken.balanceOf(Constants.USER_A) - beforeMakerQuoteBalance, 0, "ERROR_QUOTE_BALANCE");
         assertEq(baseToken.balanceOf(Constants.USER_A) - beforeMakerBaseBalance, 0, "ERROR_BASE_BALANCE");
@@ -356,15 +315,10 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
     function testHighestBidPriceAfterCancel() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        for (uint16 price = 7; ; price -= 2) {
+        for (uint16 price = 7;; price -= 2) {
             for (uint256 orderIndex = 0; orderIndex < 2; orderIndex++) {
                 bidOrderIndices[price][orderIndex] = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                    Constants.USER_A,
-                    price,
-                    100,
-                    0,
-                    1,
-                    new bytes(0)
+                    Constants.USER_A, price, 100, 0, 1, new bytes(0)
                 );
             }
             if (price == 1) break;
@@ -431,15 +385,10 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
     function testLowestAskPriceAfterCancel() public {
         _createMarket(-int24(Constants.MAKE_FEE), Constants.TAKE_FEE);
 
-        for (uint16 price = 7; ; price -= 2) {
+        for (uint16 price = 7;; price -= 2) {
             for (uint256 orderIndex = 0; orderIndex < 2; orderIndex++) {
                 askOrderIndices[price][orderIndex] = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                    Constants.USER_A,
-                    price,
-                    0,
-                    market.rawToBase(100, price, true),
-                    0,
-                    new bytes(0)
+                    Constants.USER_A, price, 0, market.rawToBase(100, price, true), 0, new bytes(0)
                 );
             }
             if (price == 1) break;
@@ -509,12 +458,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         uint16 priceIndex = 3;
         for (uint256 i = 0; i < vm.envOr("LARGE_ORDER_COUNT", Constants.LARGE_ORDER_COUNT); i++) {
             uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                100,
-                0,
-                1,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 100, 0, 1, new bytes(0)
             );
 
             vm.expectCall(
@@ -536,12 +480,7 @@ contract CancelIntegrationTest is Test, CloberMarketSwapCallbackReceiver {
         uint16 priceIndex = 3;
         for (uint256 i = 0; i < vm.envOr("LARGE_ORDER_COUNT", Constants.LARGE_ORDER_COUNT); i++) {
             uint256 orderIndex = market.limitOrder{value: Constants.CLAIM_BOUNTY * 1 gwei}(
-                Constants.USER_A,
-                priceIndex,
-                0,
-                market.rawToBase(100, priceIndex, true),
-                0,
-                new bytes(0)
+                Constants.USER_A, priceIndex, 0, market.rawToBase(100, priceIndex, true), 0, new bytes(0)
             );
 
             vm.expectCall(

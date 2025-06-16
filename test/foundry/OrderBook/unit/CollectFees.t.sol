@@ -18,13 +18,10 @@ contract OrderBookCollectFeesUnitTest is Test, CloberMarketSwapCallbackReceiver,
     OrderBook orderBook;
     OrderNFT orderToken;
 
-    function cloberMarketSwapCallback(
-        address tokenIn,
-        address,
-        uint256 amountIn,
-        uint256,
-        bytes calldata
-    ) external payable {
+    function cloberMarketSwapCallback(address tokenIn, address, uint256 amountIn, uint256, bytes calldata)
+        external
+        payable
+    {
         IERC20(tokenIn).transfer(msg.sender, amountIn);
     }
 
@@ -38,7 +35,7 @@ contract OrderBookCollectFeesUnitTest is Test, CloberMarketSwapCallbackReceiver,
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             int24(Constants.MAKE_FEE),
             Constants.TAKE_FEE,
             address(this),
@@ -46,11 +43,11 @@ contract OrderBookCollectFeesUnitTest is Test, CloberMarketSwapCallbackReceiver,
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(orderBook), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(orderBook), type(uint256).max);
         uint64 rawAmount = 10000;

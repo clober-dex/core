@@ -85,10 +85,7 @@ contract FilledHeapEmptyTreeTestMarketOrderGasReport is Test {
         orderBookUtils.marketAskOrder(
             TAKER,
             GasReportUtils.rawToBase(
-                market,
-                orderBookUtils.getDepth(true, PRICE_INDEX_BID),
-                orderBookUtils.bestPriceIndex(true),
-                false
+                market, orderBookUtils.getDepth(true, PRICE_INDEX_BID), orderBookUtils.bestPriceIndex(true), false
             ),
             gasReporter.FHET_FullyMarketAsk
         );
@@ -107,10 +104,7 @@ contract FilledHeapEmptyTreeTestMarketOrderGasReport is Test {
         orderBookUtils.marketAskOrder(
             TAKER,
             GasReportUtils.rawToBase(
-                market,
-                orderBookUtils.getDepth(true, PRICE_INDEX_BID) / 2,
-                orderBookUtils.bestPriceIndex(true),
-                false
+                market, orderBookUtils.getDepth(true, PRICE_INDEX_BID) / 2, orderBookUtils.bestPriceIndex(true), false
             ),
             gasReporter.FHET_PartiallyMarketAsk
         );

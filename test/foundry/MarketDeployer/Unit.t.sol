@@ -28,16 +28,8 @@ contract MarketDeployerUnitTest is Test {
     }
 
     function testDeploy() public {
-        address market = marketDeployer.deploy(
-            mockOrderToken,
-            quoteToken,
-            baseToken,
-            bytes32(uint256(1)),
-            1000,
-            0,
-            0,
-            address(this)
-        );
+        address market =
+            marketDeployer.deploy(mockOrderToken, quoteToken, baseToken, bytes32(uint256(1)), 1000, 0, 0, address(this));
         assertEq(CloberOrderBook(market).quoteToken(), quoteToken, "MARKET_QUOTE");
         assertEq(CloberOrderBook(market).baseToken(), baseToken, "MARKET_BASE");
     }

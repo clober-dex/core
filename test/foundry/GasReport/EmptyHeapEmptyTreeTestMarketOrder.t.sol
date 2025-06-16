@@ -77,10 +77,7 @@ contract EmptyHeapEmptyTreeTestMarketOrderGasReport is Test {
         orderBookUtils.marketAskOrder(
             TAKER,
             GasReportUtils.rawToBase(
-                market,
-                orderBookUtils.getDepth(true, PRICE_INDEX_BID),
-                orderBookUtils.bestPriceIndex(true),
-                false
+                market, orderBookUtils.getDepth(true, PRICE_INDEX_BID), orderBookUtils.bestPriceIndex(true), false
             ),
             gasReporter.EHET_FullyMarketAsk
         );
@@ -99,10 +96,7 @@ contract EmptyHeapEmptyTreeTestMarketOrderGasReport is Test {
         orderBookUtils.marketAskOrder(
             TAKER,
             GasReportUtils.rawToBase(
-                market,
-                orderBookUtils.getDepth(true, PRICE_INDEX_BID) / 2,
-                orderBookUtils.bestPriceIndex(true),
-                false
+                market, orderBookUtils.getDepth(true, PRICE_INDEX_BID) / 2, orderBookUtils.bestPriceIndex(true), false
             ),
             gasReporter.EHET_PartiallyMarketAsk
         );

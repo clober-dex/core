@@ -42,7 +42,7 @@ contract OrderBookSwapCallbackUnitTest is Test, CloberMarketSwapCallbackReceiver
             address(orderToken),
             address(quoteToken),
             address(baseToken),
-            10**4,
+            10 ** 4,
             0,
             0,
             address(this),
@@ -50,11 +50,11 @@ contract OrderBookSwapCallbackUnitTest is Test, CloberMarketSwapCallbackReceiver
         );
         orderToken.init("", "", address(orderBook));
 
-        uint256 _quotePrecision = 10**quoteToken.decimals();
+        uint256 _quotePrecision = 10 ** quoteToken.decimals();
         quoteToken.mint(address(this), 1000000000 * _quotePrecision);
         quoteToken.approve(address(orderBook), type(uint256).max);
 
-        uint256 _basePrecision = 10**baseToken.decimals();
+        uint256 _basePrecision = 10 ** baseToken.decimals();
         baseToken.mint(address(this), 1000000000 * _basePrecision);
         baseToken.approve(address(orderBook), type(uint256).max);
     }

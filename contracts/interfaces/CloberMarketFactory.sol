@@ -298,11 +298,10 @@ interface CloberMarketFactory {
      * @param marketNonce The market nonce.
      * @return The order token name.
      */
-    function formatOrderTokenName(
-        address quoteToken,
-        address baseToken,
-        uint256 marketNonce
-    ) external view returns (string memory);
+    function formatOrderTokenName(address quoteToken, address baseToken, uint256 marketNonce)
+        external
+        view
+        returns (string memory);
 
     /**
      * @notice Returns the order token symbol.
@@ -311,9 +310,8 @@ interface CloberMarketFactory {
      * @param marketNonce The market nonce.
      * @return The order token symbol.
      */
-    function formatOrderTokenSymbol(
-        address quoteToken,
-        address baseToken,
-        uint256 marketNonce
-    ) external view returns (string memory);
+    function formatOrderTokenSymbol(address quoteToken, address baseToken, uint256 marketNonce)
+        external
+        view
+        returns (string memory);
 }

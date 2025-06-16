@@ -109,27 +109,9 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
             }
         }
         market = CloberMarketDeployer(marketDeployer).deploy(
-            orderToken,
-            quoteToken,
-            baseToken,
-            salt,
-            quoteUnit,
-            makerFee,
-            takerFee,
-            priceBook
+            orderToken, quoteToken, baseToken, salt, quoteUnit, makerFee, takerFee, priceBook
         );
-        emit CreateVolatileMarket(
-            market,
-            orderToken,
-            quoteToken,
-            baseToken,
-            quoteUnit,
-            nonce,
-            makerFee,
-            takerFee,
-            a,
-            r
-        );
+        emit CreateVolatileMarket(market, orderToken, quoteToken, baseToken, quoteUnit, nonce, makerFee, takerFee, a, r);
         _storeMarketInfo(market, marketHost, MarketType.VOLATILE, a, r);
         _initToken(orderToken, quoteToken, baseToken, nonce, market);
         nonce++;
@@ -162,14 +144,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         }
 
         market = CloberMarketDeployer(marketDeployer).deploy(
-            orderToken,
-            quoteToken,
-            baseToken,
-            salt,
-            quoteUnit,
-            makerFee,
-            takerFee,
-            priceBook
+            orderToken, quoteToken, baseToken, salt, quoteUnit, makerFee, takerFee, priceBook
         );
         emit CreateStableMarket(market, orderToken, quoteToken, baseToken, quoteUnit, nonce, makerFee, takerFee, a, d);
         _storeMarketInfo(market, marketHost, MarketType.STABLE, a, d);
@@ -196,11 +171,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         delete futureOwner;
     }
 
-    function _priceBookKey(
-        uint128 a,
-        uint128 factor,
-        MarketType marketType
-    ) internal pure returns (bytes32) {
+    function _priceBookKey(uint128 a, uint128 factor, MarketType marketType) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(a, factor, marketType));
     }
 
@@ -236,12 +207,7 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         emit ChangeHost(market, previousHost, newHost);
     }
 
-    function _checkFee(
-        address marketHost,
-        int24 makerFee,
-        uint24 takerFee,
-        uint24 minNetFee
-    ) internal view {
+    function _checkFee(address marketHost, int24 makerFee, uint24 takerFee, uint24 minNetFee) internal view {
         // check makerFee
         if (makerFee < _MIN_FEE || int24(_MAX_FEE) < makerFee) {
             revert Errors.CloberError(Errors.INVALID_FEE);
@@ -263,13 +229,9 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         return CloberOrderNFTDeployer(orderTokenDeployer).deploy(salt);
     }
 
-    function _initToken(
-        address token,
-        address quoteToken,
-        address baseToken,
-        uint256 marketNonce,
-        address market
-    ) internal {
+    function _initToken(address token, address quoteToken, address baseToken, uint256 marketNonce, address market)
+        internal
+    {
         OrderNFT(token).init(
             formatOrderTokenName(quoteToken, baseToken, marketNonce),
             formatOrderTokenSymbol(quoteToken, baseToken, marketNonce),
@@ -277,23 +239,14 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         );
     }
 
-    function _storeMarketInfo(
-        address market,
-        address host,
-        MarketType marketType,
-        uint128 a,
-        uint128 factor
-    ) internal {
+    function _storeMarketInfo(address market, address host, MarketType marketType, uint128 a, uint128 factor)
+        internal
+    {
         if (host == address(0)) {
             revert Errors.CloberError(Errors.EMPTY_INPUT);
         }
-        _marketInfos[market] = MarketInfo({
-            host: host,
-            marketType: marketType,
-            a: a,
-            factor: factor,
-            futureHost: address(0)
-        });
+        _marketInfos[market] =
+            MarketInfo({host: host, marketType: marketType, a: a, factor: factor, futureHost: address(0)});
         emit ChangeHost(market, address(0), host);
     }
 
@@ -313,41 +266,39 @@ contract MarketFactory is CloberMarketFactory, ReentrancyGuard, RevertOnDelegate
         return keccak256(abi.encode(_cachedChainId, marketNonce));
     }
 
-    function formatOrderTokenName(
-        address quoteToken,
-        address baseToken,
-        uint256 marketNonce
-    ) public view returns (string memory) {
-        return
-            string(
-                abi.encodePacked(
-                    "Clober Order: ",
-                    IERC20(baseToken).safeSymbol(),
-                    "/",
-                    IERC20(quoteToken).safeSymbol(),
-                    "(",
-                    Strings.toString(marketNonce),
-                    ")"
-                )
-            );
+    function formatOrderTokenName(address quoteToken, address baseToken, uint256 marketNonce)
+        public
+        view
+        returns (string memory)
+    {
+        return string(
+            abi.encodePacked(
+                "Clober Order: ",
+                IERC20(baseToken).safeSymbol(),
+                "/",
+                IERC20(quoteToken).safeSymbol(),
+                "(",
+                Strings.toString(marketNonce),
+                ")"
+            )
+        );
     }
 
-    function formatOrderTokenSymbol(
-        address quoteToken,
-        address baseToken,
-        uint256 marketNonce
-    ) public view returns (string memory) {
-        return
-            string(
-                abi.encodePacked(
-                    "CLOB-",
-                    IERC20(baseToken).safeSymbol(),
-                    "/",
-                    IERC20(quoteToken).safeSymbol(),
-                    "(",
-                    Strings.toString(marketNonce),
-                    ")"
-                )
-            );
+    function formatOrderTokenSymbol(address quoteToken, address baseToken, uint256 marketNonce)
+        public
+        view
+        returns (string memory)
+    {
+        return string(
+            abi.encodePacked(
+                "CLOB-",
+                IERC20(baseToken).safeSymbol(),
+                "/",
+                IERC20(quoteToken).safeSymbol(),
+                "(",
+                Strings.toString(marketNonce),
+                ")"
+            )
+        );
     }
 }

@@ -149,12 +149,10 @@ interface CloberOrderBook {
      * Ask & !expendInput => Not used.
      * @param options LSB: 0 - Ask, 1 - Bid. Second bit: 1 - expend input.
      */
-    function getExpectedAmount(
-        uint16 limitPriceIndex,
-        uint64 rawAmount,
-        uint256 baseAmount,
-        uint8 options
-    ) external view returns (uint256, uint256);
+    function getExpectedAmount(uint16 limitPriceIndex, uint64 rawAmount, uint256 baseAmount, uint8 options)
+        external
+        view
+        returns (uint256, uint256);
 
     /**
      * @notice Take opens orders until certain conditions are met.
@@ -203,12 +201,7 @@ interface CloberOrderBook {
     function getClaimable(OrderKey calldata orderKey)
         external
         view
-        returns (
-            uint64 claimableRawAmount,
-            uint256 claimableAmount,
-            uint256 feeAmount,
-            uint256 rebateAmount
-        );
+        returns (uint64 claimableRawAmount, uint256 claimableAmount, uint256 feeAmount, uint256 rebateAmount);
 
     /**
      * @notice Flash loan the tokens in the OrderBook.
@@ -217,12 +210,7 @@ interface CloberOrderBook {
      * @param baseAmount The base token amount to borrow.
      * @param data The user's custom callback data.
      */
-    function flash(
-        address borrower,
-        uint256 quoteAmount,
-        uint256 baseAmount,
-        bytes calldata data
-    ) external;
+    function flash(address borrower, uint256 quoteAmount, uint256 baseAmount, bytes calldata data) external;
 
     /**
      * @notice Returns the quote unit amount.
@@ -340,11 +328,7 @@ interface CloberOrderBook {
      * @param roundingUp Specifies whether the result should be rounded up or down.
      * @return The converted base amount.
      */
-    function rawToBase(
-        uint64 rawAmount,
-        uint16 priceIndex,
-        bool roundingUp
-    ) external view returns (uint256);
+    function rawToBase(uint64 rawAmount, uint16 priceIndex, bool roundingUp) external view returns (uint256);
 
     /**
      * @notice Converts a raw amount to its corresponding quote amount.
@@ -360,11 +344,7 @@ interface CloberOrderBook {
      * @param roundingUp Specifies whether the result should be rounded up or down.
      * @return The converted raw amount.
      */
-    function baseToRaw(
-        uint256 baseAmount,
-        uint16 priceIndex,
-        bool roundingUp
-    ) external view returns (uint64);
+    function baseToRaw(uint256 baseAmount, uint16 priceIndex, bool roundingUp) external view returns (uint64);
 
     /**
      * @notice Converts a quote amount to its corresponding raw amount.
@@ -404,5 +384,8 @@ interface CloberOrderBook {
      * @return index The price book index.
      * @return correctedPrice The actual price for the price book index.
      */
-    function priceToIndex(uint256 price, bool roundingUp) external view returns (uint16 index, uint256 correctedPrice);
+    function priceToIndex(uint256 price, bool roundingUp)
+        external
+        view
+        returns (uint16 index, uint256 correctedPrice);
 }
